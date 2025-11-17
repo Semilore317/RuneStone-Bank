@@ -2,6 +2,7 @@ package com.abraham_bankole.runestone_bank.service.impl;
 
 import com.abraham_bankole.runestone_bank.dto.AccountInfo;
 import com.abraham_bankole.runestone_bank.dto.BankResponse;
+import com.abraham_bankole.runestone_bank.dto.EmailDetails;
 import com.abraham_bankole.runestone_bank.dto.UserRequest;
 import com.abraham_bankole.runestone_bank.entity.User;
 import com.abraham_bankole.runestone_bank.repository.UserRepository;
@@ -16,6 +17,8 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     UserRepository userRepository;
+    @Autowired
+    private EmailService emailService;
 
     @Override
     public BankResponse createAccount(UserRequest userRequest) {
@@ -45,6 +48,20 @@ public class UserServiceImpl implements UserService {
                 .build();
 
         User savedUser = userRepository.save(newUser);
+
+        // send confirmation mail
+
+        EmailDetails emailDetails = EmailDetails.builder()
+                .recipientEmail(userRequest.getEmail())
+                .recipientName(userRequest.getFirstName() +  " " + userRequest.getLastName())
+                .subject("ACCOUNT CREATION SUCCESSFUL")
+                .messageBody("Congratulations! Your account with Runestone Bank has been successfully created! \n" +
+                        "Account Name: " + savedUser.getFirstName() + " "  + savedUser.getLastName() + "\n" +
+                        "Account Number: " + savedUser.getAccountNumber()
+                )
+                .build();
+        emailService.sendEmailAlert(emailDetails);
+
         return BankResponse.builder()
                 .responseCode(AccountUtils.ACCOUNT_CREATION_SUCCESS)
                 .responseMessage(AccountUtils.ACCOUNT_CREATION_MESSAGE)
