@@ -21,5 +21,5 @@ public class UserRequest {
     private String email;
     private String phoneNumber;
     private String alternativePhoneNumber;
-    private String status;
+    //private String status; - i dont need this since im hardcoding it anyways
 }
