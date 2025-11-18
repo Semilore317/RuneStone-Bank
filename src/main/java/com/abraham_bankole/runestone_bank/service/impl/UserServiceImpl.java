@@ -146,7 +146,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Transactional // to make it atomic
+    @Transactional // to make it atomic - it entirely fails or entirely fails
     public BankResponse debitAccount(CreditDebitRequest request) {
         boolean doesAccountExist = userRepository.existsByAccountNumber(request.getAccountNumber());
         if (!doesAccountExist) {
