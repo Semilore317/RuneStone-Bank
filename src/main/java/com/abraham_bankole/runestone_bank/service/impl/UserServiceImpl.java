@@ -1,9 +1,6 @@
 package com.abraham_bankole.runestone_bank.service.impl;
 
-import com.abraham_bankole.runestone_bank.dto.AccountInfo;
-import com.abraham_bankole.runestone_bank.dto.BankResponse;
-import com.abraham_bankole.runestone_bank.dto.EmailDetails;
-import com.abraham_bankole.runestone_bank.dto.UserRequest;
+import com.abraham_bankole.runestone_bank.dto.*;
 import com.abraham_bankole.runestone_bank.entity.User;
 import com.abraham_bankole.runestone_bank.repository.UserRepository;
 import com.abraham_bankole.runestone_bank.utils.AccountUtils;
@@ -69,6 +66,57 @@ public class UserServiceImpl implements UserService {
                         .accountNumber(savedUser.getAccountNumber())
                         .accountBalance(savedUser.getAccountBalance())
                         .accountName(savedUser.getFirstName() +  " " + savedUser.getLastName())
+                        .build())
+                .build();
+    }
+
+    @Override
+    public BankResponse balanceEnquiry(EnquiryRequest request) {
+        // check if the account exists in the db
+        boolean doesAccountExists = userRepository.existsByAccountNumber(request.getAccountNumber());
+        if(!doesAccountExists){
+            return BankResponse.builder()
+                    .responseCode(AccountUtils.ACCOUNT_NOT_EXIST_CODE)
+                    .responseMessage(AccountUtils.ACCOUNT_EXISTS_MESSAGE)
+                    .accountInfo(null)
+                    .build();
+        }
+
+        User foundUser = userRepository.findByAccountNumber(request.getAccountNumber());
+
+        return BankResponse.builder()
+                .responseCode(AccountUtils.ACCOUNT_FOUND_CODE)
+                .responseMessage(AccountUtils.ACCOUNT_FOUND_CODE)
+                .accountInfo(AccountInfo.builder()
+                        .accountBalance(foundUser.getAccountBalance())
+                        .accountNumber(foundUser.getAccountNumber())
+                        .accountName(foundUser.getFirstName() +  " " + foundUser.getLastName())
+                        .build())
+                .build();
+    }
+
+    @Override
+    public BankResponse nameEnquiry(EnquiryRequest enquiryRequest) {
+        boolean doesAccountExists = userRepository.existsByAccountNumber(enquiryRequest.getAccountNumber());
+
+        if(!doesAccountExists){
+            return BankResponse.builder()
+                    .responseCode(AccountUtils.ACCOUNT_NOT_EXIST_CODE)
+                    .responseMessage(AccountUtils.ACCOUNT_NOT_EXIST_MESSAGE)
+                    .accountInfo(null)
+                    .build();
+        }
+
+        User foundUser = userRepository.findByAccountNumber(enquiryRequest.getAccountNumber());
+
+        // Returning a standard BankResponse containing the name in the accountInfo
+        return BankResponse.builder()
+                .responseCode(AccountUtils.ACCOUNT_FOUND_CODE)
+                .responseMessage(AccountUtils.ACCOUNT_FOUND_SUCCESS)
+                .accountInfo(AccountInfo.builder()
+                        .accountName(foundUser.getFirstName() + " " + foundUser.getLastName() + " " + foundUser.getOtherName())
+                        .accountNumber(foundUser.getAccountNumber())
+                        // We can leave balance null or empty for name enquiry security
                         .build())
                 .build();
     }
