@@ -6,21 +6,22 @@ import com.abraham_bankole.runestone_bank.repository.UserRepository;
 import com.abraham_bankole.runestone_bank.utils.AccountUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 
 @Service
 public class UserServiceImpl implements UserService {
 
     @Autowired
-    UserRepository userRepository;
+    private UserRepository userRepository;
+
     @Autowired
     private EmailService emailService;
 
     @Override
     public BankResponse createAccount(UserRequest userRequest) {
-        // create an account -> saving a new user into the db
-        // validate - check if user already exists
         if (userRepository.existsByEmail(userRequest.getEmail())) {
             return BankResponse.builder()
                     .responseCode(AccountUtils.ACCOUNT_EXISTS_CODE)
@@ -46,8 +47,6 @@ public class UserServiceImpl implements UserService {
 
         User savedUser = userRepository.save(newUser);
 
-        // send confirmation mail
-
         EmailDetails emailDetails = EmailDetails.builder()
                 .recipientEmail(userRequest.getEmail())
                 .recipientName(userRequest.getFirstName() + " " + userRequest.getLastName())
@@ -60,7 +59,7 @@ public class UserServiceImpl implements UserService {
         emailService.sendEmailAlert(emailDetails);
 
         return BankResponse.builder()
-                .responseCode(AccountUtils.ACCOUNT_CREATION_SUCCESS)
+                .responseCode(AccountUtils.ACCOUNT_CREATION_SUCCESS_CODE)
                 .responseMessage(AccountUtils.ACCOUNT_CREATION_MESSAGE)
                 .accountInfo(AccountInfo.builder()
                         .accountNumber(savedUser.getAccountNumber())
@@ -70,20 +69,14 @@ public class UserServiceImpl implements UserService {
                 .build();
     }
 
-
-    // TODOS:
-    // balance enquiry
-    // name enquiry
-    // implement credit, debit and transfer
-
     @Override
     public BankResponse balanceEnquiry(EnquiryRequest request) {
-        // check if the account exists in the db
         boolean doesAccountExists = userRepository.existsByAccountNumber(request.getAccountNumber());
+
         if (!doesAccountExists) {
             return BankResponse.builder()
                     .responseCode(AccountUtils.ACCOUNT_NOT_EXIST_CODE)
-                    .responseMessage(AccountUtils.ACCOUNT_EXISTS_MESSAGE)
+                    .responseMessage(AccountUtils.ACCOUNT_NOT_EXIST_MESSAGE)
                     .accountInfo(null)
                     .build();
         }
@@ -92,7 +85,7 @@ public class UserServiceImpl implements UserService {
 
         return BankResponse.builder()
                 .responseCode(AccountUtils.ACCOUNT_FOUND_CODE)
-                .responseMessage(AccountUtils.ACCOUNT_FOUND_CODE)
+                .responseMessage(AccountUtils.ACCOUNT_FOUND_SUCCESS)
                 .accountInfo(AccountInfo.builder()
                         .accountBalance(foundUser.getAccountBalance())
                         .accountNumber(foundUser.getAccountNumber())
@@ -115,23 +108,19 @@ public class UserServiceImpl implements UserService {
 
         User foundUser = userRepository.findByAccountNumber(enquiryRequest.getAccountNumber());
 
-        // Returning a standard BankResponse containing the name in the accountInfo
         return BankResponse.builder()
                 .responseCode(AccountUtils.ACCOUNT_FOUND_CODE)
                 .responseMessage(AccountUtils.ACCOUNT_FOUND_SUCCESS)
                 .accountInfo(AccountInfo.builder()
                         .accountName(foundUser.getFirstName() + " " + foundUser.getLastName() + " " + foundUser.getOtherName())
                         .accountNumber(foundUser.getAccountNumber())
-                        // We can leave balance null or empty for name enquiry security
                         .build())
                 .build();
     }
 
     @Override
+    @Transactional // for atomicity purpses
     public BankResponse creditAccount(CreditDebitRequest request) {
-        // check if the receipient account exists
-        // check if the sender account has enough funds
-        // debit the sender, credit the receipient - giving jss1 business studies nostalgia
         boolean doesAccountExist = userRepository.existsByAccountNumber(request.getAccountNumber());
         if (!doesAccountExist) {
             return BankResponse.builder()
@@ -141,19 +130,56 @@ public class UserServiceImpl implements UserService {
                     .build();
         }
 
-        User recepient = userRepository.findByAccountNumber(request.getAccountNumber());
-        recepient.setAccountBalance(recepient.getAccountBalance().add(request.getAmount()));
-        userRepository.save(recepient); // forgot to save the results lol
+        User recipient = userRepository.findByAccountNumber(request.getAccountNumber());
+        recipient.setAccountBalance(recipient.getAccountBalance().add(request.getAmount()));
+        userRepository.save(recipient);
 
         return BankResponse.builder()
-            .responseCode(AccountUtils.ACCOUNT_CREDITED_SUCCESS)
+                .responseCode(AccountUtils.ACCOUNT_CREDITED_SUCCESS_CODE)
                 .responseMessage(AccountUtils.ACCOUNT_CREDITED_SUCCESS_MESSAGE)
                 .accountInfo(AccountInfo.builder()
-                        .accountName(recepient.getFirstName() + " " + recepient.getLastName() + " " +  recepient.getOtherName())
-                        .accountNumber(recepient.getAccountNumber())
-                        .accountBalance(recepient.getAccountBalance())
-                                .build())
+                        .accountName(recipient.getFirstName() + " " + recipient.getLastName() + " " + recipient.getOtherName())
+                        .accountNumber(recipient.getAccountNumber())
+                        .accountBalance(recipient.getAccountBalance())
+                        .build())
                 .build();
     }
 
+    @Override
+    @Transactional // to make it atomic
+    public BankResponse debitAccount(CreditDebitRequest request) {
+        boolean doesAccountExist = userRepository.existsByAccountNumber(request.getAccountNumber());
+        if (!doesAccountExist) {
+            return BankResponse.builder()
+                    .responseCode(AccountUtils.ACCOUNT_NOT_EXIST_CODE)
+                    .responseMessage(AccountUtils.ACCOUNT_NOT_EXIST_MESSAGE)
+                    .build();
+        }
+
+        User payer = userRepository.findByAccountNumber(request.getAccountNumber());
+
+        BigDecimal newBalance = payer.getAccountBalance().subtract(request.getAmount());
+
+        // FIX: Check if the new balance is LESS THAN ZERO (Insufficient Funds)
+        if (newBalance.compareTo(BigDecimal.ZERO) < 0) {
+            return BankResponse.builder()
+                    .responseCode(AccountUtils.INSUFFICIENT_BALANCE_CODE)
+                    .responseMessage(AccountUtils.INSUFFICIENT_BALANCE_MESSAGE)
+                    .accountInfo(null)
+                    .build();
+        } else {
+            payer.setAccountBalance(newBalance);
+            userRepository.save(payer);
+
+            return BankResponse.builder()
+                    .responseCode(AccountUtils.ACCOUNT_DEBITED_SUCCESS_CODE)
+                    .responseMessage(AccountUtils.ACCOUNT_DEBITED_SUCCESS_MESSAGE)
+                    .accountInfo(AccountInfo.builder()
+                            .accountNumber(payer.getAccountNumber())
+                            .accountName(payer.getFirstName() + " " + payer.getLastName() + "  " + payer.getOtherName())
+                            .accountBalance(payer.getAccountBalance())
+                            .build())
+                    .build();
+        }
+    }
 }
