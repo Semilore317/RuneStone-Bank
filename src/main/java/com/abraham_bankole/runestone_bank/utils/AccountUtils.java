@@ -10,6 +10,12 @@ public class AccountUtils {
     public static final String ACCOUNT_EXISTS_MESSAGE = "This user email already exists";
     public static final String ACCOUNT_CREATION_SUCCESS = "002";
     public static final String ACCOUNT_CREATION_MESSAGE = "Account has been successfully created";
+    public static final String ACCOUNT_NOT_EXIST_CODE = "003";
+    public static final String ACCOUNT_NOT_EXIST_MESSAGE = "Account does not exist";
+    public static final String ACCOUNT_FOUND_CODE = "004";
+    public static final String ACCOUNT_CREDITED_SUCCESS = "005";
+    public static final String ACCOUNT_CREDITED_SUCCESS_MESSAGE = "Account has been credited successfully";
+    public static final String ACCOUNT_FOUND_SUCCESS = "User account Found Successfully";
 
     public static String generateAccountNumber() {
         Year currentYear = Year.now();
