@@ -72,4 +72,9 @@ public class UserServiceImpl implements UserService {
                         .build())
                 .build();
     }
+
+    // TODOS:
+    // balance enquiry
+    // name enquiry
+    // implement credit, debit and transfer
 }
