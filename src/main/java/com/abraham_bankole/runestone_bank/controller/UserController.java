@@ -1,6 +1,7 @@
 package com.abraham_bankole.runestone_bank.controller;
 
 import com.abraham_bankole.runestone_bank.dto.BankResponse;
+import com.abraham_bankole.runestone_bank.dto.CreditDebitRequest;
 import com.abraham_bankole.runestone_bank.dto.EnquiryRequest;
 import com.abraham_bankole.runestone_bank.dto.UserRequest;
 import com.abraham_bankole.runestone_bank.service.impl.UserService;
@@ -26,5 +27,10 @@ public class UserController {
     @GetMapping("/nameEnquiry")
     public BankResponse nameEnquiry(@RequestBody EnquiryRequest request) {
         return userService.nameEnquiry(request);
+    }
+
+    @PostMapping("/credit")
+    public BankResponse credt(@RequestBody CreditDebitRequest creditRequest) {
+        return userService.creditAccount(creditRequest);
     }
 }
