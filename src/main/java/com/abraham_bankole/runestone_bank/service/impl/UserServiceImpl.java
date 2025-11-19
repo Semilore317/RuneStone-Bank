@@ -182,4 +182,68 @@ public class UserServiceImpl implements UserService {
                     .build();
         }
     }
+
+    @Override
+    @Transactional
+    public BankResponse transfer(TransferRequest request) {
+        // get sender account number
+        // confirm that account balance > amount
+        // get the account to credit
+        // credit the account
+
+        boolean doesReceiverAccountExist = userRepository.existsByAccountNumber(request.getReceiver());
+
+        if(!doesReceiverAccountExist) {
+            return  BankResponse.builder()
+                    .responseCode(AccountUtils.ACCOUNT_NOT_EXIST_CODE)
+                    .responseMessage(AccountUtils.ACCOUNT_NOT_EXIST_MESSAGE)
+                    .accountInfo(null)
+                    .build();
+        }
+
+        User sender = userRepository.findByAccountNumber(request.getSender());
+        User receiver = userRepository.findByAccountNumber(request.getReceiver());
+
+        if(request.getAmount().compareTo(sender.getAccountBalance()) < 0) {
+            return BankResponse.builder()
+                    .responseCode(AccountUtils.INSUFFICIENT_BALANCE_CODE)
+                    .responseMessage(AccountUtils.INSUFFICIENT_BALANCE_MESSAGE)
+                    .accountInfo(null)
+                    .build();
+        }
+
+        //jss1 business studies nostalgia lmao
+
+        // debit the giver
+        sender.setAccountBalance(sender.getAccountBalance().subtract(request.getAmount()));
+        userRepository.save(sender);
+        EmailDetails debitAlert = EmailDetails.builder()
+                .subject("DEBIT ALERT")
+                .recipientName(receiver.getFirstName() + " " + receiver.getLastName() + " " + receiver.getOtherName())
+                .recipientEmail(receiver.getEmail())
+                .messageBody("You have successfully sent the Sum Of $" + request.getAmount() +" to " +
+                        receiver.getFirstName() + receiver.getLastName() + receiver.getOtherName() +
+                        " and your account has been debited.")
+                //TODO: .attachment() i'll add pdf or image receipts later
+                .build();
+        emailService.sendEmailAlert(debitAlert);
+
+        // credit the receiver
+        receiver.setAccountBalance(receiver.getAccountBalance().add(request.getAmount()));
+        userRepository.save(receiver);
+        EmailDetails creditAlert = EmailDetails.builder()
+                .subject("CREDIT ALERT")
+                .recipientName(receiver.getFirstName() + " " + receiver.getLastName() + " " + receiver.getOtherName())
+                .recipientEmail(receiver.getEmail())
+                .messageBody("The Sum Of $" + request.getAmount() + "has been sent to your account from" +
+                        sender.getFirstName() + " " + sender.getLastName() + "  " + sender.getOtherName() +
+                        "\n Your current balance is " + receiver.getAccountBalance()
+                )
+                .build();
+
+        return BankResponse.builder()
+                .responseCode(AccountUtils.TRANSACTION_SUCCESSFUL_CODE)
+                .responseMessage(AccountUtils.TRANSACTION_SUCCESSFUL_MESSAGE)
+                .build();
+    }
 }
