@@ -203,6 +203,8 @@ public class UserServiceImpl implements UserService {
 
         User sender = userRepository.findByAccountNumber(request.getSender());
         User receiver = userRepository.findByAccountNumber(request.getReceiver());
+        String recipientUsername = receiver.getFirstName() + receiver.getLastName() + receiver.getOtherName();
+        userRepository.save(receiver);
 
         if(request.getAmount().compareTo(sender.getAccountBalance()) < 0) {
             return BankResponse.builder()
@@ -219,7 +221,7 @@ public class UserServiceImpl implements UserService {
         userRepository.save(sender);
         EmailDetails debitAlert = EmailDetails.builder()
                 .subject("DEBIT ALERT")
-                .recipientName(receiver.getFirstName() + " " + receiver.getLastName() + " " + receiver.getOtherName())
+                .recipientName(recipientUsername)
                 .recipientEmail(receiver.getEmail())
                 .messageBody("You have successfully sent the Sum Of $" + request.getAmount() +" to " +
                         receiver.getFirstName() + receiver.getLastName() + receiver.getOtherName() +
@@ -233,7 +235,7 @@ public class UserServiceImpl implements UserService {
         userRepository.save(receiver);
         EmailDetails creditAlert = EmailDetails.builder()
                 .subject("CREDIT ALERT")
-                .recipientName(receiver.getFirstName() + " " + receiver.getLastName() + " " + receiver.getOtherName())
+                .recipientName(recipientUsername)
                 .recipientEmail(receiver.getEmail())
                 .messageBody("The Sum Of $" + request.getAmount() + "has been sent to your account from" +
                         sender.getFirstName() + " " + sender.getLastName() + "  " + sender.getOtherName() +
