@@ -1,9 +1,6 @@
 package com.abraham_bankole.runestone_bank.controller;
 
-import com.abraham_bankole.runestone_bank.dto.BankResponse;
-import com.abraham_bankole.runestone_bank.dto.CreditDebitRequest;
-import com.abraham_bankole.runestone_bank.dto.EnquiryRequest;
-import com.abraham_bankole.runestone_bank.dto.UserRequest;
+import com.abraham_bankole.runestone_bank.dto.*;
 import com.abraham_bankole.runestone_bank.service.impl.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -37,5 +34,10 @@ public class UserController {
     @PostMapping("/debit")
     public BankResponse debit(@RequestBody CreditDebitRequest creditRequest) {
         return userService.debitAccount(creditRequest);
+    }
+
+    @PostMapping("/transfer")
+    public BankResponse transfer(@RequestBody TransferRequest transferRequest) {
+        return userService.transfer(transferRequest);
     }
 }

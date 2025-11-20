@@ -206,7 +206,11 @@ public class UserServiceImpl implements UserService {
         String recipientUsername = receiver.getFirstName() + receiver.getLastName() + receiver.getOtherName();
         userRepository.save(receiver);
 
-        if(request.getAmount().compareTo(sender.getAccountBalance()) < 0) {
+        // manually log amounts
+//
+//        System.out.println("Sender Balance: " + sender.getAccountBalance());
+//        System.out.println("Request Amount: " + request.getAmount());
+        if(request.getAmount().compareTo(sender.getAccountBalance()) > 0) {
             return BankResponse.builder()
                     .responseCode(AccountUtils.INSUFFICIENT_BALANCE_CODE)
                     .responseMessage(AccountUtils.INSUFFICIENT_BALANCE_MESSAGE)
@@ -246,6 +250,7 @@ public class UserServiceImpl implements UserService {
         return BankResponse.builder()
                 .responseCode(AccountUtils.TRANSACTION_SUCCESSFUL_CODE)
                 .responseMessage(AccountUtils.TRANSACTION_SUCCESSFUL_MESSAGE)
+                .accountInfo(null)
                 .build();
     }
 }
