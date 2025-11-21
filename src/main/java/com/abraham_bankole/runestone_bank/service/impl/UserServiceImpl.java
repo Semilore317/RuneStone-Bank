@@ -2,6 +2,7 @@ package com.abraham_bankole.runestone_bank.service.impl;
 
 import com.abraham_bankole.runestone_bank.dto.*;
 import com.abraham_bankole.runestone_bank.entity.User;
+import com.abraham_bankole.runestone_bank.repository.TransactionRepository;
 import com.abraham_bankole.runestone_bank.repository.UserRepository;
 import com.abraham_bankole.runestone_bank.utils.AccountUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    TransactionService transactionService;
 
     @Autowired
     private EmailService emailService;
@@ -134,6 +138,15 @@ public class UserServiceImpl implements UserService {
         recipient.setAccountBalance(recipient.getAccountBalance().add(request.getAmount()));
         userRepository.save(recipient);
 
+        //save each credit transaction
+        TransactionDto transactionDto = TransactionDto.builder()
+                .accountNumber(recipient.getAccountNumber())
+                .transactionType("CREDIT")
+                .amount(request.getAmount())
+                .build();
+
+        transactionService.saveTransaction(transactionDto);
+
         return BankResponse.builder()
                 .responseCode(AccountUtils.ACCOUNT_CREDITED_SUCCESS_CODE)
                 .responseMessage(AccountUtils.ACCOUNT_CREDITED_SUCCESS_MESSAGE)
@@ -171,6 +184,14 @@ public class UserServiceImpl implements UserService {
             payer.setAccountBalance(newBalance);
             userRepository.save(payer);
 
+            //save each dedit transaction
+            TransactionDto transactionDto = TransactionDto.builder()
+                    .accountNumber(payer.getAccountNumber())
+                    .transactionType("DEBIT")
+                    .amount(request.getAmount())
+                    .build();
+
+            transactionService.saveTransaction(transactionDto);
             return BankResponse.builder()
                     .responseCode(AccountUtils.ACCOUNT_DEBITED_SUCCESS_CODE)
                     .responseMessage(AccountUtils.ACCOUNT_DEBITED_SUCCESS_MESSAGE)
@@ -246,6 +267,16 @@ public class UserServiceImpl implements UserService {
                         "\n Your current balance is " + receiver.getAccountBalance()
                 )
                 .build();
+        emailService.sendEmailAlert(creditAlert);
+
+        //save each credit transaction
+        TransactionDto transactionDto = TransactionDto.builder()
+                .accountNumber(sender.getAccountNumber())
+                .transactionType("CREDIT")
+                .amount(request.getAmount())
+                .build();
+
+        transactionService.saveTransaction(transactionDto);
 
         return BankResponse.builder()
                 .responseCode(AccountUtils.TRANSACTION_SUCCESSFUL_CODE)
