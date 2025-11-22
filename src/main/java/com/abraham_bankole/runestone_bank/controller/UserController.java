@@ -1,7 +1,7 @@
 package com.abraham_bankole.runestone_bank.controller;
 
 import com.abraham_bankole.runestone_bank.dto.*;
-import com.abraham_bankole.runestone_bank.service.impl.UserService;
+import com.abraham_bankole.runestone_bank.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
