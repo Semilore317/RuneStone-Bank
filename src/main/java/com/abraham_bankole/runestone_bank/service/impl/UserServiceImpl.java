@@ -2,8 +2,10 @@ package com.abraham_bankole.runestone_bank.service.impl;
 
 import com.abraham_bankole.runestone_bank.dto.*;
 import com.abraham_bankole.runestone_bank.entity.User;
-import com.abraham_bankole.runestone_bank.repository.TransactionRepository;
 import com.abraham_bankole.runestone_bank.repository.UserRepository;
+import com.abraham_bankole.runestone_bank.service.EmailService;
+import com.abraham_bankole.runestone_bank.service.TransactionService;
+import com.abraham_bankole.runestone_bank.service.UserService;
 import com.abraham_bankole.runestone_bank.utils.AccountUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
