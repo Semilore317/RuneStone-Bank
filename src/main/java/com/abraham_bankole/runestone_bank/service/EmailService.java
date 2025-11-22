@@ -1,4 +1,4 @@
-package com.abraham_bankole.runestone_bank.service.impl;
+package com.abraham_bankole.runestone_bank.service;
 
 import com.abraham_bankole.runestone_bank.dto.EmailDetails;
 

@@ -1,6 +1,7 @@
 package com.abraham_bankole.runestone_bank.service.impl;
 
 import com.abraham_bankole.runestone_bank.dto.EmailDetails;
+import com.abraham_bankole.runestone_bank.service.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
