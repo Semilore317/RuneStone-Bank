@@ -15,14 +15,14 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @Operation(
-            summary = "Create New User Account",
-            description = "Create a user and assign a unique account number"
-    )
-    @ApiResponse(
-            responseCode = "201",
-            description = "HttpS Status 201 CREATED"
-    )
+    @Operation(summary = "Login", description = "Authenticate user and return token")
+    @PostMapping("/login")
+    public BankResponse login(@RequestBody LoginDto loginDto) {
+        return userService.login(loginDto);
+    }
+
+    @Operation(summary = "Create New User Account", description = "Create a user and assign a unique account number")
+    @ApiResponse(responseCode = "201", description = "HttpS Status 201 CREATED")
     @PostMapping
     public BankResponse createAccount(@RequestBody UserRequest userRequest) {
         return userService.createAccount(userRequest);

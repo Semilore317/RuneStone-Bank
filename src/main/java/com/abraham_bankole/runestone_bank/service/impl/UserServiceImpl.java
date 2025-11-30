@@ -1,5 +1,6 @@
 package com.abraham_bankole.runestone_bank.service.impl;
 
+import com.abraham_bankole.runestone_bank.config.JwtTokenProvider;
 import com.abraham_bankole.runestone_bank.dto.*;
 import com.abraham_bankole.runestone_bank.entity.User;
 import com.abraham_bankole.runestone_bank.repository.UserRepository;
@@ -8,6 +9,9 @@ import com.abraham_bankole.runestone_bank.service.TransactionService;
 import com.abraham_bankole.runestone_bank.service.UserService;
 import com.abraham_bankole.runestone_bank.utils.AccountUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +33,12 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     public PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private AuthenticationManager authenticationManager;
+
+    @Autowired
+    private JwtTokenProvider jwtTokenProvider;
 
     @Override
     public BankResponse createAccount(UserRequest userRequest) {
@@ -77,6 +87,25 @@ public class UserServiceImpl implements UserService {
                         .accountBalance(savedUser.getAccountBalance())
                         .accountName(savedUser.getFirstName() + " " + savedUser.getLastName())
                         .build())
+                .build();
+    }
+
+    public BankResponse login(LoginDto loginDto){
+        Authentication authentication = null;
+        authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(loginDto.getEmail(), loginDto.getPassword())
+        );
+
+        // send a mail after login
+        EmailDetails loginAlert = EmailDetails.builder()
+                .subject("Runestone Bank Login Alert")
+                .messageBody("You logged into your account")
+                .build();
+
+        emailService.sendEmailAlert(loginAlert);
+        return BankResponse.builder()
+                .responseCode("Login successful")
+                .responseMessage(jwtTokenProvider.generateToken(authentication))
                 .build();
     }
 
