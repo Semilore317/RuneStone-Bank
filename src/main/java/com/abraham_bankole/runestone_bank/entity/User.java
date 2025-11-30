@@ -29,6 +29,7 @@ public class User {
 
     private BigDecimal accountBalance;
     private String email;
+    private String password; // hashed to avoid clownery
     private String phoneNumber;
     private String alternativePhoneNumber;
     private String status;

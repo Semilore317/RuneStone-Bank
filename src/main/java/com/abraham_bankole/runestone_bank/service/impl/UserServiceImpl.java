@@ -8,6 +8,7 @@ import com.abraham_bankole.runestone_bank.service.TransactionService;
 import com.abraham_bankole.runestone_bank.service.UserService;
 import com.abraham_bankole.runestone_bank.utils.AccountUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +26,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private EmailService emailService;
+
+    @Autowired
+    public PasswordEncoder passwordEncoder;
 
     @Override
     public BankResponse createAccount(UserRequest userRequest) {
@@ -46,6 +50,7 @@ public class UserServiceImpl implements UserService {
                 .accountNumber(AccountUtils.generateAccountNumber())
                 .accountBalance(BigDecimal.ZERO)
                 .email(userRequest.getEmail())
+                .password(passwordEncoder.encode(userRequest.getPassword()))
                 .phoneNumber(userRequest.getPhoneNumber())
                 .alternativePhoneNumber(userRequest.getAlternativePhoneNumber())
                 .status("ACTIVE")
@@ -285,5 +290,10 @@ public class UserServiceImpl implements UserService {
                 .responseMessage(AccountUtils.TRANSACTION_SUCCESSFUL_MESSAGE)
                 .accountInfo(null)
                 .build();
+    }
+
+    public static void main(String[] args) {
+        UserServiceImpl userService = new UserServiceImpl();
+        System.out.println(userService.passwordEncoder.encode("clown_password🤡"));
     }
 }
