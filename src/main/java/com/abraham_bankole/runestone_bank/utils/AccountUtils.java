@@ -22,6 +22,8 @@ public class AccountUtils {
     public static final String ACCOUNT_DEBITED_SUCCESS_MESSAGE = "Account has been debited successfully!";
     public static final String TRANSACTION_SUCCESSFUL_CODE = "008";
     public static final String TRANSACTION_SUCCESSFUL_MESSAGE = "Transaction Successful";
+    public static final String LOGIN_SUCCESS_CODE = "009";
+    public static final String LOGIN_SUCCESS_MESSAGE = "Login Successfully";
 
     public static String generateAccountNumber() {
         Year currentYear = Year.now();
