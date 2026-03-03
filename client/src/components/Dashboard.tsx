@@ -3,6 +3,7 @@ import React from 'react';
 import { TotalBalance } from './dashboard/TotalBalance';
 import { QuickTransfer } from './dashboard/QuickTransfer';
 import { RecentTransactions } from './dashboard/RecentTransactions';
+import logo from '../assets/runestone.png';
 
 export function Dashboard() {
     return (
@@ -11,7 +12,13 @@ export function Dashboard() {
             <aside className="w-20 md:w-64 bg-zinc-950 border-r-4 border-zinc-800 flex flex-col justify-between py-8 shrink-0">
                 <div>
                     <div className="px-4 md:px-8 mb-12 flex justify-center md:justify-start">
-                        <img src="/runestone.png" alt="RuneStone Logo" className="h-10 md:h-12 w-auto object-contain" />
+                        <div className="relative h-12 w-12 md:h-16 md:w-16 rounded-[1.25rem] overflow-hidden shadow-brutal border-2 border-zinc-800 shrink-0 bg-zinc-900">
+                            <img
+                                src={logo}
+                                alt="RuneStone Logo"
+                                className="absolute inset-0 h-full w-full object-cover scale-110"
+                            />
+                        </div>
                     </div>
 
                     <nav className="flex flex-col space-y-2 px-2 md:px-6">
