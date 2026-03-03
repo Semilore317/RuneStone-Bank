@@ -11,7 +11,7 @@ export function Dashboard() {
             {/* Sidebar */}
             <aside className="w-20 md:w-64 bg-zinc-950 border-r-4 border-zinc-800 flex flex-col justify-between py-8 shrink-0">
                 <div>
-                    <div className="px-4 md:px-8 mb-12 flex justify-center md:justify-start">
+                    <div className="px-4 md:px-8 mb-12 flex justify-center">
                         <div className="relative h-16 w-16 md:h-24 md:w-24 rounded-[1.5rem] md:rounded-[2rem] overflow-hidden shadow-brutal border-2 border-zinc-800 shrink-0 bg-zinc-900">
                             <img
                                 src={logo}
