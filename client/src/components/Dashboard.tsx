@@ -2,12 +2,9 @@ import { LayoutDashboard, Send, History, Settings, LogOut } from 'lucide-react';
 import React from 'react';
 import { TotalBalance } from './dashboard/TotalBalance';
 import { QuickTransfer } from './dashboard/QuickTransfer';
+import { RecentTransactions } from './dashboard/RecentTransactions';
 
-interface DashboardProps {
-    children?: React.ReactNode;
-}
-
-export function Dashboard({ children }: DashboardProps) {
+export function Dashboard() {
     return (
         <div className="min-h-screen bg-zinc-950 text-white flex select-none">
             {/* Sidebar */}
@@ -53,9 +50,9 @@ export function Dashboard({ children }: DashboardProps) {
                             <QuickTransfer />
                         </div>
 
-                        {/* Recent Transactions Placeholder */}
+                        {/* Recent Transactions */}
                         <div className="md:col-span-1 lg:col-span-2">
-                            {children}
+                            <RecentTransactions />
                         </div>
                     </div>
                 </div>
