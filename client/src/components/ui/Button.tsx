@@ -1,4 +1,5 @@
 import React from "react";
+import { cn } from "@/lib/utils";
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
     variant?: "primary" | "secondary" | "destructive" | "outline";
@@ -18,7 +19,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         return (
             <button
                 ref={ref}
-                className={`${baseStyles} ${variants[variant]} ${className || ""}`}
+                className={cn(baseStyles, variants[variant], className)}
                 {...props}
             />
         );
