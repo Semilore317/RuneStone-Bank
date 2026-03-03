@@ -10,13 +10,8 @@ export function Dashboard() {
             {/* Sidebar */}
             <aside className="w-20 md:w-64 bg-zinc-950 border-r-4 border-zinc-800 flex flex-col justify-between py-8 shrink-0">
                 <div>
-                    <div className="px-4 md:px-8 mb-12">
-                        <h1 className="text-2xl md:text-3xl font-black uppercase tracking-tighter text-white hidden md:block">
-                            RuneStone
-                        </h1>
-                        <h1 className="text-2xl font-black uppercase tracking-tighter text-white md:hidden text-center">
-                            RS
-                        </h1>
+                    <div className="px-4 md:px-8 mb-12 flex justify-center md:justify-start">
+                        <img src="/runestone.png" alt="RuneStone Logo" className="h-10 md:h-12 w-auto object-contain" />
                     </div>
 
                     <nav className="flex flex-col space-y-2 px-2 md:px-6">
