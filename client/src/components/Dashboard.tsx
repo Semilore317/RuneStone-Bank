@@ -1,8 +1,10 @@
 import { LayoutDashboard, Send, History, Settings, LogOut } from 'lucide-react';
 import React from 'react';
+import { TotalBalance } from './dashboard/TotalBalance';
+import { QuickTransfer } from './dashboard/QuickTransfer';
 
 interface DashboardProps {
-    children: React.ReactNode;
+    children?: React.ReactNode;
 }
 
 export function Dashboard({ children }: DashboardProps) {
@@ -35,8 +37,27 @@ export function Dashboard({ children }: DashboardProps) {
 
             {/* Main Content Area */}
             <main className="flex-1 p-6 md:p-12 overflow-y-auto">
-                <div className="max-w-6xl mx-auto space-y-8">
-                    {children}
+                <div className="max-w-6xl mx-auto space-y-8 relative z-10">
+                    <header className="mb-12">
+                        <h2 className="text-4xl md:text-5xl font-black uppercase tracking-tighter">Overview</h2>
+                    </header>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        {/* Total Balance spans across on larger screens if needed, but let's keep it responsive */}
+                        <div className="md:col-span-2 lg:col-span-3">
+                            <TotalBalance />
+                        </div>
+
+                        {/* Quick Transfer */}
+                        <div className="md:col-span-1 lg:col-span-1">
+                            <QuickTransfer />
+                        </div>
+
+                        {/* Recent Transactions Placeholder */}
+                        <div className="md:col-span-1 lg:col-span-2">
+                            {children}
+                        </div>
+                    </div>
                 </div>
             </main>
         </div>
