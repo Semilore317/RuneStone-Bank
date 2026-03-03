@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -104,16 +105,16 @@ public class UserServiceImpl implements UserService {
 
                 emailService.sendEmailAlert(loginAlert);
 
-                User user = userRepository.findByEmail(loginDto.getEmail());
+                Optional<User> user = userRepository.findByEmail(loginDto.getEmail());
                 return BankResponse.builder()
                                 .responseCode(AccountUtils.LOGIN_SUCCESS_CODE)
                                 .responseMessage(AccountUtils.LOGIN_SUCCESS_MESSAGE)
                                 .jwt(jwtTokenProvider.generateToken(authentication))
                                 .accountInfo(AccountInfo.builder()
-                                                .accountName(user.getFirstName() + " " + user.getLastName() + " "
-                                                                + user.getOtherName())
-                                                .accountNumber(user.getAccountNumber())
-                                                .accountBalance(user.getAccountBalance())
+                                                .accountName(user.get().getFirstName() + " " + user.get().getLastName() + " "
+                                                                + user.get().getOtherName())
+                                                .accountNumber(user.get().getAccountNumber())
+                                                .accountBalance(user.get().getAccountBalance())
                                                 .build())
                                 .build();
         }
