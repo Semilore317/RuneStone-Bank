@@ -10,12 +10,13 @@ import org.springframework.security.core.Authentication;
 @AllArgsConstructor
 @NoArgsConstructor
 public class LoginDto {
-    private String email;
-    private String password;
+  private String email;
+  private String password;
 
-    public BankResponse login(LoginDto loginDto){
-        Authentication authentication = null;
-        authentication = new UsernamePasswordAuthenticationToken(loginDto.getEmail(), loginDto.getPassword());
-        return null;
-    }
+  public BankResponse login(LoginDto loginDto) {
+    Authentication authentication = null;
+    authentication =
+        new UsernamePasswordAuthenticationToken(loginDto.getEmail(), loginDto.getPassword());
+    return null;
+  }
 }

@@ -12,34 +12,36 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/user")
 @Tag(name = "User Account Management APIs")
 public class UserController {
-    @Autowired
-    private UserService userService;
+  @Autowired private UserService userService;
 
-    @Operation(summary = "Login", description = "Authenticate user and return token")
-    @PostMapping("/login")
-    public BankResponse login(@RequestBody LoginDto loginDto) {
-        return userService.login(loginDto);
-    }
+  @Operation(summary = "Login", description = "Authenticate user and return token")
+  @PostMapping("/login")
+  public BankResponse login(@RequestBody LoginDto loginDto) {
+    return userService.login(loginDto);
+  }
 
-    @Operation(summary = "Create New User Account", description = "Create a user and assign a unique account number")
-    @ApiResponse(responseCode = "201", description = "HttpS Status 201 CREATED")
-    @PostMapping
-    public BankResponse createAccount(@RequestBody UserRequest userRequest) {
-        return userService.createAccount(userRequest);
-    }
+  @Operation(
+      summary = "Create New User Account",
+      description = "Create a user and assign a unique account number")
+  @ApiResponse(responseCode = "201", description = "HttpS Status 201 CREATED")
+  @PostMapping
+  public BankResponse createAccount(@RequestBody UserRequest userRequest) {
+    return userService.createAccount(userRequest);
+  }
 
-    @Operation(summary = "Balance Enquiry", description = "Get current balance for a user account")
-    @ApiResponse(responseCode = "200", description = "Http Status 200 SUCCESS")
-    @GetMapping("/balanceEnquiry")
-    public BankResponse getBalanceEnquiry(@RequestBody EnquiryRequest request) {
-        return userService.balanceEnquiry(request);
-    }
+  @Operation(summary = "Balance Enquiry", description = "Get current balance for a user account")
+  @ApiResponse(responseCode = "200", description = "Http Status 200 SUCCESS")
+  @GetMapping("/balanceEnquiry")
+  public BankResponse getBalanceEnquiry(@RequestBody EnquiryRequest request) {
+    return userService.balanceEnquiry(request);
+  }
 
-    @Operation(summary = "Name Enquiry", description = "Check if a user account exists and get the name")
-    @ApiResponse(responseCode = "200", description = "Http Status 200 SUCCESS")
-    @GetMapping("/nameEnquiry")
-    public BankResponse nameEnquiry(@RequestBody EnquiryRequest request) {
-        return userService.nameEnquiry(request);
-    }
-
+  @Operation(
+      summary = "Name Enquiry",
+      description = "Check if a user account exists and get the name")
+  @ApiResponse(responseCode = "200", description = "Http Status 200 SUCCESS")
+  @GetMapping("/nameEnquiry")
+  public BankResponse nameEnquiry(@RequestBody EnquiryRequest request) {
+    return userService.nameEnquiry(request);
+  }
 }
