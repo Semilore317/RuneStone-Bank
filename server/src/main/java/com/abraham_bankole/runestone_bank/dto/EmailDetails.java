@@ -10,10 +10,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class EmailDetails {
-    private String recipientEmail;
-    private String recipientName;
+  private String recipientEmail;
+  private String recipientName;
 
-    private String messageBody;
-    private String subject;
-    private String attachment;
+  private String messageBody;
+  private String subject;
+  private String attachment;
 }

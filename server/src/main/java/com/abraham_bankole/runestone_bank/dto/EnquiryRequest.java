@@ -10,5 +10,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class EnquiryRequest {
-    private  String accountNumber;
+  private String accountNumber;
 }
