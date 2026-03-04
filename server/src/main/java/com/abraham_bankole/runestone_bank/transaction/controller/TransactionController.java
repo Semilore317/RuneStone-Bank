@@ -14,11 +14,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/transactions")
+@RequestMapping("/api/v1/transactions")
 @Tag(name = "Transaction APIs")
 public class TransactionController {
 
-  @Autowired private TransactionService transactionService;
+  @Autowired
+  private TransactionService transactionService;
 
   @Operation(summary = "Credit Account", description = "Credit an account with a specific amount")
   @ApiResponse(responseCode = "200", description = "Http Status 200 SUCCESS")

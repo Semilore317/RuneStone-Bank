@@ -40,8 +40,7 @@ public class SecurityConfig {
 
   @Bean
   public AuthenticationProvider authenticationProvider() {
-    DaoAuthenticationProvider authenticationProvider =
-        new DaoAuthenticationProvider(); // ensures user details are
+    DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider(); // ensures user details are
     // got from db
     authenticationProvider.setUserDetailsService(useDetailsService);
     authenticationProvider.setPasswordEncoder(passwordEncoder());
@@ -54,15 +53,14 @@ public class SecurityConfig {
     httpSecurity
         .csrf(csrf -> csrf.disable())
         .authorizeHttpRequests(
-            auth ->
-                auth.requestMatchers(HttpMethod.POST, "/api/user")
-                    .permitAll()
-                    .requestMatchers(HttpMethod.GET, "/api/account")
-                    .permitAll()
-                    .requestMatchers("/swagger-ui/**", "/v3/api-docs/**")
-                    .permitAll()
-                    .anyRequest()
-                    .authenticated());
+            auth -> auth.requestMatchers(HttpMethod.POST, "/api/v1/user")
+                .permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/v1/account")
+                .permitAll()
+                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**")
+                .permitAll()
+                .anyRequest()
+                .authenticated());
     httpSecurity.sessionManagement(
         session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
     httpSecurity.authenticationProvider(authenticationProvider());
