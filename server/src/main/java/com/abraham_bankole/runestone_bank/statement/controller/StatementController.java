@@ -13,16 +13,14 @@ import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/bankstatement")
+@RequestMapping("/api/v1/bankstatement")
 @AllArgsConstructor
 @Tag(name = "Bank Statement APIs")
 public class StatementController {
 
   private BankStatementService bankStatement;
 
-  @Operation(
-      summary = "Generate Bank Statement",
-      description = "Generate and email bank statement for a given account and date range")
+  @Operation(summary = "Generate Bank Statement", description = "Generate and email bank statement for a given account and date range")
   @ApiResponse(responseCode = "200", description = "Http Status 200 SUCCESS")
   @GetMapping
   public List<Transaction> generateBankStatement(
