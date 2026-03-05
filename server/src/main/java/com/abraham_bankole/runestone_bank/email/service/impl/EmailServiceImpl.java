@@ -21,6 +21,7 @@ public class EmailServiceImpl implements EmailService {
   @Autowired
   private JavaMailSender javaMailSender;
 
+  @org.springframework.scheduling.annotation.Async
   @Override
   public void sendEmailAlert(EmailDetails emailDetails) {
     try {
