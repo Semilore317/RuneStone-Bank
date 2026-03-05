@@ -53,12 +53,9 @@ public class SecurityConfig {
     httpSecurity
         .csrf(csrf -> csrf.disable())
         .authorizeHttpRequests(
-            auth -> auth.requestMatchers(HttpMethod.POST, "/api/v1/user")
-                .permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/v1/account")
-                .permitAll()
-                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**")
-                .permitAll()
+            auth -> auth.requestMatchers(HttpMethod.POST, "/api/v1/user", "/api/v1/user/login").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/v1/account").permitAll()
+                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                 .anyRequest()
                 .authenticated());
     httpSecurity.sessionManagement(
