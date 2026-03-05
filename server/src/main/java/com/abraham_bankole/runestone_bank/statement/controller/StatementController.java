@@ -10,6 +10,7 @@ import jakarta.mail.MessagingException;
 import java.io.FileNotFoundException;
 import java.util.List;
 import lombok.AllArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -23,6 +24,7 @@ public class StatementController {
   @Operation(summary = "Generate Bank Statement", description = "Generate and email bank statement for a given account and date range")
   @ApiResponse(responseCode = "200", description = "Http Status 200 SUCCESS")
   @GetMapping
+  @PreAuthorize("hasRole('ROLE_ADMIN') or #accountNumber == authentication.principal.accountNumber")
   public List<Transaction> generateBankStatement(
       @RequestParam String accountNumber, @RequestParam String start, @RequestParam String end)
       throws DocumentException, FileNotFoundException, MessagingException {

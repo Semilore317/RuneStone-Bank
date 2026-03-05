@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,6 +25,7 @@ public class TransactionController {
   @Operation(summary = "Credit Account", description = "Credit an account with a specific amount")
   @ApiResponse(responseCode = "200", description = "Http Status 200 SUCCESS")
   @PostMapping("/credit")
+  @PreAuthorize("hasRole('ROLE_ADMIN')")
   public BankResponse credit(@RequestBody CreditDebitRequest creditRequest) {
     return transactionService.creditAccount(creditRequest);
   }
@@ -31,6 +33,7 @@ public class TransactionController {
   @Operation(summary = "Debit Account", description = "Debit an account with a specific amount")
   @ApiResponse(responseCode = "200", description = "Http Status 200 SUCCESS")
   @PostMapping("/debit")
+  @PreAuthorize("hasRole('ROLE_ADMIN')")
   public BankResponse debit(@RequestBody CreditDebitRequest creditRequest) {
     return transactionService.debitAccount(creditRequest);
   }
@@ -38,6 +41,7 @@ public class TransactionController {
   @Operation(summary = "Transfer Funds", description = "Transfer funds from one account to another")
   @ApiResponse(responseCode = "200", description = "Http Status 200 SUCCESS")
   @PostMapping("/transfer")
+  @PreAuthorize("hasRole('ROLE_ADMIN') or #transferRequest.sender == authentication.principal.accountNumber")
   public BankResponse transfer(@RequestBody TransferRequest transferRequest) {
     return transactionService.transfer(transferRequest);
   }
