@@ -216,15 +216,23 @@ public class TransactionServiceImpl implements TransactionService {
             .build();
     emailService.sendEmailAlert(creditAlert);
 
-    // save each credit transaction
-    TransactionDto transactionDto =
+    // log debit transaction for sender
+    TransactionDto debitTransaction =
         TransactionDto.builder()
             .accountNumber(sender.getAccountNumber())
+            .transactionType("DEBIT")
+            .amount(request.getAmount())
+            .build();
+    saveTransaction(debitTransaction);
+
+    // log credit transaction for receiver
+    TransactionDto creditTransaction =
+        TransactionDto.builder()
+            .accountNumber(receiver.getAccountNumber())
             .transactionType("CREDIT")
             .amount(request.getAmount())
             .build();
-
-    saveTransaction(transactionDto);
+    saveTransaction(creditTransaction);
 
     return BankResponse.builder()
         .responseCode(AccountUtils.TRANSACTION_SUCCESSFUL_CODE)
