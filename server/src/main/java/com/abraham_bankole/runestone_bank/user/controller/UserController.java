@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -34,14 +35,16 @@ public class UserController {
   @Operation(summary = "Balance Enquiry", description = "Get current balance for a user account")
   @ApiResponse(responseCode = "200", description = "Http Status 200 SUCCESS")
   @GetMapping("/balanceEnquiry")
-  public BankResponse getBalanceEnquiry(@RequestBody EnquiryRequest request) {
-    return userService.balanceEnquiry(request);
+  @PreAuthorize("hasRole('ROLE_ADMIN') or #accountNumber == authentication.principal.accountNumber")
+  public BankResponse getBalanceEnquiry(@RequestParam String accountNumber) {
+    return userService.balanceEnquiry(new EnquiryRequest(accountNumber));
   }
 
   @Operation(summary = "Name Enquiry", description = "Check if a user account exists and get the name")
   @ApiResponse(responseCode = "200", description = "Http Status 200 SUCCESS")
   @GetMapping("/nameEnquiry")
-  public BankResponse nameEnquiry(@RequestBody EnquiryRequest request) {
-    return userService.nameEnquiry(request);
+  @PreAuthorize("isAuthenticated()")
+  public BankResponse nameEnquiry(@RequestParam String accountNumber) {
+    return userService.nameEnquiry(new EnquiryRequest(accountNumber));
   }
 }
