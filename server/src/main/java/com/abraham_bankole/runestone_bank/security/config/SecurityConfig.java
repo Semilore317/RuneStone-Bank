@@ -55,7 +55,7 @@ public class SecurityConfig {
         .authorizeHttpRequests(
             auth -> auth.requestMatchers(HttpMethod.POST, "/api/v1/user", "/api/v1/user/login").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/account").permitAll()
-                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/error").permitAll()
                 .anyRequest()
                 .authenticated());
     httpSecurity.sessionManagement(
