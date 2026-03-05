@@ -39,6 +39,7 @@ public class User implements UserDetails {
   private String phoneNumber;
   private String alternativePhoneNumber;
   private String status;
+  @Enumerated(EnumType.STRING)
   private Role role;
   @CreationTimestamp
   private LocalDateTime createdAt;
@@ -63,6 +64,9 @@ public class User implements UserDetails {
 
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
+    if (role == null) {
+      return List.of(new SimpleGrantedAuthority(Role.ROLE_USER.name()));
+    }
     return List.of(new SimpleGrantedAuthority(role.name()));
   }
 

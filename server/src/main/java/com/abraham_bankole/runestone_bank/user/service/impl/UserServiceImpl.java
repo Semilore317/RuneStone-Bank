@@ -4,7 +4,7 @@ import com.abraham_bankole.runestone_bank.security.config.JwtTokenProvider;
 import com.abraham_bankole.runestone_bank.user.dto.*;
 import com.abraham_bankole.runestone_bank.transaction.dto.*;
 import com.abraham_bankole.runestone_bank.common.dto.*;
-import com.abraham_bankole.runestone_bank.email.dto.*;;
+import com.abraham_bankole.runestone_bank.email.dto.*;
 import com.abraham_bankole.runestone_bank.security.entity.Role;
 import com.abraham_bankole.runestone_bank.user.entity.User;
 import com.abraham_bankole.runestone_bank.user.repository.UserRepository;
@@ -100,6 +100,7 @@ public class UserServiceImpl implements UserService {
         EmailDetails.builder()
             .subject("Runestone Bank Login Alert")
             .messageBody("You logged into your account")
+            .recipientEmail(loginDto.getEmail())
             .build();
 
     emailService.sendEmailAlert(loginAlert);
@@ -181,6 +182,7 @@ public class UserServiceImpl implements UserService {
 
   public static void main(String[] args) {
     UserServiceImpl userService = new UserServiceImpl();
-    System.out.println(userService.passwordEncoder.encode("clown_password🤡"));
+    System.out.println(userService.passwordEncoder.encode("clown_passwordðŸ¤¡"));
   }
 }
+
