@@ -1,0 +1,161 @@
+import { useState, type FormEvent } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/Card';
+import { Input } from '../components/ui/Input';
+import { Button } from '../components/ui/Button';
+import { LogIn, AlertCircle, Loader2 } from 'lucide-react';
+import logo from '../assets/runestone.png';
+
+export function LoginPage() {
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const { login } = useAuth();
+    const navigate = useNavigate();
+
+    const handleSubmit = async (e: FormEvent) => {
+        e.preventDefault();
+        setError('');
+        setIsLoading(true);
+
+        try {
+            await login(email, password);
+            navigate('/dashboard', { replace: true });
+        } catch (err) {
+            setError(
+                err instanceof Error
+                    ? err.message
+                    : 'Login failed. Please check your credentials.'
+            );
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    return (
+        <div className="min-h-screen bg-zinc-950 flex items-center justify-center p-4 select-none">
+            {/* Decorative background elements */}
+            <div className="fixed inset-0 overflow-hidden pointer-events-none">
+                <div className="absolute top-1/4 -left-20 w-72 h-72 bg-ochre-800 opacity-[0.04] rounded-full blur-3xl" />
+                <div className="absolute bottom-1/4 -right-20 w-96 h-96 bg-ochre-800 opacity-[0.03] rounded-full blur-3xl" />
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-zinc-800 opacity-[0.05] rounded-full blur-3xl" />
+            </div>
+
+            <div className="w-full max-w-md relative z-10">
+                {/* Logo */}
+                <div className="flex justify-center mb-10">
+                    <div className="relative h-28 w-28 rounded-[2rem] overflow-hidden shadow-brutal border-4 border-zinc-800 bg-zinc-900 group hover:shadow-brutal-lg transition-all duration-300">
+                        <img
+                            src={logo}
+                            alt="RuneStone Bank"
+                            className="absolute inset-0 h-full w-full object-cover scale-110"
+                        />
+                    </div>
+                </div>
+
+                {/* Title */}
+                <div className="text-center mb-8">
+                    <h1 className="text-4xl md:text-5xl font-black uppercase tracking-tighter text-white">
+                        RuneStone
+                    </h1>
+                    <p className="text-zinc-500 font-bold uppercase tracking-[0.3em] text-sm mt-2">
+                        Banking Portal
+                    </p>
+                </div>
+
+                {/* Login Card */}
+                <Card className="border-t-8 border-t-ochre-800 bg-zinc-900 border-x-4 border-b-4 border-x-zinc-800 border-b-zinc-800 text-white relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-40 h-40 bg-ochre-800 opacity-[0.06] rounded-full -translate-y-16 translate-x-16 blur-2xl" />
+
+                    <CardHeader className="border-b-4 border-zinc-800 pb-4">
+                        <CardTitle className="text-xl md:text-2xl text-white flex items-center gap-3">
+                            <LogIn size={24} className="text-ochre-800" />
+                            Sign In
+                        </CardTitle>
+                    </CardHeader>
+
+                    <CardContent className="pt-6">
+                        {/* Error Alert */}
+                        {error && (
+                            <div className="mb-6 p-4 bg-red-500/10 border-4 border-red-500/30 flex items-start gap-3 animate-in">
+                                <AlertCircle size={20} className="text-red-500 shrink-0 mt-0.5" />
+                                <p className="text-red-400 font-bold text-sm uppercase tracking-wider">
+                                    {error}
+                                </p>
+                            </div>
+                        )}
+
+                        <form onSubmit={handleSubmit} className="space-y-5">
+                            <div className="space-y-2">
+                                <label
+                                    htmlFor="login-email"
+                                    className="text-xs md:text-sm font-bold uppercase tracking-widest text-zinc-500"
+                                >
+                                    Email Address
+                                </label>
+                                <Input
+                                    id="login-email"
+                                    type="email"
+                                    placeholder="you@example.com"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    className="bg-zinc-950 border-4 border-zinc-800 text-white placeholder-zinc-700 font-mono text-base focus:border-ochre-800 transition-colors"
+                                    disabled={isLoading}
+                                    required
+                                    autoComplete="email"
+                                />
+                            </div>
+
+                            <div className="space-y-2">
+                                <label
+                                    htmlFor="login-password"
+                                    className="text-xs md:text-sm font-bold uppercase tracking-widest text-zinc-500"
+                                >
+                                    Password
+                                </label>
+                                <Input
+                                    id="login-password"
+                                    type="password"
+                                    placeholder="••••••••"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    className="bg-zinc-950 border-4 border-zinc-800 text-white placeholder-zinc-700 font-mono text-base focus:border-ochre-800 transition-colors"
+                                    disabled={isLoading}
+                                    required
+                                    autoComplete="current-password"
+                                />
+                            </div>
+
+                            <Button
+                                type="submit"
+                                disabled={isLoading}
+                                className="w-full bg-ochre-800 hover:bg-ochre-800/90 text-white uppercase font-black tracking-widest py-6 border-4 border-black group disabled:opacity-50 disabled:cursor-not-allowed mt-2"
+                            >
+                                <span className="flex items-center justify-center gap-3">
+                                    {isLoading ? (
+                                        <>
+                                            <Loader2 size={20} className="animate-spin" />
+                                            Authenticating...
+                                        </>
+                                    ) : (
+                                        <>
+                                            Sign In
+                                            <LogIn size={20} className="group-hover:translate-x-1 transition-transform" />
+                                        </>
+                                    )}
+                                </span>
+                            </Button>
+                        </form>
+                    </CardContent>
+                </Card>
+
+                {/* Footer */}
+                <p className="text-center text-zinc-700 text-xs font-bold uppercase tracking-widest mt-8">
+                    Secure • Encrypted • Trusted
+                </p>
+            </div>
+        </div>
+    );
+}
