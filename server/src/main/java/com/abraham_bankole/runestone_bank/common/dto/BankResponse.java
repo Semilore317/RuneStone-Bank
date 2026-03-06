@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import com.abraham_bankole.runestone_bank.user.dto.AccountInfo;
+import com.abraham_bankole.runestone_bank.common.dto.AccountInfo;
 
 @Data
 @NoArgsConstructor

@@ -3,7 +3,7 @@ package com.abraham_bankole.runestone_bank.security.service.impl;
 import com.abraham_bankole.runestone_bank.common.event.UserLoginEvent;
 import com.abraham_bankole.runestone_bank.common.dto.BankResponse;
 import com.abraham_bankole.runestone_bank.user.dto.LoginDto;
-import com.abraham_bankole.runestone_bank.user.dto.AccountInfo;
+import com.abraham_bankole.runestone_bank.common.dto.AccountInfo;
 import com.abraham_bankole.runestone_bank.security.config.JwtTokenProvider;
 import com.abraham_bankole.runestone_bank.user.entity.User;
 import com.abraham_bankole.runestone_bank.user.repository.UserRepository;

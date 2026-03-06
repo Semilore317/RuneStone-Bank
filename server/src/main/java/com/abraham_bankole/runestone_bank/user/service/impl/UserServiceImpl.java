@@ -1,5 +1,6 @@
 package com.abraham_bankole.runestone_bank.user.service.impl;
 
+import com.abraham_bankole.runestone_bank.common.dto.AccountInfo;
 import com.abraham_bankole.runestone_bank.common.dto.BankResponse;
 import com.abraham_bankole.runestone_bank.common.event.UserRegisteredEvent;
 import com.abraham_bankole.runestone_bank.security.entity.Role;
