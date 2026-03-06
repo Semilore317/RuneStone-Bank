@@ -1,5 +1,6 @@
 package com.abraham_bankole.runestone_bank.email.listener;
 
+import com.abraham_bankole.runestone_bank.common.event.TransactionCompletedEvent;
 import com.abraham_bankole.runestone_bank.common.event.UserLoginEvent;
 import com.abraham_bankole.runestone_bank.common.event.UserRegisteredEvent;
 import com.abraham_bankole.runestone_bank.email.dto.EmailDetails;
@@ -44,4 +45,29 @@ public class EmailEventListener {
 
         emailService.sendEmailAlert(details);
     }
+
+    @Async
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void handleTransactionCompleted(TransactionCompletedEvent event) {
+        // debit alert to sender
+        EmailDetails debitAlert = new EmailDetails();
+        debitAlert.setSubject("DEBIT ALERT");
+        debitAlert.setRecipientName(event.senderName());
+        debitAlert.setRecipientEmail(event.senderEmail());
+        debitAlert.setMessageBody(String.format(
+                "You have successfully sent the sum of $%s to %s and your account has been debited.",
+                event.amount(), event.receiverName()));
+        emailService.sendEmailAlert(debitAlert);
+
+        // credit alert to receiver
+        EmailDetails creditAlert = new EmailDetails();
+        creditAlert.setSubject("CREDIT ALERT");
+        creditAlert.setRecipientName(event.receiverName());
+        creditAlert.setRecipientEmail(event.receiverEmail());
+        creditAlert.setMessageBody(String.format(
+                "The sum of $%s has been sent to your account from %s.",
+                event.amount(), event.senderName()));
+        emailService.sendEmailAlert(creditAlert);
+    }
 }
+

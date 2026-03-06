@@ -1,21 +1,21 @@
 package com.abraham_bankole.runestone_bank.transaction.service.impl;
 
+import com.abraham_bankole.runestone_bank.common.event.TransactionCompletedEvent;
 import com.abraham_bankole.runestone_bank.user.dto.AccountInfo;
 import com.abraham_bankole.runestone_bank.common.dto.BankResponse;
 import com.abraham_bankole.runestone_bank.transaction.dto.CreditDebitRequest;
-import com.abraham_bankole.runestone_bank.email.dto.EmailDetails;
 import com.abraham_bankole.runestone_bank.transaction.dto.TransactionDto;
 import com.abraham_bankole.runestone_bank.transaction.dto.TransferRequest;
 import com.abraham_bankole.runestone_bank.transaction.entity.Transaction;
 import com.abraham_bankole.runestone_bank.user.entity.User;
 import com.abraham_bankole.runestone_bank.transaction.repository.TransactionRepository;
 import com.abraham_bankole.runestone_bank.user.repository.UserRepository;
-import com.abraham_bankole.runestone_bank.email.service.EmailService;
 import com.abraham_bankole.runestone_bank.transaction.service.TransactionService;
 import com.abraham_bankole.runestone_bank.common.utils.AccountUtils;
 import jakarta.transaction.Transactional;
 import java.math.BigDecimal;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -25,7 +25,7 @@ public class TransactionServiceImpl implements TransactionService {
 
   @Autowired UserRepository userRepository;
 
-  @Autowired EmailService emailService;
+  @Autowired ApplicationEventPublisher eventPublisher;
 
   @Override
   public void saveTransaction(TransactionDto transactionDto) {
@@ -173,48 +173,22 @@ public class TransactionServiceImpl implements TransactionService {
           .build();
     }
 
-    // jss1 business studies nostalgia lmao
-
-    // debit the giver
+    // debit the sender
     sender.setAccountBalance(sender.getAccountBalance().subtract(request.getAmount()));
     userRepository.save(sender);
-    EmailDetails debitAlert =
-        EmailDetails.builder()
-            .subject("DEBIT ALERT")
-            .recipientName(recipientUsername)
-            .recipientEmail(receiver.getEmail())
-            .messageBody(
-                "You have successfully sent the Sum Of $"
-                    + request.getAmount()
-                    + " to "
-                    + receiver.getFirstName()
-                    + receiver.getLastName()
-                    + receiver.getOtherName()
-                    + " and your account has been debited.")
-            .build();
-    emailService.sendEmailAlert(debitAlert);
 
     // credit the receiver
     receiver.setAccountBalance(receiver.getAccountBalance().add(request.getAmount()));
     userRepository.save(receiver);
-    EmailDetails creditAlert =
-        EmailDetails.builder()
-            .subject("CREDIT ALERT")
-            .recipientName(recipientUsername)
-            .recipientEmail(receiver.getEmail())
-            .messageBody(
-                "The Sum Of $"
-                    + request.getAmount()
-                    + "has been sent to your account from"
-                    + sender.getFirstName()
-                    + " "
-                    + sender.getLastName()
-                    + "  "
-                    + sender.getOtherName()
-                    + "\n Your current balance is "
-                    + receiver.getAccountBalance())
-            .build();
-    emailService.sendEmailAlert(creditAlert);
+
+    // publish domain event — the email domain listens and sends debit/credit alerts
+    String senderName = sender.getFirstName() + " " + sender.getLastName() + " " + sender.getOtherName();
+    String receiverName = receiver.getFirstName() + " " + receiver.getLastName() + " " + receiver.getOtherName();
+    eventPublisher.publishEvent(new TransactionCompletedEvent(
+        sender.getAccountNumber(), senderName, sender.getEmail(),
+        receiver.getAccountNumber(), receiverName, receiver.getEmail(),
+        request.getAmount(), "TRANSFER"
+    ));
 
     // log debit transaction for sender
     TransactionDto debitTransaction =
