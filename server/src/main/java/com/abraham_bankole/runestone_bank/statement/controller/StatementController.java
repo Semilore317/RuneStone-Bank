@@ -6,7 +6,6 @@ import com.itextpdf.text.DocumentException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.mail.MessagingException;
 import java.io.FileNotFoundException;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -27,7 +26,8 @@ public class StatementController {
   @PreAuthorize("hasRole('ROLE_ADMIN') or #accountNumber == authentication.principal.accountNumber")
   public List<Transaction> generateBankStatement(
       @RequestParam String accountNumber, @RequestParam String start, @RequestParam String end)
-      throws DocumentException, FileNotFoundException, MessagingException {
+      throws DocumentException, FileNotFoundException {
     return bankStatement.generateStatement(accountNumber, start, end);
   }
 }
+
