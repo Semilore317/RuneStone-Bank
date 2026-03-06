@@ -1,10 +1,11 @@
 package com.abraham_bankole.runestone_bank.user.controller;
 
-import com.abraham_bankole.runestone_bank.user.dto.*;
-import com.abraham_bankole.runestone_bank.transaction.dto.*;
-import com.abraham_bankole.runestone_bank.common.dto.*;
-import com.abraham_bankole.runestone_bank.email.dto.*;
+import com.abraham_bankole.runestone_bank.common.dto.BankResponse;
+import com.abraham_bankole.runestone_bank.user.dto.EnquiryRequest;
+import com.abraham_bankole.runestone_bank.user.dto.LoginDto;
+import com.abraham_bankole.runestone_bank.user.dto.UserRequest;
 import com.abraham_bankole.runestone_bank.user.service.UserService;
+import com.abraham_bankole.runestone_bank.security.service.impl.AuthServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -19,10 +20,13 @@ public class UserController {
   @Autowired
   private UserService userService;
 
+  @Autowired
+  private AuthServiceImpl authService;
+
   @Operation(summary = "Login", description = "Authenticate user and return token")
   @PostMapping("/login")
   public BankResponse login(@RequestBody LoginDto loginDto) {
-    return userService.login(loginDto);
+    return authService.login(loginDto);
   }
 
   @Operation(summary = "Create New User Account", description = "Create a user and assign a unique account number")
@@ -48,3 +52,4 @@ public class UserController {
     return userService.nameEnquiry(new EnquiryRequest(accountNumber));
   }
 }
+
