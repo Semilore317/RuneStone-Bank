@@ -60,7 +60,7 @@ export function LoginPage() {
                             RuneStone
                         </h1>
                         <p className="text-zinc-500 font-bold uppercase tracking-[0.3em] text-sm md:text-base mt-3">
-                            Banking Portal
+                            Bank
                         </p>
                     </div>
                 </div>
