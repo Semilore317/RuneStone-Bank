@@ -1,12 +1,10 @@
 package com.abraham_bankole.runestone_bank.user.service;
 
-import com.abraham_bankole.runestone_bank.user.dto.*;
-import com.abraham_bankole.runestone_bank.transaction.dto.*;
-import com.abraham_bankole.runestone_bank.common.dto.*;
-import com.abraham_bankole.runestone_bank.email.dto.*;;
+import com.abraham_bankole.runestone_bank.common.dto.BankResponse;
+import com.abraham_bankole.runestone_bank.user.dto.EnquiryRequest;
+import com.abraham_bankole.runestone_bank.user.dto.UserRequest;
 
 public interface UserService {
-  BankResponse login(LoginDto loginDto);
 
   BankResponse createAccount(UserRequest userRequest);
 
