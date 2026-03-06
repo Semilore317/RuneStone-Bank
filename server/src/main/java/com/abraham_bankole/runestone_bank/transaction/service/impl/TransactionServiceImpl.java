@@ -2,7 +2,7 @@ package com.abraham_bankole.runestone_bank.transaction.service.impl;
 
 import com.abraham_bankole.runestone_bank.common.event.TransactionCompletedEvent;
 import com.abraham_bankole.runestone_bank.common.service.UserAccountService;
-import com.abraham_bankole.runestone_bank.user.dto.AccountInfo;
+import com.abraham_bankole.runestone_bank.common.dto.AccountInfo;
 import com.abraham_bankole.runestone_bank.common.dto.BankResponse;
 import com.abraham_bankole.runestone_bank.transaction.dto.CreditDebitRequest;
 import com.abraham_bankole.runestone_bank.transaction.dto.TransactionDto;
