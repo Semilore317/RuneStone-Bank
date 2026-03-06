@@ -1,16 +1,13 @@
 package com.abraham_bankole.runestone_bank.statement.service;
 
+import com.abraham_bankole.runestone_bank.common.event.StatementReadyEvent;
+import com.abraham_bankole.runestone_bank.common.service.UserAccountService;
 import com.abraham_bankole.runestone_bank.transaction.entity.Transaction;
-import com.abraham_bankole.runestone_bank.user.entity.User;
 import com.abraham_bankole.runestone_bank.transaction.repository.TransactionRepository;
-import com.abraham_bankole.runestone_bank.user.repository.UserRepository;
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeMessage;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
@@ -20,9 +17,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -31,17 +26,13 @@ import org.springframework.stereotype.Service;
 public class BankStatementService {
 
   private final TransactionRepository transactionRepository;
-  private final UserRepository userRepository;
-  private final JavaMailSender javaMailSender;
+  private final UserAccountService userAccountService;
+  private final ApplicationEventPublisher eventPublisher;
 
   @Value("${spring.application.name}")
   private String bankName;
 
   private static final String BANK_ADDRESS = "317, Runestone Avenue, Lagos, Nigeria";
-  private static final String EMAIL_FROM = "no-reply@runestonebank.com";
-  private static final String EMAIL_SUBJECT = "RuneStone Bank Statement";
-  private static final String EMAIL_TEXT =
-      "Dear Customer,\n\nPlease find attached your requested account statement.\n\nRegards,\nRuneStone Bank";
 
   // Styling Assets
   private static final BaseColor BRAND_COLOR = new BaseColor(0, 51, 102); // Deep Navy Blue
@@ -50,29 +41,22 @@ public class BankStatementService {
   private static final Font NORMAL_FONT =
       new Font(Font.FontFamily.HELVETICA, 12, Font.NORMAL, BaseColor.BLACK);
 
-  // retreive list of transactions within a range of days given an account number
-  // generate a pdf of file transaction
-  // send the file via email
-
   public List<Transaction> generateStatement(String accountNumber, String startDate, String endDate)
-      throws DocumentException, FileNotFoundException, MessagingException {
+      throws DocumentException, FileNotFoundException {
     LocalDate start = LocalDate.parse(startDate, DateTimeFormatter.ISO_DATE);
     LocalDate end = LocalDate.parse(endDate, DateTimeFormatter.ISO_DATE);
 
-    // generate pdfs for bank statements to send to the user
-    // Create a unique filename so users don't overwrite each other
+    // unique filename per request
     String fileName = "statement_" + accountNumber + "_" + System.currentTimeMillis() + ".pdf";
-
-    // Use the system temp directory
     String filePath = System.getProperty("java.io.tmpdir") + "/" + fileName;
+    log.info("Generating PDF at: {}", filePath);
 
-    // use 'filePath' in your PDF writer (e.g., iText)
-    System.out.println("Generating PDF at: " + filePath);
+    // look up user details via the common abstraction
+    String userName = userAccountService.getFullName(accountNumber);
+    String userAddress = userAccountService.getAddress(accountNumber);
+    String userEmail = userAccountService.getEmail(accountNumber);
 
-    User user = userRepository.findByAccountNumber(accountNumber);
-    String userName = user.getFirstName() + " " + user.getLastName() + " " + user.getOtherName();
-
-    // TODO: Add iText PDF generation logic here using 'filePath'
+    // --- PDF generation (same layout as before) ---
     Rectangle statementSize = new Rectangle(PageSize.A4);
     Document document = new Document(statementSize);
     log.info("setting size of document");
@@ -113,10 +97,9 @@ public class BankStatementService {
     PdfPCell customerName = new PdfPCell(new Phrase("Customer Name: " + userName));
     customerName.setBorder(Rectangle.NO_BORDER);
 
-    // padding
     PdfPCell padding = new PdfPCell();
     padding.setBorder(Rectangle.NO_BORDER);
-    PdfPCell address = new PdfPCell(new Phrase("Customer Address: " + user.getAddress()));
+    PdfPCell address = new PdfPCell(new Phrase("Customer Address: " + userAddress));
     address.setBorder(Rectangle.NO_BORDER);
 
     statementInfo.addCell(userInfo);
@@ -187,25 +170,9 @@ public class BankStatementService {
 
     document.close();
 
-    sendEmailWithAttachment(user.getEmail(), filePath, fileName);
+    // publish event — the email domain sends the statement as an attachment
+    eventPublisher.publishEvent(new StatementReadyEvent(userEmail, filePath, fileName));
 
     return transactionList;
-  }
-
-  private void sendEmailWithAttachment(String toEmail, String filePath, String fileName)
-      throws MessagingException {
-    MimeMessage mimeMessage = javaMailSender.createMimeMessage();
-    MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true);
-
-    mimeMessageHelper.setFrom(EMAIL_FROM);
-    mimeMessageHelper.setTo(toEmail);
-    mimeMessageHelper.setSubject(EMAIL_SUBJECT);
-    mimeMessageHelper.setText(EMAIL_TEXT);
-
-    FileSystemResource file = new FileSystemResource(new File(filePath));
-    mimeMessageHelper.addAttachment(fileName, file);
-
-    javaMailSender.send(mimeMessage);
-    log.info("Email sent successfully to {}", toEmail);
   }
 }
