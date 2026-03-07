@@ -1,40 +1,46 @@
 import { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/Card';
 import { ArrowUpRight, ArrowDownRight, Clock, XCircle, CheckCircle2, Search, Filter } from 'lucide-react';
-import { Input } from '../components/ui/Input';
-
-interface Transaction {
-    transactionId: string;
-    transactionType: 'CREDIT' | 'DEBIT' | 'TRANSFER';
-    amount: number;
-    accountNumber: string;
-    status: 'PENDING' | 'FAILED' | 'SUCCESS';
-    timeOfCreation: string;
-}
-
-const allTransactions: Transaction[] = [
-    { transactionId: 'TXN-982374-ABCD', transactionType: 'CREDIT', amount: 5200.00, accountNumber: '0000000000', status: 'SUCCESS', timeOfCreation: '2026-03-06T10:15:00Z' },
-    { transactionId: 'TXN-102938-EFGH', transactionType: 'DEBIT', amount: 154.99, accountNumber: '1234567890', status: 'SUCCESS', timeOfCreation: '2026-03-05T16:45:00Z' },
-    { transactionId: 'TXN-564738-IJKL', transactionType: 'TRANSFER', amount: 50.00, accountNumber: '9876543210', status: 'PENDING', timeOfCreation: '2026-03-04T09:30:00Z' },
-    { transactionId: 'TXN-112233-MNOP', transactionType: 'DEBIT', amount: 890.00, accountNumber: '4561237890', status: 'FAILED', timeOfCreation: '2026-03-03T14:20:00Z' },
-    { transactionId: 'TXN-445566-QRST', transactionType: 'CREDIT', amount: 12000.00, accountNumber: '0000000000', status: 'SUCCESS', timeOfCreation: '2026-03-02T08:00:00Z' },
-    { transactionId: 'TXN-778899-UVWX', transactionType: 'TRANSFER', amount: 320.00, accountNumber: '5566778899', status: 'SUCCESS', timeOfCreation: '2026-03-01T11:30:00Z' },
-    { transactionId: 'TXN-998877-YZAB', transactionType: 'DEBIT', amount: 45.00, accountNumber: '1122334455', status: 'SUCCESS', timeOfCreation: '2026-02-28T19:45:00Z' },
-    { transactionId: 'TXN-665544-CDEF', transactionType: 'CREDIT', amount: 800.00, accountNumber: '0000000000', status: 'SUCCESS', timeOfCreation: '2026-02-27T07:15:00Z' },
-];
+import { useAuth } from '../context/AuthContext';
+import { fetchRecentTransactions, parseTransactionDate, type Transaction } from '../services/dashboard';
 
 type FilterType = 'ALL' | 'CREDIT' | 'DEBIT' | 'TRANSFER';
 
 export function TransactionsPage() {
+    const { user } = useAuth();
     const [searchTerm, setSearchTerm] = useState('');
     const [filterType, setFilterType] = useState<FilterType>('ALL');
+    const [transactions, setTransactions] = useState<Transaction[]>([]);
+    const [isLoading, setIsLoading] = useState(false);
 
-    const filtered = allTransactions.filter((tx) => {
+    useEffect(() => {
+        const load = async () => {
+            if (!user?.accountNumber) return;
+            setIsLoading(true);
+            try {
+                const data = await fetchRecentTransactions(user.accountNumber);
+                setTransactions(data);
+            } catch (error) {
+                console.error(error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        load();
+    }, [user?.accountNumber]);
+
+    const filtered = transactions.filter((tx) => {
         const matchesSearch = tx.transactionId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            tx.accountNumber.includes(searchTerm);
+            tx.accountNumber.includes(searchTerm) ||
+            (tx.counterpartyName?.toLowerCase() || '').includes(searchTerm.toLowerCase());
         const matchesFilter = filterType === 'ALL' || tx.transactionType === filterType;
         return matchesSearch && matchesFilter;
     });
+
+    const totalIn = transactions.filter(t => t.transactionType === 'CREDIT' && t.status === 'SUCCESS').reduce((s, t) => s + t.amount, 0);
+    const totalOut = transactions.filter(t => (t.transactionType === 'DEBIT' || t.transactionType === 'TRANSFER') && t.status === 'SUCCESS').reduce((s, t) => s + t.amount, 0);
+    const pendingCount = transactions.filter(t => t.status === 'PENDING').length;
+    const failedCount = transactions.filter(t => t.status === 'FAILED').length;
 
     return (
         <>
@@ -75,10 +81,10 @@ export function TransactionsPage() {
             {/* Stats Summary */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
                 {[
-                    { label: 'Total In', value: '$18,000.00', color: 'text-green-400' },
-                    { label: 'Total Out', value: '$1,089.99', color: 'text-red-500' },
-                    { label: 'Pending', value: '1', color: 'text-yellow-500' },
-                    { label: 'Failed', value: '1', color: 'text-red-500' },
+                    { label: 'Total In', value: `$${totalIn.toFixed(2)}`, color: 'text-green-400' },
+                    { label: 'Total Out', value: `$${totalOut.toFixed(2)}`, color: 'text-red-500' },
+                    { label: 'Pending', value: pendingCount.toString(), color: 'text-yellow-500' },
+                    { label: 'Failed', value: failedCount.toString(), color: 'text-red-500' },
                 ].map((stat) => (
                     <div key={stat.label} className="bg-zinc-900 border-4 border-zinc-800 p-4">
                         <p className="text-zinc-500 font-bold uppercase text-xs tracking-widest">{stat.label}</p>
@@ -98,7 +104,11 @@ export function TransactionsPage() {
                     </CardTitle>
                 </CardHeader>
                 <CardContent className="pt-0">
-                    {filtered.length === 0 ? (
+                    {isLoading ? (
+                        <div className="py-12 text-center text-zinc-600">
+                            <p className="font-bold uppercase tracking-widest">Loading...</p>
+                        </div>
+                    ) : filtered.length === 0 ? (
                         <div className="py-12 text-center text-zinc-600">
                             <p className="font-bold uppercase tracking-widest">No transactions found</p>
                         </div>
@@ -128,6 +138,8 @@ function TransactionRow({ transaction }: { transaction: Transaction }) {
         }
     };
 
+    const parsedDate = parseTransactionDate(transaction.timeOfCreation);
+
     return (
         <div className="py-5 flex items-center justify-between group hover:bg-zinc-800/30 transition-colors px-2">
             <div className="flex items-center gap-4">
@@ -136,18 +148,24 @@ function TransactionRow({ transaction }: { transaction: Transaction }) {
                 </div>
                 <div>
                     <div className="flex items-center gap-2">
-                        <h4 className="font-bold text-base">{transaction.transactionType}</h4>
+                        <h4 className="font-bold text-base">
+                            {transaction.transactionType === 'TRANSFER' && transaction.counterpartyName
+                                ? `Transfer to ${transaction.counterpartyName}`
+                                : transaction.transactionType === 'CREDIT' && transaction.counterpartyName
+                                    ? `Transfer from ${transaction.counterpartyName}`
+                                    : transaction.transactionType}
+                        </h4>
                         <span className={`text-xs font-bold uppercase px-2 py-0.5 border-2 ${transaction.status === 'SUCCESS' ? 'border-zinc-700 text-zinc-400' :
-                                transaction.status === 'PENDING' ? 'border-yellow-500/30 text-yellow-500' :
-                                    'border-red-500/30 text-red-500'
+                            transaction.status === 'PENDING' ? 'border-yellow-500/30 text-yellow-500' :
+                                'border-red-500/30 text-red-500'
                             }`}>
                             {renderStatusIcon()}
                         </span>
                     </div>
                     <div className="flex items-center gap-2 text-xs text-zinc-500 font-mono tracking-wider mt-1">
-                        <span>{new Date(transaction.timeOfCreation).toLocaleDateString()}</span>
+                        <span>{parsedDate.toLocaleDateString()}</span>
                         <span>•</span>
-                        <span>{new Date(transaction.timeOfCreation).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                        <span>{parsedDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                         <span>•</span>
                         <span className="truncate max-w-[120px] md:max-w-none">{transaction.transactionId}</span>
                     </div>
@@ -157,7 +175,7 @@ function TransactionRow({ transaction }: { transaction: Transaction }) {
                 <div className={`font-black text-xl ${amountColor}`}>
                     {amountPrefix}${transaction.amount.toFixed(2)}
                 </div>
-                <p className="text-zinc-600 font-mono text-xs mt-1">{transaction.accountNumber}</p>
+                <p className="text-zinc-600 font-mono text-xs mt-1">{transaction.counterpartyAccountNumber || transaction.accountNumber}</p>
             </div>
         </div>
     );
