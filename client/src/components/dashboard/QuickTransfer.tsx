@@ -2,24 +2,42 @@ import { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '../ui/Card';
 import { Input } from '../ui/Input';
 import { Button } from '../ui/Button';
-import { Send } from 'lucide-react';
+import { Send, CheckCircle2, AlertCircle } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
+import { transferFunds } from '../../services/dashboard';
 
 export function QuickTransfer() {
+    const { user } = useAuth();
     const [receiver, setReceiver] = useState('');
     const [amount, setAmount] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const [successMessage, setSuccessMessage] = useState('');
+    const [error, setError] = useState('');
 
-    const handleTransfer = (e: React.FormEvent) => {
+    const handleTransfer = async (e: React.FormEvent) => {
         e.preventDefault();
-        // Construct the TransferRequest mock
-        const transferRequest = {
-            sender: "CURRENT_USER_ACCT", // Mocked
-            receiver,
-            amount: parseFloat(amount)
-        };
-        console.log("Mock Transfer Request:", transferRequest);
-        // Reset form
-        setReceiver('');
-        setAmount('');
+        if (!user?.accountNumber) return;
+
+        setError('');
+        setSuccessMessage('');
+        setIsLoading(true);
+
+        try {
+            await transferFunds({
+                sender: user.accountNumber,
+                receiver,
+                amount: parseFloat(amount)
+            });
+
+            setSuccessMessage(`$${parseFloat(amount).toFixed(2)} transferred successfully.`);
+            setReceiver('');
+            setAmount('');
+            setTimeout(() => setSuccessMessage(''), 5000);
+        } catch (err: any) {
+            setError(err.message || 'Transfer failed. Please try again.');
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -28,6 +46,18 @@ export function QuickTransfer() {
                 <CardTitle className="text-xl md:text-2xl text-white">Quick Transfer</CardTitle>
             </CardHeader>
             <CardContent className="pt-6">
+                {successMessage && (
+                    <div className="mb-4 p-3 bg-green-500/10 border-4 border-green-500/30 flex items-start gap-2">
+                        <CheckCircle2 size={16} className="text-green-500 shrink-0 mt-0.5" />
+                        <p className="text-green-400 font-bold text-xs uppercase tracking-wider">{successMessage}</p>
+                    </div>
+                )}
+                {error && (
+                    <div className="mb-4 p-3 bg-red-500/10 border-4 border-red-500/30 flex items-start gap-2">
+                        <AlertCircle size={16} className="text-red-500 shrink-0 mt-0.5" />
+                        <p className="text-red-400 font-bold text-xs uppercase tracking-wider">{error}</p>
+                    </div>
+                )}
                 <form onSubmit={handleTransfer} className="space-y-4">
                     <div className="space-y-2">
                         <label className="text-xs md:text-sm font-bold uppercase tracking-widest text-zinc-500">Receiver Account</label>
@@ -58,11 +88,12 @@ export function QuickTransfer() {
                     </div>
                     <Button
                         type="submit"
-                        className="w-full bg-ochre-800 hover:bg-ochre-800/90 text-white uppercase font-black tracking-widest py-6 border-4 border-black group"
+                        disabled={isLoading || !user?.accountNumber}
+                        className="w-full bg-ochre-800 hover:bg-ochre-800/90 text-white uppercase font-black tracking-widest py-6 border-4 border-black group disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         <span className="flex items-center justify-center gap-2">
-                            Send Money
-                            <Send size={20} className="group-hover:translate-x-1 transition-transform" />
+                            {isLoading ? 'Sending...' : 'Send Money'}
+                            {!isLoading && <Send size={20} className="group-hover:translate-x-1 transition-transform" />}
                         </span>
                     </Button>
                 </form>

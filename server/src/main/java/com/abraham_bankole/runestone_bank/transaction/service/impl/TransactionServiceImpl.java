@@ -184,4 +184,9 @@ public class TransactionServiceImpl implements TransactionService {
         .accountInfo(null)
         .build();
   }
+
+  @Override
+  public java.util.List<Transaction> getTransactionHistory(String accountNumber) {
+    return transactionRepository.findByAccountNumberOrderByTimeOfCreationDesc(accountNumber);
+  }
 }
