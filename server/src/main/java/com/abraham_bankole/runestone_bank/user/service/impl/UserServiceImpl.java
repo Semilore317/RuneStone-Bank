@@ -125,8 +125,7 @@ public class UserServiceImpl implements UserService {
                                         foundUser.getFirstName()
                                                 + " "
                                                 + foundUser.getLastName()
-                                                + " "
-                                                + foundUser.getOtherName())
+                                                + (foundUser.getOtherName() != null && !foundUser.getOtherName().trim().isEmpty() ? " " + foundUser.getOtherName() : "")) // fixes issue with name being Null
                                 .accountNumber(foundUser.getAccountNumber())
                                 .build())
                 .build();

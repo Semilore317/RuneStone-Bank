@@ -2,7 +2,7 @@ package com.abraham_bankole.runestone_bank.transaction.entity;
 
 import jakarta.persistence.*;
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -24,7 +24,10 @@ public class Transaction {
   private String accountNumber;
   private String status; // PENDING, FAILED, SUCCESS
 
-  @CreationTimestamp private LocalDate timeOfCreation;
+  private String counterpartyAccountNumber;
+  private String counterpartyName;
 
-  @UpdateTimestamp private LocalDate timeOfUpdate;
+  @CreationTimestamp private LocalDateTime timeOfCreation;
+
+  @UpdateTimestamp private LocalDateTime timeOfUpdate;
 }

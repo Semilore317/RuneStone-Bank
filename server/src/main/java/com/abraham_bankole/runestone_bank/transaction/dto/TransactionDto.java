@@ -15,4 +15,6 @@ public class TransactionDto {
   private BigDecimal amount;
   private String accountNumber;
   private String status;
+  private String counterpartyAccountNumber;
+  private String counterpartyName;
 }

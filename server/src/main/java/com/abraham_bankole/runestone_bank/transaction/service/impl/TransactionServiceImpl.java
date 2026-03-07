@@ -33,6 +33,8 @@ public class TransactionServiceImpl implements TransactionService {
             .transactionType(transactionDto.getTransactionType())
             .accountNumber(transactionDto.getAccountNumber())
             .amount(transactionDto.getAmount())
+            .counterpartyAccountNumber(transactionDto.getCounterpartyAccountNumber())
+            .counterpartyName(transactionDto.getCounterpartyName())
             .status("SUCCESS")
             .build();
     transactionRepository.save(transaction);
@@ -164,8 +166,10 @@ public class TransactionServiceImpl implements TransactionService {
     TransactionDto debitTransaction =
         TransactionDto.builder()
             .accountNumber(request.getSender())
-            .transactionType("DEBIT")
+            .transactionType("TRANSFER") // Changed to TRANSFER from DEBIT for clearer history
             .amount(request.getAmount())
+            .counterpartyAccountNumber(request.getReceiver())
+            .counterpartyName(receiverName)
             .build();
     saveTransaction(debitTransaction);
 
@@ -173,8 +177,10 @@ public class TransactionServiceImpl implements TransactionService {
     TransactionDto creditTransaction =
         TransactionDto.builder()
             .accountNumber(request.getReceiver())
-            .transactionType("CREDIT")
+            .transactionType("CREDIT") // We keep CREDIT for receiver so they know they got credited
             .amount(request.getAmount())
+            .counterpartyAccountNumber(request.getSender())
+            .counterpartyName(senderName)
             .build();
     saveTransaction(creditTransaction);
 
