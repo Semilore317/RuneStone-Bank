@@ -31,7 +31,7 @@ public class UserAccountServiceImpl implements UserAccountService {
     @Override
     public String getFullName(String accountNumber) {
         User user = findUser(accountNumber);
-        return user.getFirstName() + " " + user.getLastName() + " " + user.getOtherName();
+        return user.getFullName();
     }
 
     @Override
