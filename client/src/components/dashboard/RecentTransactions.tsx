@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '../ui/Card';
 import { ArrowUpRight, ArrowDownRight, Clock, XCircle, CheckCircle2, RefreshCw } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import { fetchRecentTransactions, type Transaction } from '../../services/dashboard';
+import { fetchRecentTransactions, parseTransactionDate, type Transaction } from '../../services/dashboard';
 
 export function RecentTransactions() {
     const { user } = useAuth();
@@ -53,11 +53,15 @@ export function RecentTransactions() {
 }
 
 function TransactionItem({ transaction }: { transaction: Transaction }) {
-    // Determine visual style based on positive/negative cash flow
+    // Determine visual style based on positive/negative cash flow 
+    // CREDIT is positive. TRANSFER can be outgoing (negative) or incoming (positive).
+    // In our backend, we use CREDIT for incoming transfers and TRANSFER for outgoing transfers.
     const isPositive = transaction.transactionType === 'CREDIT';
 
     const amountColor = isPositive ? 'text-green-400' : 'text-red-500';
     const amountPrefix = isPositive ? '+' : '-';
+
+    const parsedDate = parseTransactionDate(transaction.timeOfCreation);
 
     const renderStatusIcon = () => {
         switch (transaction.status) {
@@ -77,9 +81,15 @@ function TransactionItem({ transaction }: { transaction: Transaction }) {
                     {isPositive ? <ArrowDownRight size={24} /> : <ArrowUpRight size={24} />}
                 </div>
                 <div>
-                    <h4 className="font-bold text-lg">{transaction.transactionType}</h4>
+                    <h4 className="font-bold text-lg">
+                        {transaction.transactionType === 'TRANSFER' && transaction.counterpartyName
+                            ? `Transfer to ${transaction.counterpartyName}`
+                            : transaction.transactionType === 'CREDIT' && transaction.counterpartyName
+                                ? `Transfer from ${transaction.counterpartyName}`
+                                : transaction.transactionType}
+                    </h4>
                     <div className="flex items-center gap-2 text-xs md:text-sm text-zinc-500 font-mono tracking-wider mt-1">
-                        <span>{new Date(transaction.timeOfCreation).toLocaleDateString()}</span>
+                        <span>{parsedDate.toLocaleDateString()}</span>
                         <span>•</span>
                         <span className="truncate max-w-[100px] md:max-w-none">{transaction.transactionId}</span>
                     </div>

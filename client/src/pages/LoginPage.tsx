@@ -99,7 +99,7 @@ export function LoginPage() {
                                     <Input
                                         id="login-email"
                                         type="email"
-                                        placeholder="you@example.com"
+                                        placeholder="kratos@revenge.com"
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
                                         className="bg-zinc-950 border-4 border-zinc-800 text-white placeholder-zinc-700 font-mono text-base focus:border-ochre-800 transition-colors"
@@ -119,7 +119,7 @@ export function LoginPage() {
                                     <Input
                                         id="login-password"
                                         type="password"
-                                        placeholder="••••••••"
+                                        placeholder="******"
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
                                         className="bg-zinc-950 border-4 border-zinc-800 text-white placeholder-zinc-700 font-mono text-base focus:border-ochre-800 transition-colors"
