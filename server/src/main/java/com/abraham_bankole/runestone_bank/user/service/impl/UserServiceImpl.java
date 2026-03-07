@@ -70,7 +70,7 @@ public class UserServiceImpl implements UserService {
                         AccountInfo.builder()
                                 .accountNumber(savedUser.getAccountNumber())
                                 .accountBalance(savedUser.getAccountBalance())
-                                .accountName(savedUser.getFirstName() + " " + savedUser.getLastName())
+                                .accountName(savedUser.getFullName())
                                 .build())
                 .build();
     }
@@ -96,7 +96,7 @@ public class UserServiceImpl implements UserService {
                         AccountInfo.builder()
                                 .accountBalance(foundUser.getAccountBalance())
                                 .accountNumber(foundUser.getAccountNumber())
-                                .accountName(foundUser.getFirstName() + " " + foundUser.getLastName())
+                                .accountName(foundUser.getFullName())
                                 .build())
                 .build();
     }
@@ -121,12 +121,7 @@ public class UserServiceImpl implements UserService {
                 .responseMessage(AccountUtils.ACCOUNT_FOUND_SUCCESS)
                 .accountInfo(
                         AccountInfo.builder()
-                                .accountName(
-                                        foundUser.getFirstName()
-                                                + " "
-                                                + foundUser.getLastName()
-                                                + (foundUser.getOtherName() != null && !foundUser.getOtherName().trim().isEmpty() ? " " + foundUser.getOtherName() : "")) // fixes issue with name being Null
-                                .accountNumber(foundUser.getAccountNumber())
+                                .accountName(foundUser.getFullName())
                                 .build())
                 .build();
     }
