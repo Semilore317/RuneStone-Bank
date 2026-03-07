@@ -13,6 +13,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import com.abraham_bankole.runestone_bank.transaction.entity.Transaction;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/transactions")
@@ -44,5 +48,13 @@ public class TransactionController {
   @PreAuthorize("hasRole('ROLE_ADMIN') or #transferRequest.sender == authentication.principal.accountNumber")
   public BankResponse transfer(@RequestBody TransferRequest transferRequest) {
     return transactionService.transfer(transferRequest);
+  }
+
+  @Operation(summary = "Transaction History", description = "Get transaction history for an account")
+  @ApiResponse(responseCode = "200", description = "Http Status 200 SUCCESS")
+  @GetMapping("/history")
+  @PreAuthorize("hasRole('ROLE_ADMIN') or #accountNumber == authentication.principal.accountNumber")
+  public List<Transaction> getHistory(@RequestParam String accountNumber) {
+    return transactionService.getTransactionHistory(accountNumber);
   }
 }

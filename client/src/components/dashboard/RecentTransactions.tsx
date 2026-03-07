@@ -1,62 +1,52 @@
+import { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '../ui/Card';
-import { ArrowUpRight, ArrowDownRight, Clock, XCircle, CheckCircle2 } from 'lucide-react';
-
-interface Transaction {
-    transactionId: string;
-    transactionType: 'CREDIT' | 'DEBIT' | 'TRANSFER';
-    amount: number;
-    accountNumber: string;
-    status: 'PENDING' | 'FAILED' | 'SUCCESS';
-    timeOfCreation: string; // ISO string 
-}
-
-const mockTransactions: Transaction[] = [
-    {
-        transactionId: "TXN-982374-ABCD",
-        transactionType: "CREDIT",
-        amount: 5200.00,
-        accountNumber: "0000000000",
-        status: "SUCCESS",
-        timeOfCreation: "2026-03-03T10:15:00Z"
-    },
-    {
-        transactionId: "TXN-102938-EFGH",
-        transactionType: "DEBIT",
-        amount: 154.99,
-        accountNumber: "1234567890",
-        status: "SUCCESS",
-        timeOfCreation: "2026-03-02T16:45:00Z"
-    },
-    {
-        transactionId: "TXN-564738-IJKL",
-        transactionType: "TRANSFER",
-        amount: 50.00,
-        accountNumber: "9876543210",
-        status: "PENDING",
-        timeOfCreation: "2026-03-01T09:30:00Z"
-    },
-    {
-        transactionId: "TXN-112233-MNOP",
-        transactionType: "DEBIT",
-        amount: 890.00,
-        accountNumber: "4561237890",
-        status: "FAILED",
-        timeOfCreation: "2026-02-28T14:20:00Z"
-    }
-];
+import { ArrowUpRight, ArrowDownRight, Clock, XCircle, CheckCircle2, RefreshCw } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
+import { fetchRecentTransactions, type Transaction } from '../../services/dashboard';
 
 export function RecentTransactions() {
+    const { user } = useAuth();
+    const [transactions, setTransactions] = useState<Transaction[]>([]);
+    const [isLoading, setIsLoading] = useState(false);
+
+    const loadTransactions = async () => {
+        if (!user?.accountNumber) return;
+        setIsLoading(true);
+        try {
+            const data = await fetchRecentTransactions(user.accountNumber);
+            // Assuming data is an array of transactions. Limit to 5 for dashboard
+            setTransactions(data.slice(0, 5));
+        } catch (error) {
+            console.error("Failed to fetch transactions:", error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        loadTransactions();
+    }, [user?.accountNumber]);
+
     return (
-        <Card className="bg-zinc-900 border-4 border-zinc-800 text-white h-full">
-            <CardHeader className="border-b-4 border-zinc-800 pb-4">
+        <Card className="bg-zinc-900 border-4 border-zinc-800 text-white h-full flex flex-col">
+            <CardHeader className="border-b-4 border-zinc-800 pb-4 flex flex-row items-center justify-between">
                 <CardTitle className="text-xl md:text-2xl text-white">Recent Transactions</CardTitle>
+                <button onClick={loadTransactions} className={`p-1 hover:text-white text-zinc-400 transition-colors ${isLoading ? 'animate-spin' : ''}`}>
+                    <RefreshCw size={18} />
+                </button>
             </CardHeader>
-            <CardContent className="pt-0">
-                <div className="divide-y-4 divide-zinc-800">
-                    {mockTransactions.map((tx) => (
-                        <TransactionItem key={tx.transactionId} transaction={tx} />
-                    ))}
-                </div>
+            <CardContent className="pt-0 flex-1 overflow-y-auto">
+                {transactions.length === 0 && !isLoading ? (
+                    <div className="flex items-center justify-center h-full min-h-[150px] text-zinc-500 font-bold uppercase tracking-widest text-sm">
+                        No recent transactions
+                    </div>
+                ) : (
+                    <div className="divide-y-4 divide-zinc-800">
+                        {transactions.map((tx) => (
+                            <TransactionItem key={tx.transactionId} transaction={tx} />
+                        ))}
+                    </div>
+                )}
             </CardContent>
         </Card>
     );

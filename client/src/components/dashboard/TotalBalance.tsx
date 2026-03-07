@@ -1,26 +1,39 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/Card';
-import { Copy, Check, Eye, EyeOff } from 'lucide-react';
-
-interface AccountInfo {
-    accountName: string;
-    accountBalance: number;
-    accountNumber: string;
-}
+import { Copy, Check, Eye, EyeOff, RefreshCw } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
+import { fetchBalance } from '../../services/dashboard';
 
 export function TotalBalance() {
+    const { user } = useAuth();
     const [isRevealed, setIsRevealed] = useState(false);
     const [copied, setCopied] = useState(false);
+    const [balanceInfo, setBalanceInfo] = useState({
+        accountName: user?.accountName || "Loading...",
+        accountBalance: user?.accountBalance || 0,
+        accountNumber: user?.accountNumber || "..."
+    });
+    const [isLoading, setIsLoading] = useState(false);
 
-    // Mocking the AccountInfo expected from the backend
-    const mockBalance: AccountInfo = {
-        accountName: "John Doe",
-        accountBalance: 125430.25,
-        accountNumber: "1234567890"
+    const loadBalance = async () => {
+        if (!user?.accountNumber) return;
+        setIsLoading(true);
+        try {
+            const data = await fetchBalance(user.accountNumber);
+            setBalanceInfo(data.accountInfo);
+        } catch (error) {
+            console.error("Failed to fetch balance:", error);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
+    useEffect(() => {
+        loadBalance();
+    }, [user?.accountNumber]);
+
     const handleCopy = () => {
-        navigator.clipboard.writeText(mockBalance.accountNumber);
+        navigator.clipboard.writeText(balanceInfo.accountNumber);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
     };
@@ -39,20 +52,23 @@ export function TotalBalance() {
                     >
                         {isRevealed ? <EyeOff size={20} /> : <Eye size={20} />}
                     </button>
+                    <button onClick={loadBalance} className={`p-1 hover:text-white transition-colors ml-2 ${isLoading ? 'animate-spin' : ''}`}>
+                        <RefreshCw size={16} />
+                    </button>
                 </CardTitle>
             </CardHeader>
             <CardContent className="pt-6">
                 <div className={`text-4xl md:text-6xl font-black break-words tracking-tighter transition-all duration-300 ${!isRevealed ? "blur-md select-none opacity-50" : ""}`}>
-                    ${mockBalance.accountBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    ${balanceInfo.accountBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </div>
                 <div className="mt-4 flex flex-col md:flex-row justify-between items-start md:items-center text-sm md:text-base font-bold text-zinc-500 uppercase tracking-widest gap-2">
-                    <span>{mockBalance.accountName}</span>
+                    <span>{balanceInfo.accountName}</span>
                     <button
                         onClick={handleCopy}
                         className="bg-zinc-950 px-3 py-1 border-2 border-zinc-800 hover:border-zinc-600 hover:text-zinc-300 transition-colors flex items-center gap-2"
                         title="Copy Account Number"
                     >
-                        <span>{mockBalance.accountNumber}</span>
+                        <span>{balanceInfo.accountNumber}</span>
                         {copied ? <Check size={16} className="text-green-500" /> : <Copy size={16} />}
                     </button>
                 </div>
