@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/Card';
+import { Input } from '../components/ui/Input';
 import { ArrowUpRight, ArrowDownRight, Clock, XCircle, CheckCircle2, Search, Filter } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { fetchRecentTransactions, parseTransactionDate, type Transaction } from '../services/dashboard';
