@@ -14,9 +14,9 @@ export function AppLayout() {
     };
 
     return (
-        <div className="min-h-screen bg-zinc-950 text-white flex select-none">
+        <div className="h-screen bg-zinc-950 text-white flex select-none overflow-hidden">
             {/* Sidebar */}
-            <aside className="w-20 md:w-64 bg-zinc-950 border-r-4 border-zinc-800 flex flex-col justify-between py-8 shrink-0">
+            <aside className="w-20 md:w-64 h-full bg-zinc-950 border-r-4 border-zinc-800 flex flex-col justify-between py-8 shrink-0 overflow-y-auto custom-scrollbar">
                 <div>
                     <div className="px-4 md:px-8 mb-12 flex justify-center">
                         <div className="relative h-16 w-16 md:h-24 md:w-24 rounded-[1.5rem] md:rounded-[2rem] overflow-hidden shadow-brutal border-2 border-zinc-800 shrink-0 bg-zinc-900">
