@@ -4,6 +4,8 @@ import com.abraham_bankole.runestone_bank.common.dto.BankResponse;
 import com.abraham_bankole.runestone_bank.user.dto.EnquiryRequest;
 import com.abraham_bankole.runestone_bank.user.dto.LoginDto;
 import com.abraham_bankole.runestone_bank.user.dto.UserRequest;
+import com.abraham_bankole.runestone_bank.user.dto.ProfileUpdateRequest;
+import com.abraham_bankole.runestone_bank.user.dto.PasswordUpdateRequest;
 import com.abraham_bankole.runestone_bank.user.service.UserService;
 import com.abraham_bankole.runestone_bank.security.service.impl.AuthServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
@@ -50,6 +52,30 @@ public class UserController {
   @PreAuthorize("isAuthenticated()")
   public BankResponse nameEnquiry(@RequestParam String accountNumber) {
     return userService.nameEnquiry(new EnquiryRequest(accountNumber));
+  }
+
+  @Operation(summary = "Get User Profile", description = "Get current user profile settings")
+  @ApiResponse(responseCode = "200", description = "Http Status 200 SUCCESS")
+  @GetMapping("/profile")
+  @PreAuthorize("hasRole('ROLE_ADMIN') or #accountNumber == authentication.principal.accountNumber")
+  public BankResponse getProfile(@RequestParam String accountNumber) {
+    return userService.getProfile(accountNumber);
+  }
+
+  @Operation(summary = "Update User Profile", description = "Update user profile settings")
+  @ApiResponse(responseCode = "200", description = "Http Status 200 SUCCESS")
+  @PutMapping("/profile")
+  @PreAuthorize("hasRole('ROLE_ADMIN') or #accountNumber == authentication.principal.accountNumber")
+  public BankResponse updateProfile(@RequestParam String accountNumber, @RequestBody ProfileUpdateRequest request) {
+    return userService.updateProfile(accountNumber, request);
+  }
+
+  @Operation(summary = "Update Password", description = "Update user password")
+  @ApiResponse(responseCode = "200", description = "Http Status 200 SUCCESS")
+  @PutMapping("/password")
+  @PreAuthorize("hasRole('ROLE_ADMIN') or #accountNumber == authentication.principal.accountNumber")
+  public BankResponse updatePassword(@RequestParam String accountNumber, @RequestBody PasswordUpdateRequest request) {
+    return userService.updatePassword(accountNumber, request);
   }
 }
 

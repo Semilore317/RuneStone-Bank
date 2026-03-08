@@ -13,5 +13,6 @@ public class BankResponse {
   private String responseCode;
   private String responseMessage;
   private AccountInfo accountInfo;
+  private Object data;
   private String jwt;
 }

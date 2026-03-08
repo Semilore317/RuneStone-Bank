@@ -43,6 +43,14 @@ public class User implements UserDetails {
     private String status;
     @Enumerated(EnumType.STRING)
     private Role role;
+
+    @Builder.Default
+    private Boolean emailNotifs = true;
+    @Builder.Default
+    private Boolean loginAlerts = true;
+    @Builder.Default
+    private Boolean transferAlerts = false;
+
     @CreationTimestamp
     private LocalDateTime createdAt;
     @UpdateTimestamp

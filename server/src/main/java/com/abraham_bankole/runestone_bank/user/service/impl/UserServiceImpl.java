@@ -83,7 +83,7 @@ public class UserServiceImpl implements UserService {
             return BankResponse.builder()
                     .responseCode(AccountUtils.ACCOUNT_NOT_EXIST_CODE)
                     .responseMessage(AccountUtils.ACCOUNT_NOT_EXIST_MESSAGE)
-                    .accountInfo(null)
+                    .accountInfo(null)users
                     .build();
         }
 
@@ -123,6 +123,84 @@ public class UserServiceImpl implements UserService {
                         AccountInfo.builder()
                                 .accountName(foundUser.getFullName())
                                 .build())
+                .build();
+    }
+
+    @Override
+    public BankResponse getProfile(String accountNumber) {
+        User user = userRepository.findByAccountNumber(accountNumber);
+        if (user == null) {
+            return BankResponse.builder()
+                    .responseCode(AccountUtils.ACCOUNT_NOT_EXIST_CODE)
+                    .responseMessage(AccountUtils.ACCOUNT_NOT_EXIST_MESSAGE)
+                    .build();
+        }
+
+        UserProfileResponse profileData = UserProfileResponse.builder()
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .email(user.getEmail())
+                .accountNumber(user.getAccountNumber())
+                .emailNotifs(user.getEmailNotifs())
+                .loginAlerts(user.getLoginAlerts())
+                .transferAlerts(user.getTransferAlerts())
+                .build();
+
+        return BankResponse.builder()
+                .responseCode(AccountUtils.ACCOUNT_FOUND_CODE)
+                .responseMessage(AccountUtils.ACCOUNT_FOUND_SUCCESS)
+                .data(profileData)
+                .build();
+    }
+
+    @Override
+    public BankResponse updateProfile(String accountNumber, ProfileUpdateRequest request) {
+        User user = userRepository.findByAccountNumber(accountNumber);
+        if (user == null) {
+            return BankResponse.builder()
+                    .responseCode(AccountUtils.ACCOUNT_NOT_EXIST_CODE)
+                    .responseMessage(AccountUtils.ACCOUNT_NOT_EXIST_MESSAGE)
+                    .build();
+        }
+
+        user.setFirstName(request.getFirstName() != null ? request.getFirstName() : user.getFirstName());
+        user.setLastName(request.getLastName() != null ? request.getLastName() : user.getLastName());
+        user.setEmail(request.getEmail() != null ? request.getEmail() : user.getEmail());
+        user.setEmailNotifs(request.getEmailNotifs() != null ? request.getEmailNotifs() : user.getEmailNotifs());
+        user.setLoginAlerts(request.getLoginAlerts() != null ? request.getLoginAlerts() : user.getLoginAlerts());
+        user.setTransferAlerts(request.getTransferAlerts() != null ? request.getTransferAlerts() : user.getTransferAlerts());
+
+        userRepository.save(user);
+
+        return BankResponse.builder()
+                .responseCode(AccountUtils.PROFILE_UPDATE_SUCCESS_CODE)
+                .responseMessage(AccountUtils.PROFILE_UPDATE_SUCCESS_MESSAGE)
+                .build();
+    }
+
+    @Override
+    public BankResponse updatePassword(String accountNumber, PasswordUpdateRequest request) {
+        User user = userRepository.findByAccountNumber(accountNumber);
+        if (user == null) {
+            return BankResponse.builder()
+                    .responseCode(AccountUtils.ACCOUNT_NOT_EXIST_CODE)
+                    .responseMessage(AccountUtils.ACCOUNT_NOT_EXIST_MESSAGE)
+                    .build();
+        }
+
+        if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
+            return BankResponse.builder()
+                    .responseCode(AccountUtils.PASSWORD_INCORRECT_CODE)
+                    .responseMessage(AccountUtils.PASSWORD_INCORRECT_MESSAGE)
+                    .build();
+        }
+
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
+
+        return BankResponse.builder()
+                .responseCode(AccountUtils.PASSWORD_UPDATE_SUCCESS_CODE)
+                .responseMessage(AccountUtils.PASSWORD_UPDATE_SUCCESS_MESSAGE)
                 .build();
     }
 

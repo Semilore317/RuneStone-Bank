@@ -26,6 +26,12 @@ public class AccountUtils {
   public static final String TRANSACTION_SUCCESSFUL_MESSAGE = "Transaction Successful";
   public static final String LOGIN_SUCCESS_CODE = "009";
   public static final String LOGIN_SUCCESS_MESSAGE = "Login Successfully";
+  public static final String PROFILE_UPDATE_SUCCESS_CODE = "010";
+  public static final String PROFILE_UPDATE_SUCCESS_MESSAGE = "Profile updated successfully";
+  public static final String PASSWORD_UPDATE_SUCCESS_CODE = "011";
+  public static final String PASSWORD_UPDATE_SUCCESS_MESSAGE = "Password updated successfully";
+  public static final String PASSWORD_INCORRECT_CODE = "012";
+  public static final String PASSWORD_INCORRECT_MESSAGE = "Incorrect current password";
 
   public static String generateAccountNumber() {
     Year currentYear = Year.now();
