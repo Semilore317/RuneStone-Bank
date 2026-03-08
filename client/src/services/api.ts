@@ -33,6 +33,14 @@ export async function apiRequest<T = unknown>(
     });
 
     if (!response.ok) {
+        if (response.status === 401) {
+            // Token expired or invalid
+            localStorage.removeItem('jwt');
+            localStorage.removeItem('accountInfo');
+            window.location.href = '/login';
+            throw new Error('Session expired. Please log in again.');
+        }
+
         const errorBody = await response.json().catch(() => null);
         throw new Error(
             errorBody?.responseMessage || `Request failed with status ${response.status}`
