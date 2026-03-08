@@ -53,7 +53,7 @@ public class JwtTokenProvider {
         | MalformedJwtException
         | SignatureException
         | IllegalArgumentException e) {
-      throw new RuntimeException(e);
+      return false;
     }
   }
 }

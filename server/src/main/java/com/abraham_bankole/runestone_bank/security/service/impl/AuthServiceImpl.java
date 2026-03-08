@@ -55,7 +55,7 @@ public class AuthServiceImpl {
                 .responseMessage(AccountUtils.LOGIN_SUCCESS_MESSAGE)
                 .jwt(jwtTokenProvider.generateToken(authentication))
                 .accountInfo(AccountInfo.builder()
-                        .accountName(user.getFirstName() + " " + user.getLastName() + " " + user.getOtherName())
+                        .accountName(user.getFullName())
                         .accountNumber(user.getAccountNumber())
                         .accountBalance(user.getAccountBalance())
                         .build())
