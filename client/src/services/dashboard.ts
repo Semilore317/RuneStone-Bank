@@ -36,10 +36,18 @@ export async function fetchRecentTransactions(accountNumber: string): Promise<Tr
     const token = localStorage.getItem('jwt');
     const response = await fetch(`/api/v1/transactions/history?accountNumber=${accountNumber}`, {
         method: 'GET',
-        headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
     });
 
     if (!response.ok) {
+        if (response.status === 401) {
+            localStorage.removeItem('jwt');
+            localStorage.removeItem('accountInfo');
+            window.location.href = '/login';
+            throw new Error('Session expired. Please log in again.');
+        }
         throw new Error('Failed to fetch transaction history');
     }
     return response.json();
