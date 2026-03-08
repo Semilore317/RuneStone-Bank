@@ -73,3 +73,49 @@ export async function transferFunds(request: TransferRequest): Promise<void> {
         body: JSON.stringify(request)
     });
 }
+
+export interface UserProfileResponse {
+    firstName: string;
+    lastName: string;
+    email: string;
+    accountNumber: string;
+    emailNotifs: boolean;
+    loginAlerts: boolean;
+    transferAlerts: boolean;
+}
+
+export interface ProfileUpdateRequest {
+    firstName: string;
+    lastName: string;
+    email: string;
+    emailNotifs: boolean;
+    loginAlerts: boolean;
+    transferAlerts: boolean;
+}
+
+export interface PasswordUpdateRequest {
+    currentPassword?: string;
+    newPassword?: string;
+}
+
+export async function fetchProfile(accountNumber: string): Promise<UserProfileResponse> {
+    const response = await apiRequest<UserProfileResponse>(`/user/profile?accountNumber=${accountNumber}`, {
+        method: 'GET'
+    });
+    if (!response.data) throw new Error("Profile not found");
+    return response.data;
+}
+
+export async function updateProfile(accountNumber: string, request: ProfileUpdateRequest): Promise<void> {
+    await apiRequest(`/user/profile?accountNumber=${accountNumber}`, {
+        method: 'PUT',
+        body: JSON.stringify(request)
+    });
+}
+
+export async function updatePassword(accountNumber: string, request: PasswordUpdateRequest): Promise<void> {
+    await apiRequest(`/user/password?accountNumber=${accountNumber}`, {
+        method: 'PUT',
+        body: JSON.stringify(request)
+    });
+}

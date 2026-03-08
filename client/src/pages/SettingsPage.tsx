@@ -2,26 +2,98 @@ import { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/Card';
 import { Input } from '../components/ui/Input';
 import { Button } from '../components/ui/Button';
-import { User, Bell, Shield, Save, CheckCircle2 } from 'lucide-react';
+import { User, Bell, Shield, Save, CheckCircle2, RefreshCw } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { fetchProfile, updateProfile, updatePassword } from '../services/dashboard';
+import { useEffect } from 'react';
 
 export function SettingsPage() {
     const { user } = useAuth();
     const [saved, setSaved] = useState(false);
+    const [errorMsg, setErrorMsg] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
 
-    // Mock settings state
-    const [firstName, setFirstName] = useState(user?.accountName?.split(' ')[0] || 'John');
-    const [lastName, setLastName] = useState(user?.accountName?.split(' ').slice(1).join(' ') || 'Doe');
-    const [email, setEmail] = useState('john.doe@example.com');
+    // Profile State
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
+    const [email, setEmail] = useState('');
     const [emailNotifs, setEmailNotifs] = useState(true);
     const [loginAlerts, setLoginAlerts] = useState(true);
     const [transferAlerts, setTransferAlerts] = useState(false);
 
-    const handleSave = (e: React.FormEvent) => {
+    // Password State
+    const [currentPassword, setCurrentPassword] = useState('');
+    const [newPassword, setNewPassword] = useState('');
+    const [pwdSaved, setPwdSaved] = useState(false);
+    const [pwdError, setPwdError] = useState('');
+    const [isUpdatingPwd, setIsUpdatingPwd] = useState(false);
+
+    useEffect(() => {
+        const loadProfile = async () => {
+            if (!user?.accountNumber) return;
+            setIsLoading(true);
+            try {
+                const profile = await fetchProfile(user.accountNumber);
+                setFirstName(profile.firstName || '');
+                setLastName(profile.lastName || '');
+                setEmail(profile.email || '');
+                setEmailNotifs(profile.emailNotifs ?? true);
+                setLoginAlerts(profile.loginAlerts ?? true);
+                setTransferAlerts(profile.transferAlerts ?? false);
+            } catch (err: unknown) {
+                console.error("Failed to load profile", err);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        loadProfile();
+    }, [user?.accountNumber]);
+
+    const handleSave = async (e: React.FormEvent) => {
         e.preventDefault();
-        console.log('Settings saved:', { firstName, lastName, email });
-        setSaved(true);
-        setTimeout(() => setSaved(false), 3000);
+        if (!user?.accountNumber) return;
+        setIsSaving(true);
+        setErrorMsg('');
+        try {
+            await updateProfile(user.accountNumber, {
+                firstName,
+                lastName,
+                email,
+                emailNotifs,
+                loginAlerts,
+                transferAlerts
+            });
+            setSaved(true);
+            setTimeout(() => setSaved(false), 3000);
+        } catch (err: unknown) {
+            setErrorMsg(err instanceof Error ? err.message : 'Failed to save settings');
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    const handlePasswordUpdate = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!user?.accountNumber) return;
+        if (!currentPassword || !newPassword) return;
+
+        setIsUpdatingPwd(true);
+        setPwdError('');
+        try {
+            await updatePassword(user.accountNumber, {
+                currentPassword,
+                newPassword
+            });
+            setCurrentPassword('');
+            setNewPassword('');
+            setPwdSaved(true);
+            setTimeout(() => setPwdSaved(false), 3000);
+        } catch (err: unknown) {
+            setPwdError(err instanceof Error ? err.message : 'Failed to update password');
+        } finally {
+            setIsUpdatingPwd(false);
+        }
     };
 
     return (
@@ -41,11 +113,22 @@ export function SettingsPage() {
                                 Profile
                             </CardTitle>
                         </CardHeader>
-                        <CardContent className="pt-6">
+                        <CardContent className="pt-6 relative">
+                            {isLoading && (
+                                <div className="absolute inset-0 bg-zinc-900/50 flex items-center justify-center backdrop-blur-sm z-10">
+                                    <RefreshCw className="animate-spin text-ochre-800" size={32} />
+                                </div>
+                            )}
                             {saved && (
                                 <div className="mb-6 p-4 bg-green-500/10 border-4 border-green-500/30 flex items-start gap-3">
                                     <CheckCircle2 size={20} className="text-green-500 shrink-0 mt-0.5" />
                                     <p className="text-green-400 font-bold text-sm uppercase tracking-wider">Settings saved successfully</p>
+                                </div>
+                            )}
+
+                            {errorMsg && (
+                                <div className="mb-6 p-4 bg-red-500/10 border-4 border-red-500/30 flex items-start gap-3">
+                                    <p className="text-red-400 font-bold text-sm uppercase tracking-wider">{errorMsg}</p>
                                 </div>
                             )}
 
@@ -83,11 +166,12 @@ export function SettingsPage() {
 
                                 <Button
                                     type="submit"
-                                    className="bg-ochre-800 hover:bg-ochre-800/90 text-white uppercase font-black tracking-widest py-4 border-4 border-black group"
+                                    disabled={isSaving || isLoading}
+                                    className="bg-ochre-800 hover:bg-ochre-800/90 text-white uppercase font-black tracking-widest py-4 border-4 border-black group disabled:opacity-50"
                                 >
                                     <span className="flex items-center gap-2">
-                                        <Save size={18} />
-                                        Save Changes
+                                        {isSaving ? <RefreshCw size={18} className="animate-spin" /> : <Save size={18} />}
+                                        {isSaving ? 'Saving...' : 'Save Changes'}
                                     </span>
                                 </Button>
                             </form>
@@ -103,28 +187,46 @@ export function SettingsPage() {
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="pt-6 space-y-5">
-                            <div className="space-y-2">
-                                <label className="text-xs md:text-sm font-bold uppercase tracking-widest text-zinc-500">Current Password</label>
-                                <Input
-                                    type="password"
-                                    placeholder="••••••••"
-                                    className="bg-zinc-950 border-4 border-zinc-800 text-white placeholder-zinc-700 font-mono"
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <label className="text-xs md:text-sm font-bold uppercase tracking-widest text-zinc-500">New Password</label>
-                                <Input
-                                    type="password"
-                                    placeholder="••••••••"
-                                    className="bg-zinc-950 border-4 border-zinc-800 text-white placeholder-zinc-700 font-mono"
-                                />
-                            </div>
-                            <Button
-                                type="button"
-                                className="bg-zinc-800 hover:bg-zinc-700 text-white uppercase font-black tracking-widest py-4 border-4 border-zinc-700"
-                            >
-                                Update Password
-                            </Button>
+                            {pwdSaved && (
+                                <div className="mb-4 p-4 bg-green-500/10 border-4 border-green-500/30 flex items-start gap-3">
+                                    <CheckCircle2 size={20} className="text-green-500 shrink-0 mt-0.5" />
+                                    <p className="text-green-400 font-bold text-sm uppercase tracking-wider">Password updated successfully</p>
+                                </div>
+                            )}
+                            {pwdError && (
+                                <div className="mb-4 p-4 bg-red-500/10 border-4 border-red-500/30 flex items-start gap-3">
+                                    <p className="text-red-400 font-bold text-sm uppercase tracking-wider">{pwdError}</p>
+                                </div>
+                            )}
+                            <form onSubmit={handlePasswordUpdate} className="space-y-5">
+                                <div className="space-y-2">
+                                    <label className="text-xs md:text-sm font-bold uppercase tracking-widest text-zinc-500">Current Password</label>
+                                    <Input
+                                        type="password"
+                                        placeholder="••••••••"
+                                        value={currentPassword}
+                                        onChange={(e) => setCurrentPassword(e.target.value)}
+                                        className="bg-zinc-950 border-4 border-zinc-800 text-white placeholder-zinc-700 font-mono"
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-xs md:text-sm font-bold uppercase tracking-widest text-zinc-500">New Password</label>
+                                    <Input
+                                        type="password"
+                                        placeholder="••••••••"
+                                        value={newPassword}
+                                        onChange={(e) => setNewPassword(e.target.value)}
+                                        className="bg-zinc-950 border-4 border-zinc-800 text-white placeholder-zinc-700 font-mono"
+                                    />
+                                </div>
+                                <Button
+                                    type="submit"
+                                    disabled={isUpdatingPwd || !currentPassword || !newPassword}
+                                    className="bg-zinc-800 hover:bg-zinc-700 text-white uppercase font-black tracking-widest py-4 border-4 border-zinc-700 disabled:opacity-50"
+                                >
+                                    {isUpdatingPwd ? 'Updating...' : 'Update Password'}
+                                </Button>
+                            </form>
                         </CardContent>
                     </Card>
                 </div>
@@ -168,9 +270,9 @@ export function SettingsPage() {
                             <CardTitle className="text-lg text-white">Account Info</CardTitle>
                         </CardHeader>
                         <CardContent className="pt-4 space-y-3">
-                            <InfoRow label="Account Number" value={user?.accountNumber || '1234567890'} />
-                            <InfoRow label="Account Name" value={user?.accountName || 'John Doe'} />
-                            <InfoRow label="Member Since" value="Feb 2026" />
+                            <InfoRow label="Account Number" value={user?.accountNumber || 'Unknown'} />
+                            <InfoRow label="Account Name" value={(firstName && lastName) ? `${firstName} ${lastName}` : 'Unknown'} />
+                            <InfoRow label="Member Since" value="Today" />
                         </CardContent>
                     </Card>
                 </div>
