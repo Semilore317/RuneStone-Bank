@@ -272,7 +272,6 @@ export function SettingsPage() {
                         <CardContent className="pt-4 space-y-3">
                             <InfoRow label="Account Number" value={user?.accountNumber || 'Unknown'} />
                             <InfoRow label="Account Name" value={(firstName && lastName) ? `${firstName} ${lastName}` : 'Unknown'} />
-                            <InfoRow label="Member Since" value="Today" />
                         </CardContent>
                     </Card>
                 </div>
