@@ -33,24 +33,10 @@ export async function fetchBalance(accountNumber: string): Promise<BalanceRespon
 }
 
 export async function fetchRecentTransactions(accountNumber: string): Promise<Transaction[]> {
-    const token = localStorage.getItem('jwt');
-    const response = await fetch(`/api/v1/transactions/history?accountNumber=${accountNumber}`, {
+    const response = await apiRequest<Transaction[]>(`/transactions/history?accountNumber=${accountNumber}`, {
         method: 'GET',
-        headers: {
-            'Authorization': `Bearer ${token}`
-        }
     });
-
-    if (!response.ok) {
-        if (response.status === 401) {
-            localStorage.removeItem('jwt');
-            localStorage.removeItem('accountInfo');
-            window.location.href = '/login';
-            throw new Error('Session expired. Please log in again.');
-        }
-        throw new Error('Failed to fetch transaction history');
-    }
-    return response.json();
+    return (response.data ?? response) as unknown as Transaction[];
 }
 
 export interface NameEnquiryResponse {
