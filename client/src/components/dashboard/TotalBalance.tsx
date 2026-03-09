@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/Card';
 import { Copy, Check, Eye, EyeOff, RefreshCw } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
@@ -15,7 +15,7 @@ export function TotalBalance() {
     });
     const [isLoading, setIsLoading] = useState(false);
 
-    const loadBalance = async () => {
+    const loadBalance = useCallback(async () => {
         if (!user?.accountNumber) return;
         setIsLoading(true);
         try {
@@ -26,11 +26,11 @@ export function TotalBalance() {
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [user?.accountNumber]);
 
     useEffect(() => {
         loadBalance();
-    }, [user?.accountNumber]);
+    }, [loadBalance]);
 
     const handleCopy = () => {
         navigator.clipboard.writeText(balanceInfo.accountNumber);
