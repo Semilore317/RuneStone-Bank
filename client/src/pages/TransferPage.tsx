@@ -43,7 +43,7 @@ export function TransferPage() {
             });
 
             setRecentRecipients(Array.from(uniqueRecipients.values()).slice(0, 5));
-        } catch (error) {
+        } catch {
             console.error("Failed to load recipients");
         } finally {
             setIsLoadingRecipients(false);
