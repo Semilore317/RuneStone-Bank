@@ -62,11 +62,12 @@ export function TransactionsPage() {
                         className="bg-zinc-900 border-4 border-zinc-800 text-white placeholder-zinc-600 pl-12 font-mono"
                     />
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-2" role="group" aria-label="Filter transactions">
                     {(['ALL', 'CREDIT', 'DEBIT', 'TRANSFER'] as FilterType[]).map((type) => (
                         <button
                             key={type}
                             onClick={() => setFilterType(type)}
+                            aria-pressed={filterType === type}
                             className={`px-4 py-3 border-4 font-bold uppercase text-sm tracking-wider transition-all
                                 ${filterType === type
                                     ? 'bg-ochre-800 border-ochre-800 text-white'
