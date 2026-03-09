@@ -5,9 +5,8 @@ import {
     logoutUser,
     getToken,
     getStoredAccountInfo,
-    getLoginTimestamp,
     isTokenExpired,
-    SESSION_DURATION_MS,
+    getTimeUntilExpiry,
     type AccountInfo,
 } from '../services/auth';
 
@@ -62,11 +61,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const startExpiryTimer = useCallback(() => {
         clearExpiryTimer();
-        const loginTs = getLoginTimestamp();
-        if (!loginTs) return;
-
-        const elapsed = Date.now() - loginTs;
-        const remaining = SESSION_DURATION_MS - elapsed;
+        const remaining = getTimeUntilExpiry();
 
         if (remaining <= 0) {
             performLogout();
@@ -76,8 +71,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         expiryTimerRef.current = setTimeout(performLogout, remaining);
     }, [clearExpiryTimer, performLogout]);
 
-    // Schedule auto-logout on mount if we hydrated a valid session.
-    // Uses a ref flag to run only once and avoid the setState-in-effect lint rule.
+    // Schedule auto-logout on mount if we hydrated a valid session
     const hasScheduledRef = useRef(false);
     useEffect(() => {
         if (!hasScheduledRef.current && initial.token) {
@@ -92,7 +86,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const response = await loginUser(email, password);
         setToken(response.jwt);
         setUser(response.accountInfo);
-        // Schedule expiry timer immediately after login
         startExpiryTimer();
     }, [startExpiryTimer]);
 
