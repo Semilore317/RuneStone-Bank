@@ -33,8 +33,8 @@ export function QuickTransfer() {
             setReceiver('');
             setAmount('');
             setTimeout(() => setSuccessMessage(''), 5000);
-        } catch (err: any) {
-            setError(err.message || 'Transfer failed. Please try again.');
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : 'Transfer failed. Please try again.');
         } finally {
             setIsLoading(false);
         }
