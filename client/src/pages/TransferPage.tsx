@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/Card';
 import { Input } from '../components/ui/Input';
 import { Button } from '../components/ui/Button';
@@ -20,7 +20,7 @@ export function TransferPage() {
     const [recentRecipients, setRecentRecipients] = useState<{ name: string, account: string, lastAmount: number }[]>([]);
     const [isLoadingRecipients, setIsLoadingRecipients] = useState(false);
 
-    const loadRecentRecipients = async () => {
+    const loadRecentRecipients = useCallback(async () => {
         if (!user?.accountNumber) return;
         setIsLoadingRecipients(true);
         try {
@@ -48,11 +48,11 @@ export function TransferPage() {
         } finally {
             setIsLoadingRecipients(false);
         }
-    };
+    }, [user?.accountNumber]);
 
     useEffect(() => {
         loadRecentRecipients();
-    }, [user?.accountNumber]);
+    }, [loadRecentRecipients]);
 
     const handleLookup = async () => {
         if (receiver.length < 5) {

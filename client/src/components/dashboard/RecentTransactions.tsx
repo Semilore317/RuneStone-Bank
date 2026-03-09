@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '../ui/Card';
 import { ArrowUpRight, ArrowDownRight, Clock, XCircle, CheckCircle2, RefreshCw } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
@@ -9,23 +9,22 @@ export function RecentTransactions() {
     const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [isLoading, setIsLoading] = useState(false);
 
-    const loadTransactions = async () => {
+    const loadTransactions = useCallback(async () => {
         if (!user?.accountNumber) return;
         setIsLoading(true);
         try {
             const data = await fetchRecentTransactions(user.accountNumber);
-            // Assuming data is an array of transactions. Limit to 5 for dashboard
             setTransactions(data.slice(0, 5));
         } catch (error) {
             console.error("Failed to fetch transactions:", error);
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [user?.accountNumber]);
 
     useEffect(() => {
         loadTransactions();
-    }, [user?.accountNumber]);
+    }, [loadTransactions]);
 
     return (
         <Card className="bg-zinc-900 border-4 border-zinc-800 text-white h-full flex flex-col">
@@ -36,7 +35,12 @@ export function RecentTransactions() {
                 </button>
             </CardHeader>
             <CardContent className="pt-0 flex-1 overflow-y-auto">
-                {transactions.length === 0 && !isLoading ? (
+                {isLoading ? (
+                    <div className="flex items-center justify-center h-full min-h-[150px] text-zinc-500 font-bold uppercase tracking-widest text-sm">
+                        <RefreshCw size={20} className="animate-spin mr-3" />
+                        Loading...
+                    </div>
+                ) : transactions.length === 0 ? (
                     <div className="flex items-center justify-center h-full min-h-[150px] text-zinc-500 font-bold uppercase tracking-widest text-sm">
                         No recent transactions
                     </div>
