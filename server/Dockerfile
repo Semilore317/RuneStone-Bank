@@ -1,0 +1,27 @@
+FROM container-registry.oracle.com/graalvm/native-image:21 AS builder
+
+WORKDIR /build
+
+
+COPY .mvn/ .mvn
+COPY mvnw pom.xml ./
+RUN ./mvnw dependency:go-offline
+
+
+COPY src ./src
+
+RUN ./mvnw -Pnative native:compile -DskipTests
+
+
+FROM alpine:latest
+RUN apk add --no-cache gcompat
+
+WORKDIR /app
+
+# Copy the compiled binary from the builder stage
+COPY --from=builder /build/target/runestone-bank .
+
+
+COPY .env .env
+
+ENTRYPOINT ["./runestone-bank"]
