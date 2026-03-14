@@ -22,6 +22,9 @@ jobs:
           distribution: 'graalvm'
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Make mvnw executable
+        run: chmod +x ./mvnw
+
       - name: Build Native Image with Maven
         run: ./mvnw -Pnative native:compile -DskipTests
 
