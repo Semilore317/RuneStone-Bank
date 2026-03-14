@@ -1,0 +1,7 @@
+FROM alpine:latest
+RUN apk add --no-cache gcompat
+WORKDIR /app
+# GitHub builds the binary and puts it in target/
+COPY target/runestone-bank .
+EXPOSE 8080
+ENTRYPOINT ["./runestone-bank"]
