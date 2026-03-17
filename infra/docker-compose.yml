@@ -1,0 +1,40 @@
+services:
+  db:
+    image: postgres:15
+    container_name: runestone-db
+    environment:
+      POSTGRES_DB: runestone_bank
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d runestone_bank"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - runestone-network
+
+  app:
+    build:
+      context: ../server
+      dockerfile: ../infra/Dockerfile.dev
+    container_name: runestone-app
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/runestone_bank
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: admin
+    env_file:
+      - ../server/.env
+    networks:
+      - runestone-network
+
+networks:
+  runestone-network:
+    driver: bridge
