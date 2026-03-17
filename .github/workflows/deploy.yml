@@ -37,5 +37,5 @@ jobs:
 
       - name: Build and Push Docker Image
         run: |
-          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/runestone-bank:latest -f Dockerfile.prod .
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/runestone-bank:latest -f ../infra/Dockerfile.prod .
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/runestone-bank:latest
