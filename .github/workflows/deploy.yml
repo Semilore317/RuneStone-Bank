@@ -46,7 +46,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Deploy to Azure VM
-        uses: appleboy/ssh-action@master
+        uses: appleboy/ssh-action@v0.1.10
         with:
           host: ${{ secrets.AZURE_VM_HOST }}
           username: ${{ secrets.AZURE_VM_USER }}
@@ -62,11 +62,11 @@ jobs:
             export APP_PASSWORD=${{ secrets.APP_PASSWORD }}
 
             # pull ONLY the new app image, leave the DB image alone
-            docker-compose -f infra/docker-compose.yml pull app
+            docker-compose -f infra/docker-compose.prod.yml pull app
 
             #  re-create ONLY the app container.
             # --no-deps ensures we don't restart the DB (zero downtime for data)
-            docker-compose -f infra/docker-compose.yml up -d --no-deps app
+            docker-compose -f infra/docker-compose.prod.yml up -d --no-deps app
 
             #  cleanup old images to save disk space on the drive
             docker image prune -f
