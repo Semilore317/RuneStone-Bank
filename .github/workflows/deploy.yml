@@ -2,12 +2,11 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ master ]
+    branches: [ main ] # fix: Listen to 'main' instead of 'master'
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-    #tell every step in this job to start inside the 'server' folder
     defaults:
       run:
         working-directory: ./server
@@ -21,18 +20,17 @@ jobs:
           java-version: '21'
           distribution: 'graalvm'
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          cache: 'maven' # prevent redownloading dependencies
+          cache: 'maven'
 
       - name: Make mvnw executable
         run: chmod +x ./mvnw
 
       - name: Build Native Image with Maven
-        run: ./mvnw -Pnative native:compile -DskipTests
+        run: ./mvnw -Pnative native:compile -DskipTests # skip tests to lower memory costs
 
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
-          # added dockerhub username and token to Github Secrets
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
@@ -46,27 +44,32 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Deploy to Azure VM
-        uses: appleboy/ssh-action@v0.1.10
+        uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.AZURE_VM_HOST }}
           username: ${{ secrets.AZURE_VM_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          key: ${{ secrets.AZURE_VM_SSH_KEY }}
           script: |
+            # 1. Sync the infrastructure files
             cd ~/RuneStone-Bank
-            git pull origin master
-            echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-
-            # Export secrets for docker-compose
+            git fetch origin main
+            git reset --hard origin/main
+            
+            # 2. Navigate to infra
+            cd infra
+            
+            # 3. Login and Pull
+            echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+            
+            # 4. Inject Secrets and Update
+            export DOCKER_IMAGE=${{ secrets.DOCKERHUB_USERNAME }}/runestone-bank:latest
             export DB_PASSWORD=${{ secrets.DB_PASSWORD }}
             export JWT_SECRET=${{ secrets.JWT_SECRET }}
+            export APP_USERNAME=${{ secrets.APP_USERNAME }}
             export APP_PASSWORD=${{ secrets.APP_PASSWORD }}
-
-            # pull ONLY the new app image, leave the DB image alone
-            docker-compose -f infra/docker-compose.yml pull app
-
-            #  re-create ONLY the app container.
-            # --no-deps ensures we don't restart the DB (zero downtime for data)
-            docker-compose -f infra/docker-compose.yml up -d --no-deps app
-
-            #  cleanup old images to save disk space on the drive
+            
+            docker compose pull app
+            docker compose up -d --no-deps app
+            
+            # 5. Housekeeping
             docker image prune -f
