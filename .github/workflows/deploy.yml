@@ -49,6 +49,7 @@ jobs:
           host: ${{ secrets.AZURE_VM_HOST }}
           username: ${{ secrets.AZURE_VM_USER }}
           key: ${{ secrets.AZURE_VM_SSH_KEY }}
+          debug: true
           script: |
             # 1. Sync the infrastructure files
             cd ~/RuneStone-Bank
