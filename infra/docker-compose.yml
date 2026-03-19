@@ -19,6 +19,7 @@ services:
       - runestone-network
 
   app:
+    image: "${DOCKER_IMAGE}"
     build:
       context: ../server
       dockerfile: ../infra/Dockerfile.dev
