@@ -43,34 +43,38 @@ jobs:
     needs: build-and-push
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4 # Need this to get the 'infra' folder
+
+      - name: Copy infra folder to VM
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.AZURE_VM_HOST }}
+          username: ${{ secrets.AZURE_VM_USER }}
+          key: ${{ secrets.AZURE_VM_SSH_KEY }}
+          source: "infra/*"
+          target: "~/RuneStone-Bank/infra"
+          strip_components: 1
+
       - name: Deploy to Azure VM
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.AZURE_VM_HOST }}
           username: ${{ secrets.AZURE_VM_USER }}
           key: ${{ secrets.AZURE_VM_SSH_KEY }}
-          debug: true
           script: |
-            # 1. Sync the infrastructure files
-            cd ~/RuneStone-Bank
-            git fetch origin main
-            git reset --hard origin/main
+            cd ~/RuneStone-Bank/infra
             
-            # 2. Navigate to infra
-            cd infra
-            
-            # 3. Login and Pull
+            # Login to Docker
             echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
             
-            # 4. Inject Secrets and Update
+            # Export secrets
             export DOCKER_IMAGE=${{ secrets.DOCKERHUB_USERNAME }}/runestone-bank:latest
             export DB_PASSWORD=${{ secrets.DB_PASSWORD }}
             export JWT_SECRET=${{ secrets.JWT_SECRET }}
             export APP_USERNAME=${{ secrets.APP_USERNAME }}
             export APP_PASSWORD=${{ secrets.APP_PASSWORD }}
             
+            # Start the engine
             docker compose pull app
             docker compose up -d --no-deps app
-            
-            # 5. Housekeeping
             docker image prune -f
