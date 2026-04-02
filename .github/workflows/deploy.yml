@@ -47,13 +47,8 @@ jobs:
           echo "tag=${CLEAN_USER}/runestone-bank:latest" >> $GITHUB_OUTPUT
 
       - name: Build and Push Docker Image
-        uses: docker/build-push-action@v5
-        with:
-          context: ./server
-          file: ./infra/Dockerfile.prod
-          push: true
-          # use the sanitized tag from the previous step
-          tags: ${{ steps.prep.outputs.tag }}
+        run: |
+          docker buildx build --push -f ./infra/Dockerfile.prod -t ${{ steps.prep.outputs.tag }} ./server
 
 
   deploy:
