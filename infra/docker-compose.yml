@@ -2,6 +2,7 @@ services:
   db:
     image: postgres:15-alpine
     container_name: runestone-db
+    restart: always
     volumes:
       - postgres_data:/var/lib/postgresql/data
     environment:
@@ -19,11 +20,9 @@ services:
       - runestone-network
 
   app:
-    #image: "${DOCKER_IMAGE}"
-    build:
-      context: ../server
-      dockerfile: ../infra/Dockerfile.dev
+    image: ${DOCKER_IMAGE}
     container_name: runestone-app
+    restart: always
     ports:
       - "8080:8080"
     depends_on:
