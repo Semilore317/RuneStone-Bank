@@ -39,14 +39,22 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      # manually strip whitespace
+      - name: Prepare Docker Tag
+        id: prep
+        run: |
+          CLEAN_USER=$(echo "${{ secrets.DOCKERHUB_USERNAME }}" | tr -d '[:space:]')
+          echo "tag=${CLEAN_USER}/runestone-bank:latest" >> $GITHUB_OUTPUT
+
       - name: Build and Push Docker Image
         uses: docker/build-push-action@v5
         with:
-          #  set context to ./server so the Dockerfile can find the 'target' folder
           context: ./server
           file: ./infra/Dockerfile.prod
           push: true
-          tags: "${{ secrets.DOCKERHUB_USERNAME }}/runestone-bank:latest"
+          # use the sanitized tag from the previous step
+          tags: ${{ steps.prep.outputs.tag }}
+
 
   deploy:
     needs: build-and-push
