@@ -1,19 +1,9 @@
-package com.abraham_bankole.runestone_bank.email.dto;
+package com.abraham_bankole.runestone_bank.email.dto
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
-public class EmailDetails {
-  private String recipientEmail;
-  private String recipientName;
-
-  private String messageBody;
-  private String subject;
-  private String attachment;
-}
+data class EmailDetails (
+    var recipientEmail: String = "",
+    var recipientName: String = "",
+    var messageBody: String = "",
+    var subject: String = "",
+    var attachment: String? = null
+)
