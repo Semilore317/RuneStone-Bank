@@ -2,17 +2,19 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ main ] # fix: Listen to 'main' instead of 'master'
+    branches: [ main ]
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
+    # default directory for Maven commands
     defaults:
       run:
         working-directory: ./server
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Set up GraalVM
         uses: graalvm/setup-graalvm@v1
@@ -26,7 +28,10 @@ jobs:
         run: chmod +x ./mvnw
 
       - name: Build Native Image with Maven
-        run: ./mvnw -Pnative native:compile -DskipTests # skip tests to lower memory costs
+        run: ./mvnw -Pnative native:compile -DskipTests
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
       - name: Login to Docker Hub
         uses: docker/login-action@v3
@@ -35,15 +40,19 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build and Push Docker Image
-        run: |
-          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/runestone-bank:latest -f ../infra/Dockerfile.prod .
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/runestone-bank:latest
+        uses: docker/build-push-action@v5
+        with:
+          #  set context to ./server so the Dockerfile can find the 'target' folder
+          context: ./server
+          file: ./infra/Dockerfile.prod
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/runestone-bank:latest
 
   deploy:
     needs: build-and-push
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4 # Need this to get the 'infra' folder
+      - uses: actions/checkout@v4
 
       - name: Copy infra folder to VM
         uses: appleboy/scp-action@v0.1.7
@@ -67,14 +76,13 @@ jobs:
             # Login to Docker
             echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
             
-            # Export secrets
+            # Export secrets for Docker Compose
             export DOCKER_IMAGE=${{ secrets.DOCKERHUB_USERNAME }}/runestone-bank:latest
             export DB_PASSWORD=${{ secrets.DB_PASSWORD }}
             export JWT_SECRET=${{ secrets.JWT_SECRET }}
-            export APP_USERNAME=${{ secrets.APP_USERNAME }}
             export APP_PASSWORD=${{ secrets.APP_PASSWORD }}
             
-            # Start the engine
+            # Pull and Restart
             docker compose pull app
             docker compose up -d --no-deps app
             docker image prune -f
