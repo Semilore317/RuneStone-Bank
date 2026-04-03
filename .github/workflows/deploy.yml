@@ -49,6 +49,7 @@ jobs:
       - name: Build and Push Docker Image
         run: |
           docker buildx build --push -f ./infra/Dockerfile.prod -t ${{ steps.prep.outputs.tag }} ./server
+        working-directory: .
 
 
   deploy:
