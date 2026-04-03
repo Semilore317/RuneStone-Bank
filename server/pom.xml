@@ -120,6 +120,23 @@
         <plugins>
             <plugin>
                 <groupId>org.jetbrains.kotlin</groupId>
+                <artifactId>kotlin-maven-allopen</artifactId>
+                <version>${kotlin.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>all-open</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <annotation>org.springframework.stereotype.Component</annotation>
+                    <annotation>org.springframework.transaction.annotation.Transactional</annotation>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.jetbrains.kotlin</groupId>
                 <artifactId>kotlin-maven-plugin</artifactId>
                 <version>${kotlin.version}</version>
                 <extensions>true</extensions>
