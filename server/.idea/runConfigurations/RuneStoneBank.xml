@@ -1,0 +1,10 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="RuneStoneBank" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+    <module name="runestone-bank" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="com.abraham_bankole.runestone_bank.RuneStoneBankApplication" />
+    <option name="WORKING_DIRECTORY" value="$MODULE_WORKING_DIR$" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
