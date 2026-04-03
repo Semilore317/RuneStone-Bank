@@ -54,7 +54,7 @@ npm run dev
 ---
 
 # Current improvements
-## 📖Kotlin Migration
+## Kotlin Migration
 
 This project is currently undergoing a strategic migration of non-core domains from Java to Kotlin to leverage its modern syntax and null-safety features. 
 - The `EmailService` and associated listeners have been successfully migrated to Kotlin.
