@@ -27,7 +27,6 @@ public class JwtTokenProvider {
         .setSubject(username)
         .setIssuedAt(currentDate)
         .setExpiration(expiryDate)
-        //                .signWith(SignatureAlgorithm.HS256, jwtSecret)
         .signWith(key())
         .compact();
   }
