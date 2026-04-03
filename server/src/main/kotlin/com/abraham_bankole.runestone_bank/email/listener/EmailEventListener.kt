@@ -1,9 +1,9 @@
 package com.abraham_bankole.runestone_bank.email.listener
 
-//import com.abraham_bankole.runestone_bank.common.event.StatementReadyEvent
-//import com.abraham_bankole.runestone_bank.common.event.TransactionCompletedEvent
-//import com.abraham_bankole.runestone_bank.common.event.UserLoginEvent
-//import com.abraham_bankole.runestone_bank.common.event.UserRegisteredEvent
+import com.abraham_bankole.runestone_bank.common.event.StatementReadyEvent
+import com.abraham_bankole.runestone_bank.common.event.TransactionCompletedEvent
+import com.abraham_bankole.runestone_bank.common.event.UserLoginEvent
+import com.abraham_bankole.runestone_bank.common.event.UserRegisteredEvent
 import com.abraham_bankole.runestone_bank.email.dto.EmailDetails
 import com.abraham_bankole.runestone_bank.email.service.EmailService
 import jakarta.mail.MessagingException
@@ -25,7 +25,7 @@ open class EmailEventListener(
 ) {
     private val log = LoggerFactory.getLogger(EmailEventListener::class.java)
 
-    // this only fires after the transaction was successful3
+            // this only fires after the transaction was successful3
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     open fun handleUserRegistered(event: UserRegisteredEvent) {
