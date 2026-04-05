@@ -1,6 +1,7 @@
 package com.abraham_bankole.runestone_bank.statement.service;
 
 import com.abraham_bankole.runestone_bank.common.event.StatementReadyEvent;
+import com.abraham_bankole.runestone_bank.common.kafka.KafkaTopics;
 import com.abraham_bankole.runestone_bank.common.service.UserAccountService;
 import com.abraham_bankole.runestone_bank.transaction.entity.Transaction;
 import com.abraham_bankole.runestone_bank.transaction.repository.TransactionRepository;
@@ -177,6 +178,15 @@ public class BankStatementService {
 
         // publish event — the email domain sends the statement as an attachment
         eventPublisher.publishEvent(new StatementReadyEvent(userEmail, filePath, fileName));
+
+        kafkaTemplate.send(
+                KafkaTopics.STATEMENT_READY,
+                new StatementReadyEvent(
+                        userEmail,
+                        filePath,
+                        fileName
+                )
+        );
 
         return transactionList;
     }
