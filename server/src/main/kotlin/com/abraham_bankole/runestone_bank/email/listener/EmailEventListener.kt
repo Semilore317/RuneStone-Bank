@@ -16,8 +16,6 @@ import org.springframework.mail.javamail.JavaMailSender
 import org.springframework.mail.javamail.MimeMessageHelper
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Component
-import org.springframework.transaction.event.TransactionPhase
-import org.springframework.transaction.event.TransactionalEventListener
 import java.io.File
 
 @Component
@@ -54,9 +52,8 @@ open class EmailEventListener(
         emailService.sendEmailAlert(details)
     }
 
-    @Async
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    open fun handleTransactionCompleted(event: TransactionCompletedEvent) {
+    @KafkaListener(topics = [KafkaTopics.TRANSACTION_COMPLETED], groupId = "email-service")
+    fun handleTransactionCompleted(event: TransactionCompletedEvent) {
         // debit alert to sender
         val debitAlert = EmailDetails()
         debitAlert.subject = "DEBIT ALERT"
