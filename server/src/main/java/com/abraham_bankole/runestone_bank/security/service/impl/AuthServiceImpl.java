@@ -53,8 +53,8 @@ public class AuthServiceImpl {
         kafkaTemplate.send(
                 KafkaTopics.USER_LOGIN,
                 new UserLoginEvent(
-                        user.getEmail(),
-                        user.getFirstName()
+                        user.getFirstName(),
+                        user.getEmail()
                 )
         );
 
