@@ -25,7 +25,10 @@ public class UserServiceImpl implements UserService {
 
     public final PasswordEncoder passwordEncoder;
 
-    public UserServiceImpl(KafkaTemplate<String, Object> kafkaTemplate, UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserServiceImpl(
+            KafkaTemplate<String, Object> kafkaTemplate,
+            UserRepository userRepository,
+            PasswordEncoder passwordEncoder) {
         this.kafkaTemplate = kafkaTemplate;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
