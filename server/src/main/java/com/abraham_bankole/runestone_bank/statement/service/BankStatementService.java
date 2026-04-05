@@ -16,12 +16,10 @@ import java.io.OutputStream;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Objects;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
@@ -32,7 +30,6 @@ public class BankStatementService {
 
     private final TransactionRepository transactionRepository;
     private final UserAccountService userAccountService;
-    private final ApplicationEventPublisher eventPublisher;
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
     @Value("${spring.application.name}")
@@ -177,8 +174,6 @@ public class BankStatementService {
         document.close();
 
         // publish event — the email domain sends the statement as an attachment
-        eventPublisher.publishEvent(new StatementReadyEvent(userEmail, filePath, fileName));
-
         kafkaTemplate.send(
                 KafkaTopics.STATEMENT_READY,
                 new StatementReadyEvent(
