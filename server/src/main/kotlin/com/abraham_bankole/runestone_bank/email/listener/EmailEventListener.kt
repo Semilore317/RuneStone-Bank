@@ -9,12 +9,10 @@ import com.abraham_bankole.runestone_bank.email.dto.EmailDetails
 import com.abraham_bankole.runestone_bank.email.service.EmailService
 import jakarta.mail.MessagingException
 import org.slf4j.LoggerFactory
-import org.springframework.context.event.EventListener
 import org.springframework.core.io.FileSystemResource
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.mail.javamail.JavaMailSender
 import org.springframework.mail.javamail.MimeMessageHelper
-import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Component
 import java.io.File
 
@@ -70,8 +68,7 @@ open class EmailEventListener(
         })
     }
 
-    @Async
-    @EventListener
+    @KafkaListener(topics = [KafkaTopics.STATEMENT_READY], groupId = "email-service")
     open fun handleStatementReady(event: StatementReadyEvent) {
         try {
             val mimeMessage = javaMailSender.createMimeMessage()
