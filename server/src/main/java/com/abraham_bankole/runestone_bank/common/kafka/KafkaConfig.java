@@ -15,4 +15,13 @@ public class KafkaConfig {
                 .replicas(1)
                 .build();
     }
+
+    @Bean
+    public NewTopic userLoginTopic(){
+        return TopicBuilder
+                .name(KafkaTopics.USER_LOGIN)
+                .partitions(1)
+                .replicas(1)
+                .build();
+    }
 }
