@@ -20,11 +20,17 @@ import org.springframework.stereotype.Service;
 @Service
 public class TransactionServiceImpl implements TransactionService {
 
-  @Autowired TransactionRepository transactionRepository;
+  final TransactionRepository transactionRepository;
 
-  @Autowired UserAccountService userAccountService;
+  final UserAccountService userAccountService;
 
-  @Autowired ApplicationEventPublisher eventPublisher;
+  final ApplicationEventPublisher eventPublisher;
+
+  public TransactionServiceImpl(TransactionRepository transactionRepository, UserAccountService userAccountService, ApplicationEventPublisher eventPublisher) {
+    this.transactionRepository = transactionRepository;
+    this.userAccountService = userAccountService;
+    this.eventPublisher = eventPublisher;
+  }
 
   @Override
   public void saveTransaction(TransactionDto transactionDto) {
