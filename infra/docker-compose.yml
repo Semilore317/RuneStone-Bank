@@ -47,7 +47,10 @@ services:
       - runestone-network
 
   app:
-    image: ${DOCKER_IMAGE}
+    image: ${DOCKER_IMAGE:-runestone-app-local}
+    build:
+      context: ../server
+      dockerfile: ../infra/Dockerfile.dev
     env_file:
       - ../server/.env
     container_name: runestone-app
