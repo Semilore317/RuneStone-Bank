@@ -50,11 +50,6 @@ public class AuthServiceImpl {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         // publish the domain event
-        eventPublisher.publishEvent(new UserLoginEvent(
-                user.getEmail(),
-                user.getFirstName()
-        ));
-
         kafkaTemplate.send(
                 KafkaTopics.USER_LOGIN,
                 new UserLoginEvent(
