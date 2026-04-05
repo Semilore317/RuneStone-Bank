@@ -9,7 +9,6 @@ import com.abraham_bankole.runestone_bank.security.config.JwtTokenProvider;
 import com.abraham_bankole.runestone_bank.user.entity.User;
 import com.abraham_bankole.runestone_bank.user.repository.UserRepository;
 import com.abraham_bankole.runestone_bank.common.utils.AccountUtils;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -28,7 +27,6 @@ public class AuthServiceImpl {
             AuthenticationManager authenticationManager,
             JwtTokenProvider jwtTokenProvider,
             UserRepository userRepository,
-            ApplicationEventPublisher eventPublisher,
             KafkaTemplate<String, Object> kafkaTemplate
     ) {
         this.authenticationManager = authenticationManager;
