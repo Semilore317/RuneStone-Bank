@@ -19,21 +19,53 @@ services:
     networks:
       - runestone-network
 
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.6.1
+    container_name: runestone-zookeeper
+    restart: always
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      - runestone-network
+  kafka:
+    image: confluentinc/cp-kafka:7.6.1
+    container_name: runestone-kafka
+    restart: always
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    networks:
+      - runestone-network
+
   app:
     image: ${DOCKER_IMAGE}
     container_name: runestone-app
     restart: always
     ports:
       - "8080:8080"
-    depends_on:
-      db:
-        condition: service_healthy
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/runestone_bank
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
       JWT_SECRET: ${JWT_SECRET}
       APP_PASSWORD: ${APP_PASSWORD}
+      KAFKA_BOOTSTRAP_SERVERS: kafka: 29092
+    depends_on:
+      db:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+      networks:
+        - runestone-network
     networks:
       - runestone-network
 
