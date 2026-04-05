@@ -28,26 +28,24 @@ open class EmailEventListener(
     // this only fires after the transaction was successful3
     @KafkaListener(topics = [KafkaTopics.USER_REGISTERED], groupId = "email-service")
     fun handleUserRegistered(event: UserRegisteredEvent) {
-        val subject = "Welcome to Runestone Bank!"
-        val body = String.format("Hello %s, welcome to your new account.", event.firstName)
-        val name = event.firstName
-        val mail = event.email
-
-        val details = EmailDetails()
-        details.subject = subject
-        details.messageBody = body
-        details.recipientName = name
-        details.recipientEmail = mail
+        val details = EmailDetails().apply {
+            subject = "Welcome to Runestone Bank!"
+            messageBody = String.format("Hello %s, welcome to your new account.", event.firstName)
+            recipientName = event.firstName
+            recipientEmail = event.email
+        }
         emailService.sendEmailAlert(details)
     }
 
     @KafkaListener(topics = [KafkaTopics.USER_LOGIN], groupId = "email-service")
     fun handleUserLogin(event: UserLoginEvent) {
-        val details = EmailDetails()
-        details.subject = "Runestone Bank Login Alert"
-        details.messageBody = String.format("Hello %s, a new login was detected on your account.", event.name)
-        details.recipientEmail = event.email
-        details.recipientName = event.name
+        val details = EmailDetails().apply {
+            subject = "Runestone Bank Login Alert"
+            messageBody = String.format("Hello %s, a new login was detected on your account.", event.name)
+            recipientEmail = event.email
+            recipientName = event.name
+        }
+
 
         emailService.sendEmailAlert(details)
     }
