@@ -22,7 +22,6 @@ public class AuthServiceImpl {
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider jwtTokenProvider;
     private final UserRepository userRepository;
-    private final ApplicationEventPublisher eventPublisher;
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
     public AuthServiceImpl(
@@ -35,7 +34,6 @@ public class AuthServiceImpl {
         this.authenticationManager = authenticationManager;
         this.jwtTokenProvider = jwtTokenProvider;
         this.userRepository = userRepository;
-        this.eventPublisher = eventPublisher;
         this.kafkaTemplate = kafkaTemplate;
     }
 
