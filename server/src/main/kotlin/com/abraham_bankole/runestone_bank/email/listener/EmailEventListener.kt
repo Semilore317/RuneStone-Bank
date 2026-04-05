@@ -42,11 +42,9 @@ open class EmailEventListener(
         details.recipientEmail = mail
         emailService.sendEmailAlert(details)
     }
-    
 
-    @Async
-    @EventListener // NOT a TransactionalEventListener
-    open fun handleUserLogin(event: UserLoginEvent) {
+    @KafkaListener(topics = [KafkaTopics.USER_LOGIN], groupId = "email-service")
+    fun handleUserLogin(event: UserLoginEvent) {
         val details = EmailDetails()
         details.subject = "Runestone Bank Login Alert"
         details.messageBody = String.format("Hello %s, a new login was detected on your account.", event.name)
