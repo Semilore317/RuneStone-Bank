@@ -9,6 +9,7 @@ import com.abraham_bankole.runestone_bank.user.entity.User;
 import com.abraham_bankole.runestone_bank.user.repository.UserRepository;
 import com.abraham_bankole.runestone_bank.common.utils.AccountUtils;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -21,16 +22,20 @@ public class AuthServiceImpl {
     private final JwtTokenProvider jwtTokenProvider;
     private final UserRepository userRepository;
     private final ApplicationEventPublisher eventPublisher;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
 
     public AuthServiceImpl(
             AuthenticationManager authenticationManager,
             JwtTokenProvider jwtTokenProvider,
             UserRepository userRepository,
-            ApplicationEventPublisher eventPublisher) {
+            ApplicationEventPublisher eventPublisher,
+            KafkaTemplate<String, Object> kafkaTemplate
+    ) {
         this.authenticationManager = authenticationManager;
         this.jwtTokenProvider = jwtTokenProvider;
         this.userRepository = userRepository;
         this.eventPublisher = eventPublisher;
+        this.kafkaTemplate = kafkaTemplate;
     }
 
     public BankResponse login(LoginDto loginDto) {
