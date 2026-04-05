@@ -10,7 +10,6 @@ import com.abraham_bankole.runestone_bank.user.dto.*;
 import com.abraham_bankole.runestone_bank.user.entity.User;
 import com.abraham_bankole.runestone_bank.user.repository.UserRepository;
 import com.abraham_bankole.runestone_bank.user.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -20,14 +19,17 @@ import java.math.BigDecimal;
 @Service
 public class UserServiceImpl implements UserService {
 
-    @Autowired
-    private KafkaTemplate<String, Object> kafkaTemplate;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
-    @Autowired
-    public PasswordEncoder passwordEncoder;
+    public final PasswordEncoder passwordEncoder;
+
+    public UserServiceImpl(KafkaTemplate<String, Object> kafkaTemplate, UserRepository userRepository, PasswordEncoder passwordEncoder) {
+        this.kafkaTemplate = kafkaTemplate;
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+    }
 
     @Override
     public BankResponse createAccount(UserRequest userRequest) {
