@@ -48,6 +48,8 @@ services:
 
   app:
     image: ${DOCKER_IMAGE}
+    env_file:
+      - ../server/.env
     container_name: runestone-app
     restart: always
     ports:
@@ -58,14 +60,12 @@ services:
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
       JWT_SECRET: ${JWT_SECRET}
       APP_PASSWORD: ${APP_PASSWORD}
-      KAFKA_BOOTSTRAP_SERVERS: kafka: 29092
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
     depends_on:
       db:
         condition: service_healthy
       kafka:
         condition: service_started
-      networks:
-        - runestone-network
     networks:
       - runestone-network
 
