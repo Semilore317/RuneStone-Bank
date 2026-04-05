@@ -23,9 +23,6 @@ import org.springframework.stereotype.Service;
 public class UserServiceImpl implements UserService {
 
     @Autowired
-    private ApplicationEventPublisher applicationEventPublisher;
-
-    @Autowired
     private KafkaTemplate<String, Object> kafkaTemplate;
 
     @Autowired
