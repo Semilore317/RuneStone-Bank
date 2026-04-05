@@ -1,6 +1,7 @@
 package com.abraham_bankole.runestone_bank.transaction.service.impl;
 
 import com.abraham_bankole.runestone_bank.common.event.TransactionCompletedEvent;
+import com.abraham_bankole.runestone_bank.common.kafka.KafkaTopics;
 import com.abraham_bankole.runestone_bank.common.service.UserAccountService;
 import com.abraham_bankole.runestone_bank.common.dto.AccountInfo;
 import com.abraham_bankole.runestone_bank.common.dto.BankResponse;
@@ -172,11 +173,15 @@ public class TransactionServiceImpl implements TransactionService {
         String senderEmail = userAccountService.getEmail(request.getSender());
         String receiverName = userAccountService.getFullName(request.getReceiver());
         String receiverEmail = userAccountService.getEmail(request.getReceiver());
-        eventPublisher.publishEvent(new TransactionCompletedEvent(
-                request.getSender(), senderName, senderEmail,
-                request.getReceiver(), receiverName, receiverEmail,
-                request.getAmount(), "TRANSFER"
-        ));
+
+        kafkaTemplate.send(
+                KafkaTopics.TRANSACTION_COMPLETED,
+                new TransactionCompletedEvent(
+                        request.getSender(), senderName, senderEmail,
+                        request.getReceiver(), receiverName, receiverEmail,
+                        request.getAmount(), "TRANSFER"
+                )
+        );
 
         // log debit transaction for sender
         TransactionDto debitTransaction =
