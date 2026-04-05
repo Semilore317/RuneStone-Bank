@@ -31,9 +31,10 @@ open class EmailEventListener(
         val details = EmailDetails().apply {
             subject = "Welcome to Runestone Bank!"
             messageBody = String.format("Hello ${event.firstName}, welcome to your new account.", event.firstName)
-            recipientName = event.firstName
-            recipientEmail = event.email
+            recipientName = event.firstName()
+            recipientEmail = event.email()
         }
+
         emailService.sendEmailAlert(details)
     }
 
@@ -42,10 +43,9 @@ open class EmailEventListener(
         val details = EmailDetails().apply {
             subject = "Runestone Bank Login Alert"
             messageBody = String.format("Hello ${event.name}, a new login was detected on your account.", event.name)
-            recipientEmail = event.email
-            recipientName = event.name
+            recipientEmail = event.email()
+            recipientName = event.name()
         }
-
 
         emailService.sendEmailAlert(details)
     }
@@ -53,26 +53,21 @@ open class EmailEventListener(
     @KafkaListener(topics = [KafkaTopics.TRANSACTION_COMPLETED], groupId = "email-service")
     fun handleTransactionCompleted(event: TransactionCompletedEvent) {
         // debit alert to sender
-        val debitAlert = EmailDetails()
-        debitAlert.subject = "DEBIT ALERT"
-        debitAlert.recipientName = event.senderName
-        debitAlert.recipientEmail = event.senderEmail
-        debitAlert.messageBody = String.format(
-            "You have successfully sent the sum of $%s to %s and your account has been debited.",
-            event.amount, event.receiverName
-        )
-        emailService.sendEmailAlert(debitAlert)
+        val debitAlert = EmailDetails().apply {
+            subject = "DEBIT ALERT"
+            recipientName = event.senderName()
+            recipientEmail = event.senderEmail()
+            messageBody = "You have successfully sent the sum of ${event.amount()} to ${event.receiverName} and your account has been debited."
+
+        }
 
         // credit alert to receiver
-        val creditAlert = EmailDetails()
-        creditAlert.subject = "CREDIT ALERT"
-        creditAlert.recipientName = event.receiverName
-        creditAlert.recipientEmail = event.receiverEmail
-        creditAlert.messageBody = String.format(
-            "The sum of $%s has been sent to your account from %s.",
-            event.amount, event.senderName
-        )
-        emailService.sendEmailAlert(creditAlert)
+        emailService.sendEmailAlert(EmailDetails().apply {
+            subject = "DEBIT ALERT"
+            recipientName = event.senderName()
+            recipientEmail  = event.senderEmail()
+            messageBody = "The sum of ${event.amount()} has been sent to your account from ${event.senderName()}."
+        })
     }
 
     @Async
