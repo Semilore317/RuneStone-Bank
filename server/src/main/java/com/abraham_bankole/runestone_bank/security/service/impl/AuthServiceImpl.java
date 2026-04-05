@@ -2,6 +2,7 @@ package com.abraham_bankole.runestone_bank.security.service.impl;
 
 import com.abraham_bankole.runestone_bank.common.event.UserLoginEvent;
 import com.abraham_bankole.runestone_bank.common.dto.BankResponse;
+import com.abraham_bankole.runestone_bank.common.kafka.KafkaTopics;
 import com.abraham_bankole.runestone_bank.user.dto.LoginDto;
 import com.abraham_bankole.runestone_bank.common.dto.AccountInfo;
 import com.abraham_bankole.runestone_bank.security.config.JwtTokenProvider;
@@ -48,11 +49,19 @@ public class AuthServiceImpl {
         User user = userRepository.findByEmail(loginDto.getEmail())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        // public the domain event
+        // publish the domain event
         eventPublisher.publishEvent(new UserLoginEvent(
                 user.getEmail(),
                 user.getFirstName()
         ));
+
+        kafkaTemplate.send(
+                KafkaTopics.USER_LOGIN,
+                new UserLoginEvent(
+                        user.getEmail(),
+                        user.getFirstName()
+                )
+        );
 
         // return the JWT and Account Info
         return BankResponse.builder()
