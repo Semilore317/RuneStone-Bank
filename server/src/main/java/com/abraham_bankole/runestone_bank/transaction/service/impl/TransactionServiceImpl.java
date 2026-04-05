@@ -13,7 +13,6 @@ import com.abraham_bankole.runestone_bank.transaction.service.TransactionService
 import com.abraham_bankole.runestone_bank.common.utils.AccountUtils;
 import jakarta.transaction.Transactional;
 import java.math.BigDecimal;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
