@@ -4,12 +4,14 @@ import com.abraham_bankole.runestone_bank.common.event.StatementReadyEvent
 import com.abraham_bankole.runestone_bank.common.event.TransactionCompletedEvent
 import com.abraham_bankole.runestone_bank.common.event.UserLoginEvent
 import com.abraham_bankole.runestone_bank.common.event.UserRegisteredEvent
+import com.abraham_bankole.runestone_bank.common.kafka.KafkaTopics
 import com.abraham_bankole.runestone_bank.email.dto.EmailDetails
 import com.abraham_bankole.runestone_bank.email.service.EmailService
 import jakarta.mail.MessagingException
 import org.slf4j.LoggerFactory
 import org.springframework.context.event.EventListener
 import org.springframework.core.io.FileSystemResource
+import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.mail.javamail.JavaMailSender
 import org.springframework.mail.javamail.MimeMessageHelper
 import org.springframework.scheduling.annotation.Async
@@ -26,9 +28,8 @@ open class EmailEventListener(
     private val log = LoggerFactory.getLogger(EmailEventListener::class.java)
 
     // this only fires after the transaction was successful3
-    @Async
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    open fun handleUserRegistered(event: UserRegisteredEvent) {
+    @KafkaListener(topics = [KafkaTopics.USER_REGISTERED], groupId = "email-service")
+    fun handleUserRegistered(event: UserRegisteredEvent) {
         val subject = "Welcome to Runestone Bank!"
         val body = String.format("Hello %s, welcome to your new account.", event.firstName)
         val name = event.firstName
@@ -41,6 +42,7 @@ open class EmailEventListener(
         details.recipientEmail = mail
         emailService.sendEmailAlert(details)
     }
+    
 
     @Async
     @EventListener // NOT a TransactionalEventListener
