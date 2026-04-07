@@ -21,7 +21,6 @@ import java.math.BigDecimal;
 @Service
 public class UserServiceImpl implements UserService {
 
-    private final KafkaTemplate<String, Object> kafkaTemplate;
     private final UserRepository userRepository;
     public final PasswordEncoder passwordEncoder;
     public final OutboxService outboxService;
@@ -32,7 +31,6 @@ public class UserServiceImpl implements UserService {
             PasswordEncoder passwordEncoder,
             OutboxService outboxService
     ) {
-        this.kafkaTemplate = kafkaTemplate;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.outboxService = outboxService;
