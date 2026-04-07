@@ -3,6 +3,7 @@ package com.abraham_bankole.runestone_bank.security.service.impl;
 import com.abraham_bankole.runestone_bank.common.event.UserLoginEvent;
 import com.abraham_bankole.runestone_bank.common.dto.BankResponse;
 import com.abraham_bankole.runestone_bank.common.kafka.KafkaTopics;
+import com.abraham_bankole.runestone_bank.common.service.OutboxService;
 import com.abraham_bankole.runestone_bank.user.dto.LoginDto;
 import com.abraham_bankole.runestone_bank.common.dto.AccountInfo;
 import com.abraham_bankole.runestone_bank.security.config.JwtTokenProvider;
@@ -22,17 +23,19 @@ public class AuthServiceImpl {
     private final JwtTokenProvider jwtTokenProvider;
     private final UserRepository userRepository;
     private final KafkaTemplate<String, Object> kafkaTemplate;
+    private final OutboxService outboxService;
 
     public AuthServiceImpl(
             AuthenticationManager authenticationManager,
             JwtTokenProvider jwtTokenProvider,
             UserRepository userRepository,
-            KafkaTemplate<String, Object> kafkaTemplate
+            KafkaTemplate<String, Object> kafkaTemplate, OutboxService outboxService
     ) {
         this.authenticationManager = authenticationManager;
         this.jwtTokenProvider = jwtTokenProvider;
         this.userRepository = userRepository;
         this.kafkaTemplate = kafkaTemplate;
+        this.outboxService = outboxService;
     }
 
     public BankResponse login(LoginDto loginDto) {
