@@ -57,6 +57,16 @@ public class AuthServiceImpl {
                 )
         );
 
+        outboxService.exportEvent(
+                user.getAccountNumber(),
+                KafkaTopics.USER_LOGIN,
+                "userLogin",
+                new UserLoginEvent(
+                        user.getFirstName(),
+                        user.getEmail()
+                )
+        );
+
         // return the JWT and Account Info
         return BankResponse.builder()
                 .responseCode(AccountUtils.LOGIN_SUCCESS_CODE)
