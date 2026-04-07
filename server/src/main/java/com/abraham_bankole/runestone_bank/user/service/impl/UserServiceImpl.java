@@ -11,6 +11,7 @@ import com.abraham_bankole.runestone_bank.user.dto.*;
 import com.abraham_bankole.runestone_bank.user.entity.User;
 import com.abraham_bankole.runestone_bank.user.repository.UserRepository;
 import com.abraham_bankole.runestone_bank.user.service.UserService;
+import jakarta.transaction.Transactional;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -38,6 +39,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public BankResponse createAccount(UserRequest userRequest) {
         if (userRepository.existsByEmail(userRequest.getEmail())) {
             return BankResponse.builder()
@@ -70,6 +72,16 @@ public class UserServiceImpl implements UserService {
         // publish domain event — the email domain listens and sends the welcome email
         kafkaTemplate.send(
                 KafkaTopics.USER_REGISTERED,
+                new UserRegisteredEvent(
+                        savedUser.getId(),
+                        savedUser.getEmail(),
+                        savedUser.getFirstName())
+        );
+
+        outboxService.exportEvent(
+                savedUser.getAccountNumber(),
+                KafkaTopics.USER_REGISTERED,
+                "UserRegistered",
                 new UserRegisteredEvent(
                         savedUser.getId(),
                         savedUser.getEmail(),
