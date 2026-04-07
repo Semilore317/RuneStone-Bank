@@ -27,7 +27,6 @@ public class TransactionServiceImpl implements TransactionService {
 
     private final UserAccountService userAccountService;
 
-    private final ApplicationEventPublisher eventPublisher;
 
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
