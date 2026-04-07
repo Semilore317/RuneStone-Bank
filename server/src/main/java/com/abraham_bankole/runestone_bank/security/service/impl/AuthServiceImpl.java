@@ -49,14 +49,6 @@ public class AuthServiceImpl {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         // publish the domain event
-        kafkaTemplate.send(
-                KafkaTopics.USER_LOGIN,
-                new UserLoginEvent(
-                        user.getFirstName(),
-                        user.getEmail()
-                )
-        );
-
         outboxService.exportEvent(
                 user.getAccountNumber(),
                 KafkaTopics.USER_LOGIN,
