@@ -22,19 +22,17 @@ public class AuthServiceImpl {
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider jwtTokenProvider;
     private final UserRepository userRepository;
-    private final KafkaTemplate<String, Object> kafkaTemplate;
     private final OutboxService outboxService;
 
     public AuthServiceImpl(
             AuthenticationManager authenticationManager,
             JwtTokenProvider jwtTokenProvider,
             UserRepository userRepository,
-            KafkaTemplate<String, Object> kafkaTemplate, OutboxService outboxService
+            OutboxService outboxService
     ) {
         this.authenticationManager = authenticationManager;
         this.jwtTokenProvider = jwtTokenProvider;
         this.userRepository = userRepository;
-        this.kafkaTemplate = kafkaTemplate;
         this.outboxService = outboxService;
     }
 

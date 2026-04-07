@@ -12,7 +12,6 @@ import com.abraham_bankole.runestone_bank.user.entity.User;
 import com.abraham_bankole.runestone_bank.user.repository.UserRepository;
 import com.abraham_bankole.runestone_bank.user.service.UserService;
 import jakarta.transaction.Transactional;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -26,7 +25,6 @@ public class UserServiceImpl implements UserService {
     public final OutboxService outboxService;
 
     public UserServiceImpl(
-            KafkaTemplate<String, Object> kafkaTemplate,
             UserRepository userRepository,
             PasswordEncoder passwordEncoder,
             OutboxService outboxService
