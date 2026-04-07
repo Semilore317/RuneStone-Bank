@@ -172,15 +172,6 @@ public class TransactionServiceImpl implements TransactionService {
         String receiverName = userAccountService.getFullName(request.getReceiver());
         String receiverEmail = userAccountService.getEmail(request.getReceiver());
 
-        kafkaTemplate.send(
-                KafkaTopics.TRANSACTION_COMPLETED,
-                new TransactionCompletedEvent(
-                        request.getSender(), senderName, senderEmail,
-                        request.getReceiver(), receiverName, receiverEmail,
-                        request.getAmount(), "TRANSFER"
-                )
-        );
-
         outboxService.exportEvent(
                 request.getSender(),
                 "transaction",
