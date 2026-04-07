@@ -175,7 +175,7 @@ public class TransactionServiceImpl implements TransactionService {
         outboxService.exportEvent(
                 request.getSender(),
                 "transaction",
-                "TransactionCompleted",
+                KafkaTopics.TRANSACTION_COMPLETED,
                 new TransactionCompletedEvent(
                         request.getSender(), senderName, senderEmail,
                         request.getReceiver(), receiverName, receiverEmail,

@@ -1,7 +1,7 @@
 package com.abraham_bankole.runestone_bank.common.kafka;
 
 public class KafkaTopics {
-    private KafkaTopics() {};
+    private KafkaTopics() {}
 
     public static final String USER_REGISTERED = "user.registered";
     public static final String USER_LOGIN = "user.login";
