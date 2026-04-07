@@ -181,6 +181,17 @@ public class TransactionServiceImpl implements TransactionService {
                 )
         );
 
+        outboxService.exportEvent(
+                request.getSender(),
+                "transaction",
+                "TransactionCompleted",
+                new TransactionCompletedEvent(
+                        request.getSender(), senderName, senderEmail,
+                        request.getReceiver(), receiverName, receiverEmail,
+                        request.getAmount(), "TRANSFER"
+                )
+        );
+
         // log debit transaction for sender
         TransactionDto debitTransaction =
                 TransactionDto.builder()
