@@ -4,6 +4,7 @@ import com.abraham_bankole.runestone_bank.common.dto.AccountInfo;
 import com.abraham_bankole.runestone_bank.common.dto.BankResponse;
 import com.abraham_bankole.runestone_bank.common.event.UserRegisteredEvent;
 import com.abraham_bankole.runestone_bank.common.kafka.KafkaTopics;
+import com.abraham_bankole.runestone_bank.common.service.OutboxService;
 import com.abraham_bankole.runestone_bank.common.utils.AccountUtils;
 import com.abraham_bankole.runestone_bank.security.entity.Role;
 import com.abraham_bankole.runestone_bank.user.dto.*;
@@ -20,18 +21,20 @@ import java.math.BigDecimal;
 public class UserServiceImpl implements UserService {
 
     private final KafkaTemplate<String, Object> kafkaTemplate;
-
     private final UserRepository userRepository;
-
     public final PasswordEncoder passwordEncoder;
+    public final OutboxService outboxService;
 
     public UserServiceImpl(
             KafkaTemplate<String, Object> kafkaTemplate,
             UserRepository userRepository,
-            PasswordEncoder passwordEncoder) {
+            PasswordEncoder passwordEncoder,
+            OutboxService outboxService
+    ) {
         this.kafkaTemplate = kafkaTemplate;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.outboxService = outboxService;
     }
 
     @Override
