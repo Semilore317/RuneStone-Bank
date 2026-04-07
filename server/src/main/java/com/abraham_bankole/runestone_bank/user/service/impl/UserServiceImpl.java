@@ -70,14 +70,6 @@ public class UserServiceImpl implements UserService {
         User savedUser = userRepository.save(newUser);
 
         // publish domain event — the email domain listens and sends the welcome email
-        kafkaTemplate.send(
-                KafkaTopics.USER_REGISTERED,
-                new UserRegisteredEvent(
-                        savedUser.getId(),
-                        savedUser.getEmail(),
-                        savedUser.getFirstName())
-        );
-
         outboxService.exportEvent(
                 savedUser.getAccountNumber(),
                 KafkaTopics.USER_REGISTERED,
