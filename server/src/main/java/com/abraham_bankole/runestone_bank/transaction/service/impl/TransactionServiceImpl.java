@@ -17,8 +17,6 @@ import jakarta.transaction.Transactional;
 
 import java.math.BigDecimal;
 
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -26,18 +24,15 @@ public class TransactionServiceImpl implements TransactionService {
 
     private final TransactionRepository transactionRepository;
     private final UserAccountService userAccountService;
-    private final KafkaTemplate<String, Object> kafkaTemplate;
     private final OutboxService outboxService;
 
     public TransactionServiceImpl(
             TransactionRepository transactionRepository,
             UserAccountService userAccountService,
-            ApplicationEventPublisher eventPublisher,
-            KafkaTemplate<String, Object> kafkaTemplate, OutboxService outboxService
+            OutboxService outboxService
     ) {
         this.transactionRepository = transactionRepository;
         this.userAccountService = userAccountService;
-        this.kafkaTemplate = kafkaTemplate;
         this.outboxService = outboxService;
     }
 
