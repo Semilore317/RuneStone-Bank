@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public record UserRegisteredEvent(
         @JsonProperty("userId") Long userId,
         @JsonProperty("email") String email,
-        @JsonProperty("firstname") String firstName
+        @JsonProperty("firstName") String firstName
 ) {
     @JsonCreator
     public UserRegisteredEvent {
