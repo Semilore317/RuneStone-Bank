@@ -72,6 +72,47 @@ services:
     networks:
       - runestone-network
 
+  connect:
+    image: debezium/connect:2.5
+    container_name: runestone-connect
+    restart: always
+    ports:
+      - "8083:8083"
+    environment:
+      BOOTSTRAP_SERVERS: kafka:29092
+      GROUP_ID: 1
+      CONFIG_STORAGE_TOPIC: connect_configs
+      OFFSET_STORAGE_TOPIC: connect_offsets
+      STATUS_STORAGE_TOPIC: connect_statuses
+      CONFIG_STORAGE_REPLICATION_FACTOR: 1
+      OFFSET_STORAGE_REPLICATION_FACTOR: 1
+      STATUS_STORAGE_REPLICATION_FACTOR: 1
+      # KEY_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      # VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+    depends_on:
+      kafka:
+        condition: service_started
+      db:
+        condition: service_healthy
+    networks:
+      - runestone-network
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: runestone-kafka-ui
+    restart: always
+    ports:
+      - "8082:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
+      KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:2181
+    depends_on:
+      kafka:
+        condition: service_started
+    networks:
+      - runestone-network
+
 volumes:
   postgres_data:
 
