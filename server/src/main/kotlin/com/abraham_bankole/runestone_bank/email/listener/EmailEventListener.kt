@@ -66,6 +66,8 @@ open class EmailEventListener(
             recipientEmail  = event.senderEmail()
             messageBody = "The sum of ${event.amount()} has been sent to your account from ${event.senderName()}."
         })
+
+        emailService.sendEmailAlert(debitAlert);
     }
 
     @KafkaListener(topics = [KafkaTopics.STATEMENT_READY], groupId = "email-service")
