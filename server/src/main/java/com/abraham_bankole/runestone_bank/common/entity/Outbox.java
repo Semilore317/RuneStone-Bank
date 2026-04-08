@@ -1,6 +1,7 @@
 package com.abraham_bankole.runestone_bank.common.entity;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import lombok.*;
@@ -8,7 +9,7 @@ import lombok.*;
 import java.time.Instant;
 import java.util.UUID;
 
-@Data
+@Entity
 @Getter
 @Setter
 @Builder
