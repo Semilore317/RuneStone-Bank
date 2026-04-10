@@ -28,7 +28,7 @@ open class EmailEventListener(
     fun handleUserRegistered(event: UserRegisteredEvent) {
         val details = EmailDetails().apply {
             subject = "Welcome to Runestone Bank!"
-            messageBody = String.format("Hello ${event.firstName}, welcome to your new account.", event.firstName)
+            messageBody = "Hello ${event.firstName}, welcome to your new account.", event.firstName
             recipientName = event.firstName()
             recipientEmail = event.email()
         }
@@ -40,7 +40,7 @@ open class EmailEventListener(
     fun handleUserLogin(event: UserLoginEvent) {
         val details = EmailDetails().apply {
             subject = "Runestone Bank Login Alert"
-            messageBody = String.format("Hello ${event.name}, a new login was detected on your account.", event.name)
+            messageBody = "Hello ${event.name}, a new login was detected on your account.", event.name
             recipientEmail = event.email()
             recipientName = event.name()
         }
