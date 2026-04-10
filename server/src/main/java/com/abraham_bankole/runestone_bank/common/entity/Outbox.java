@@ -17,7 +17,7 @@ import java.util.UUID;
 @AllArgsConstructor
 public class Outbox {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GeneratedType.UUID)
     private UUID id;
 
     @Column(nullable = false)
