@@ -21,8 +21,8 @@ import java.math.BigDecimal;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
-    public final PasswordEncoder passwordEncoder;
-    public final OutboxService outboxService;
+    private final PasswordEncoder passwordEncoder;
+    private final OutboxService outboxService;
 
     public UserServiceImpl(
             UserRepository userRepository,
