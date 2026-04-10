@@ -5,9 +5,8 @@ RuneStone Bank is a sophisticated **Modular Monolith** banking system engineered
 ---
 
 ## 1. Architectural Blueprint
-> **Goal:** Visualize the Modular Monolith structure and event-driven pipeline.
+![diagram](https://github.com/user-attachments/assets/d3c872b6-7271-439b-9caa-0095326080fc)
 
-![Architectural Blueprint](image.png)
 
 ---
 
