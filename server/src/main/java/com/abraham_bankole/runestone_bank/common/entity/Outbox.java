@@ -1,9 +1,6 @@
 package com.abraham_bankole.runestone_bank.common.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.Instant;
@@ -17,7 +14,7 @@ import java.util.UUID;
 @AllArgsConstructor
 public class Outbox {
     @Id
-    @GeneratedValue(strategy = GeneratedType.UUID)
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @Column(nullable = false)
