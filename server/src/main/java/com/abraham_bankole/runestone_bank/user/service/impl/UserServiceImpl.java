@@ -3,33 +3,39 @@ package com.abraham_bankole.runestone_bank.user.service.impl;
 import com.abraham_bankole.runestone_bank.common.dto.AccountInfo;
 import com.abraham_bankole.runestone_bank.common.dto.BankResponse;
 import com.abraham_bankole.runestone_bank.common.event.UserRegisteredEvent;
+import com.abraham_bankole.runestone_bank.common.kafka.KafkaTopics;
+import com.abraham_bankole.runestone_bank.common.service.OutboxService;
+import com.abraham_bankole.runestone_bank.common.utils.AccountUtils;
 import com.abraham_bankole.runestone_bank.security.entity.Role;
 import com.abraham_bankole.runestone_bank.user.dto.*;
 import com.abraham_bankole.runestone_bank.user.entity.User;
 import com.abraham_bankole.runestone_bank.user.repository.UserRepository;
 import com.abraham_bankole.runestone_bank.user.service.UserService;
-import com.abraham_bankole.runestone_bank.common.utils.AccountUtils;
-
-import java.math.BigDecimal;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationEventPublisher;
+import jakarta.transaction.Transactional;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
 
 @Service
 public class UserServiceImpl implements UserService {
 
-    @Autowired
-    private ApplicationEventPublisher applicationEventPublisher;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final OutboxService outboxService;
 
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    public PasswordEncoder passwordEncoder;
+    public UserServiceImpl(
+            UserRepository userRepository,
+            PasswordEncoder passwordEncoder,
+            OutboxService outboxService
+    ) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.outboxService = outboxService;
+    }
 
     @Override
+    @Transactional
     public BankResponse createAccount(UserRequest userRequest) {
         if (userRepository.existsByEmail(userRequest.getEmail())) {
             return BankResponse.builder()
@@ -60,8 +66,15 @@ public class UserServiceImpl implements UserService {
         User savedUser = userRepository.save(newUser);
 
         // publish domain event — the email domain listens and sends the welcome email
-        applicationEventPublisher.publishEvent(
-                new UserRegisteredEvent(savedUser.getId(), savedUser.getEmail(), savedUser.getFirstName()));
+        outboxService.exportEvent(
+                savedUser.getAccountNumber(),
+                KafkaTopics.USER_REGISTERED,
+                "UserRegistered",
+                new UserRegisteredEvent(
+                        savedUser.getId(),
+                        savedUser.getEmail(),
+                        savedUser.getFirstName())
+        );
 
         return BankResponse.builder()
                 .responseCode(AccountUtils.ACCOUNT_CREATION_SUCCESS_CODE)
