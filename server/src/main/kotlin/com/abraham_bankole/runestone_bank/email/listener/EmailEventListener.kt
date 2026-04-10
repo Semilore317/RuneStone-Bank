@@ -61,9 +61,9 @@ open class EmailEventListener(
 
         // credit alert to receiver
         emailService.sendEmailAlert(EmailDetails().apply {
-            subject = "DEBIT ALERT"
-            recipientName = event.senderName()
-            recipientEmail  = event.senderEmail()
+            subject = "CREDIT ALERT"
+            recipientName = event.receiverName()
+            recipientEmail  = event.receiverEmail()
             messageBody = "The sum of ${event.amount()} has been sent to your account from ${event.senderName()}."
         })
 
