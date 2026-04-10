@@ -33,4 +33,13 @@ public class KafkaConfig {
                 .replicas(1)
                 .build();
     }
+
+    @Bean
+    public NewTopic statementReadyTopic(){
+        return TopicBuilder
+                .name(KafkaTopics.STATEMENT_READY)
+                .partitions(1)
+                .replicas(1)
+                .build();
+    }
 }
