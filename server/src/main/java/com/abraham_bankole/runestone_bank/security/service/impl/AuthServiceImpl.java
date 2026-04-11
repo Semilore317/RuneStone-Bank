@@ -7,6 +7,8 @@ import com.abraham_bankole.runestone_bank.common.service.OutboxService;
 import com.abraham_bankole.runestone_bank.user.dto.LoginDto;
 import com.abraham_bankole.runestone_bank.common.dto.AccountInfo;
 import com.abraham_bankole.runestone_bank.security.config.JwtTokenProvider;
+import com.abraham_bankole.runestone_bank.security.entity.TokenBlacklist;
+import com.abraham_bankole.runestone_bank.security.repository.TokenBlacklistRepository;
 import com.abraham_bankole.runestone_bank.user.entity.User;
 import com.abraham_bankole.runestone_bank.user.repository.UserRepository;
 import com.abraham_bankole.runestone_bank.common.utils.AccountUtils;
@@ -14,6 +16,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 @Service
 public class AuthServiceImpl {
@@ -22,17 +25,20 @@ public class AuthServiceImpl {
     private final JwtTokenProvider jwtTokenProvider;
     private final UserRepository userRepository;
     private final OutboxService outboxService;
+    private final TokenBlacklistRepository tokenBlacklistRepository;
 
     public AuthServiceImpl(
             AuthenticationManager authenticationManager,
             JwtTokenProvider jwtTokenProvider,
             UserRepository userRepository,
-            OutboxService outboxService
+            OutboxService outboxService,
+            TokenBlacklistRepository tokenBlacklistRepository
     ) {
         this.authenticationManager = authenticationManager;
         this.jwtTokenProvider = jwtTokenProvider;
         this.userRepository = userRepository;
         this.outboxService = outboxService;
+        this.tokenBlacklistRepository = tokenBlacklistRepository;
     }
 
     public BankResponse login(LoginDto loginDto) {
@@ -66,6 +72,19 @@ public class AuthServiceImpl {
                         .accountNumber(user.getAccountNumber())
                         .accountBalance(user.getAccountBalance())
                         .build())
+                .build();
+    }
+
+    public BankResponse logout(String authHeader) {
+        if (StringUtils.hasText(authHeader) && authHeader.startsWith("Bearer ")) {
+            String token = authHeader.substring(7);
+            TokenBlacklist blacklistedToken = new TokenBlacklist();
+            blacklistedToken.setToken(token);
+            tokenBlacklistRepository.save(blacklistedToken);
+        }
+        return BankResponse.builder()
+                .responseCode("200")
+                .responseMessage("Logout successful")
                 .build();
     }
 }

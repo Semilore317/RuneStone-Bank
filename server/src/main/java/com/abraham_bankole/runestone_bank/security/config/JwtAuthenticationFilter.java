@@ -1,5 +1,6 @@
 package com.abraham_bankole.runestone_bank.security.config;
 
+import com.abraham_bankole.runestone_bank.security.repository.TokenBlacklistRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,6 +22,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
   private JwtTokenProvider jwtTokenProvider;
   private UserDetailsService userDetailsService;
+  private TokenBlacklistRepository tokenBlacklistRepository;
 
   @Override
   protected void doFilterInternal(
@@ -30,6 +32,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       throws ServletException, IOException {
     String token = getTokenFromRequest(request);
     if (StringUtils.hasText(token) && jwtTokenProvider.validateToken(token)) {
+      if (tokenBlacklistRepository.findByToken(token).isPresent()) {
+        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token is blacklisted");
+        return;
+      }
       String username = jwtTokenProvider.getUsername(token);
       UserDetails userDetails = userDetailsService.loadUserByUsername(username);
       UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails,
@@ -46,14 +52,5 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       return bearerToken.substring(7);
     }
     return null;
-  }
-
-  // exclude swagger docs from filter
-  @Override
-  protected boolean shouldNotFilter(HttpServletRequest request) {
-    String path = request.getServletPath();
-    return path.startsWith("/swagger-ui") ||
-            path.startsWith("/v3/api-docs") ||
-            path.startsWith("/actuator");
   }
 }

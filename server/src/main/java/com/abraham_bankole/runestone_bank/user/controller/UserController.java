@@ -31,6 +31,12 @@ public class UserController {
     return authService.login(loginDto);
   }
 
+  @Operation(summary = "Logout", description = "Invalidate user token")
+    @PostMapping("/logout")
+    public BankResponse logout(@RequestHeader("Authorization") String authHeader) {
+        return authService.logout(authHeader);
+    }
+
   @Operation(summary = "Create New User Account", description = "Create a user and assign a unique account number")
   @ApiResponse(responseCode = "201", description = "HttpS Status 201 CREATED")
   @PostMapping
@@ -41,7 +47,7 @@ public class UserController {
   @Operation(summary = "Balance Enquiry", description = "Get current balance for a user account")
   @ApiResponse(responseCode = "200", description = "Http Status 200 SUCCESS")
   @GetMapping("/balanceEnquiry")
-  @PreAuthorize("hasRole('ROLE_ADMIN') or #accountNumber == authentication.principal.accountNumber")
+  @PreAuthorize("hasAuthority('ROLE_ADMIN') or #accountNumber.equals(principal.accountNumber)")
   public BankResponse getBalanceEnquiry(@RequestParam String accountNumber) {
     return userService.balanceEnquiry(new EnquiryRequest(accountNumber));
   }
@@ -57,7 +63,7 @@ public class UserController {
   @Operation(summary = "Get User Profile", description = "Get current user profile settings")
   @ApiResponse(responseCode = "200", description = "Http Status 200 SUCCESS")
   @GetMapping("/profile")
-  @PreAuthorize("hasRole('ROLE_ADMIN') or #accountNumber == authentication.principal.accountNumber")
+  @PreAuthorize("hasAuthority('ROLE_ADMIN') or #accountNumber.equals(principal.accountNumber)")
   public BankResponse getProfile(@RequestParam String accountNumber) {
     return userService.getProfile(accountNumber);
   }
@@ -65,7 +71,7 @@ public class UserController {
   @Operation(summary = "Update User Profile", description = "Update user profile settings")
   @ApiResponse(responseCode = "200", description = "Http Status 200 SUCCESS")
   @PutMapping("/profile")
-  @PreAuthorize("hasRole('ROLE_ADMIN') or #accountNumber == authentication.principal.accountNumber")
+  @PreAuthorize("hasAuthority('ROLE_ADMIN') or #accountNumber.equals(principal.accountNumber)")
   public BankResponse updateProfile(@RequestParam String accountNumber, @RequestBody ProfileUpdateRequest request) {
     return userService.updateProfile(accountNumber, request);
   }
@@ -73,9 +79,8 @@ public class UserController {
   @Operation(summary = "Update Password", description = "Update user password")
   @ApiResponse(responseCode = "200", description = "Http Status 200 SUCCESS")
   @PutMapping("/password")
-  @PreAuthorize("hasRole('ROLE_ADMIN') or #accountNumber == authentication.principal.accountNumber")
+  @PreAuthorize("hasAuthority('ROLE_ADMIN') or #accountNumber.equals(principal.accountNumber)")
   public BankResponse updatePassword(@RequestParam String accountNumber, @RequestBody PasswordUpdateRequest request) {
     return userService.updatePassword(accountNumber, request);
   }
 }
-
