@@ -59,7 +59,7 @@ public class UserServiceImpl implements UserService {
                         .password(passwordEncoder.encode(userRequest.getPassword()))
                         .phoneNumber(userRequest.getPhoneNumber())
                         .alternativePhoneNumber(userRequest.getAlternativePhoneNumber())
-                        .role(Role.valueOf("ROLE_ADMIN"))
+                        .role(Role.ROLE_USER)
                         .status("ACTIVE")
                         .build();
 
