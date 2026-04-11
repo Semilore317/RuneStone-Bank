@@ -38,9 +38,9 @@ function getInitialAuthState(): { token: string | null; user: AccountInfo | null
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-    const initial = getInitialAuthState();
-    const [user, setUser] = useState<AccountInfo | null>(initial.user);
-    const [token, setToken] = useState<string | null>(initial.token);
+    const [user, setUser] = useState<AccountInfo | null>(null);
+    const [token, setToken] = useState<string | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
     const navigate = useNavigate();
     const expiryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -71,16 +71,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         expiryTimerRef.current = setTimeout(performLogout, remaining);
     }, [clearExpiryTimer, performLogout]);
 
-    // Schedule auto-logout on mount if we hydrated a valid session
-    const hasScheduledRef = useRef(false);
     useEffect(() => {
-        if (!hasScheduledRef.current && initial.token) {
-            hasScheduledRef.current = true;
+        const initial = getInitialAuthState();
+        if (initial.token) {
+            setToken(initial.token);
+            setUser(initial.user);
             startExpiryTimer();
         }
+        setIsLoading(false);
         return () => clearExpiryTimer();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [clearExpiryTimer, startExpiryTimer]);
 
     const login = useCallback(async (email: string, password: string) => {
         const response = await loginUser(email, password);
@@ -99,7 +99,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 logout: performLogout,
             }}
         >
-            {children}
+            {!isLoading && children}
         </AuthContext.Provider>
     );
 }

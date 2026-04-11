@@ -59,7 +59,16 @@ export function getTokenExpiry(): number | null {
     if (!token) return null;
 
     try {
-        const payload = token.split('.')[1];
+        let payload = token.split('.')[1];
+        // Convert Base64Url to standard Base64
+        payload = payload.replace(/-/g, '+').replace(/_/g, '/');
+        // Add padding if needed
+        const pad = payload.length % 4;
+        if (pad) {
+            payload += '='.repeat(4 - pad);
+        }
+
+
         const decoded = JSON.parse(atob(payload));
         return typeof decoded.exp === 'number' ? decoded.exp * 1000 : null; // convert to ms
     } catch {
