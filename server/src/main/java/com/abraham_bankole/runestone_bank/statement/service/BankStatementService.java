@@ -14,6 +14,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -145,7 +146,7 @@ public class BankStatementService {
         // dynamically populate the table
         List<Transaction> transactionList =
                 transactionRepository.findByAccountNumberAndTimeOfCreationBetween(
-                        accountNumber, start, end);
+                        accountNumber, start.atStartOfDay(), end.atTime(LocalTime.MAX));
 
         for (Transaction transaction : transactionList) {
             PdfPCell dateCell =

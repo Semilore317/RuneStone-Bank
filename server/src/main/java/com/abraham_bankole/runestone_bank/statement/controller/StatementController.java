@@ -7,7 +7,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.io.FileNotFoundException;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -39,11 +41,14 @@ public class StatementController {
   @ApiResponse(responseCode = "200", description = "Request processed successfully")
   @PostMapping("/email")
   @PreAuthorize("hasAuthority('ROLE_ADMIN') or #accountNumber.equals(principal.accountNumber)")
-  public ResponseEntity<String> requestStatementByEmail(
+  public ResponseEntity<Map<String, String>> requestStatementByEmail(
       @RequestParam String accountNumber, @RequestParam String start, @RequestParam String end)
       throws DocumentException, FileNotFoundException {
     bankStatement.generateStatement(accountNumber, start, end);
-    return ResponseEntity.ok(
-        "Statement request processed. You will receive the statement via email shortly.");
+    Map<String, String> response =
+        Collections.singletonMap(
+            "message",
+            "Statement request processed. You will receive the statement via email shortly.");
+    return ResponseEntity.ok(response);
   }
 }
