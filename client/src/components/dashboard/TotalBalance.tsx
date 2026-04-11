@@ -4,9 +4,13 @@ import { Copy, Check, Eye, EyeOff, RefreshCw } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { fetchBalance } from '../../services/dashboard';
 
-export function TotalBalance() {
+interface TotalBalanceProps {
+    isRevealed: boolean;
+    setIsRevealed: (value: boolean) => void;
+}
+
+export function TotalBalance({ isRevealed, setIsRevealed }: TotalBalanceProps) {
     const { user } = useAuth();
-    const [isRevealed, setIsRevealed] = useState(false);
     const [copied, setCopied] = useState(false);
     const [balanceInfo, setBalanceInfo] = useState({
         accountName: user?.accountName || "Loading...",

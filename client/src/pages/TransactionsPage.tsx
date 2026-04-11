@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/Card';
 import { Input } from '../components/ui/Input';
-import { ArrowUpRight, ArrowDownRight, Clock, XCircle, CheckCircle2, Search, Filter } from 'lucide-react';
+import { Button } from '../components/ui/Button';
+import { StatementRequestModal } from '../components/ui/StatementRequestModal';
+import { ArrowUpRight, ArrowDownRight, Clock, XCircle, CheckCircle2, Search, Filter, Mail } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { fetchRecentTransactions, parseTransactionDate, type Transaction } from '../services/dashboard';
+import { fetchRecentTransactions, requestStatement, parseTransactionDate, type Transaction } from '../services/dashboard';
 
 type FilterType = 'ALL' | 'CREDIT' | 'DEBIT' | 'TRANSFER';
 
@@ -13,6 +15,8 @@ export function TransactionsPage() {
     const [filterType, setFilterType] = useState<FilterType>('ALL');
     const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [toastMessage, setToastMessage] = useState<string | null>(null);
 
     useEffect(() => {
         const load = async () => {
@@ -23,12 +27,33 @@ export function TransactionsPage() {
                 setTransactions(data);
             } catch (error) {
                 console.error(error);
+                setToastMessage('Failed to load transactions.');
             } finally {
                 setIsLoading(false);
             }
         };
         load();
     }, [user?.accountNumber]);
+
+    const handleRequestStatement = async (startDate: string, endDate: string) => {
+        if (!user?.accountNumber) return;
+        try {
+            const response = await requestStatement(user.accountNumber, startDate, endDate);
+            setToastMessage(response.message);
+        } catch (error) {
+            console.error(error);
+            setToastMessage('Failed to request statement.');
+        } finally {
+            setIsModalOpen(false);
+        }
+    };
+
+    useEffect(() => {
+        if (toastMessage) {
+            const timer = setTimeout(() => setToastMessage(null), 5000);
+            return () => clearTimeout(timer);
+        }
+    }, [toastMessage]);
 
     const filtered = transactions.filter((tx) => {
         const matchesSearch = tx.transactionId.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -45,12 +70,31 @@ export function TransactionsPage() {
 
     return (
         <>
-            <header className="mb-12">
-                <h2 className="text-4xl md:text-5xl font-black uppercase tracking-tighter">Transactions</h2>
-                <p className="text-zinc-500 font-bold uppercase tracking-widest text-sm mt-2">Full transaction history</p>
+            {isModalOpen && (
+                <StatementRequestModal
+                    onClose={() => setIsModalOpen(false)}
+                    onSubmit={handleRequestStatement}
+                />
+            )}
+
+            {toastMessage && (
+                <div className="fixed top-5 right-5 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg z-50">
+                    {toastMessage}
+                </div>
+            )}
+
+            <header className="mb-12 flex justify-between items-center">
+                <div>
+                    <h2 className="text-4xl md:text-5xl font-black uppercase tracking-tighter">Transactions</h2>
+                    <p className="text-zinc-500 font-bold uppercase tracking-widest text-sm mt-2">Full transaction history</p>
+                </div>
+                <Button onClick={() => setIsModalOpen(true)} className="flex items-center gap-2">
+                    <Mail size={16} />
+                    Request Statement
+                </Button>
             </header>
 
-            {/* Filters */}
+            {/* ... (rest of the component is the same) */}
             <div className="flex flex-col md:flex-row gap-4 mb-8">
                 <div className="relative flex-1">
                     <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" />
@@ -80,7 +124,6 @@ export function TransactionsPage() {
                 </div>
             </div>
 
-            {/* Stats Summary */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
                 {[
                     { label: 'Total In', value: `$${totalIn.toFixed(2)}`, color: 'text-green-400' },
@@ -95,7 +138,6 @@ export function TransactionsPage() {
                 ))}
             </div>
 
-            {/* Transaction List */}
             <Card className="bg-zinc-900 border-4 border-zinc-800 text-white">
                 <CardHeader className="border-b-4 border-zinc-800 pb-4">
                     <CardTitle className="text-lg text-white flex items-center justify-between">

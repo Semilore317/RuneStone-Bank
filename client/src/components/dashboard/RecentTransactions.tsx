@@ -4,7 +4,11 @@ import { ArrowUpRight, ArrowDownRight, Clock, XCircle, CheckCircle2, RefreshCw }
 import { useAuth } from '../../context/AuthContext';
 import { fetchRecentTransactions, parseTransactionDate, type Transaction } from '../../services/dashboard';
 
-export function RecentTransactions() {
+interface RecentTransactionsProps {
+    isRevealed: boolean;
+}
+
+export function RecentTransactions({ isRevealed }: RecentTransactionsProps) {
     const { user } = useAuth();
     const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -47,7 +51,7 @@ export function RecentTransactions() {
                 ) : (
                     <div className="divide-y-4 divide-zinc-800">
                         {transactions.map((tx) => (
-                            <TransactionItem key={tx.transactionId} transaction={tx} />
+                            <TransactionItem key={tx.transactionId} transaction={tx} isRevealed={isRevealed} />
                         ))}
                     </div>
                 )}
@@ -56,7 +60,12 @@ export function RecentTransactions() {
     );
 }
 
-function TransactionItem({ transaction }: { transaction: Transaction }) {
+interface TransactionItemProps {
+    transaction: Transaction;
+    isRevealed: boolean;
+}
+
+function TransactionItem({ transaction, isRevealed }: TransactionItemProps) {
     // Determine visual style based on positive/negative cash flow 
     // CREDIT is positive. TRANSFER can be outgoing (negative) or incoming (positive).
     // In our backend, we use CREDIT for incoming transfers and TRANSFER for outgoing transfers.
@@ -101,7 +110,7 @@ function TransactionItem({ transaction }: { transaction: Transaction }) {
             </div>
 
             <div className="text-right">
-                <div className={`font-black text-xl md:text-2xl ${amountColor} flex items-center justify-end gap-2`}>
+                <div className={`font-black text-xl md:text-2xl ${amountColor} flex items-center justify-end gap-2 transition-all duration-300 ${!isRevealed ? "blur-md select-none" : ""}`}>
                     {amountPrefix}${transaction.amount.toFixed(2)}
                 </div>
                 <div className="flex items-center justify-end gap-1 mt-1 font-bold text-xs tracking-wider uppercase">

@@ -1,8 +1,11 @@
+import { useState } from 'react';
 import { TotalBalance } from '../components/dashboard/TotalBalance';
 import { QuickTransfer } from '../components/dashboard/QuickTransfer';
 import { RecentTransactions } from '../components/dashboard/RecentTransactions';
 
 export function DashboardPage() {
+    const [isRevealed, setIsRevealed] = useState(false);
+
     return (
         <>
             <header className="mb-12">
@@ -11,15 +14,15 @@ export function DashboardPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 <div className="md:col-span-2 lg:col-span-3">
-                    <TotalBalance />
+                    <TotalBalance isRevealed={isRevealed} setIsRevealed={setIsRevealed} />
                 </div>
 
                 <div className="md:col-span-1 lg:col-span-1">
-                    <QuickTransfer />
+                    <QuickTransfer isRevealed={isRevealed} />
                 </div>
 
                 <div className="md:col-span-1 lg:col-span-2">
-                    <RecentTransactions />
+                    <RecentTransactions isRevealed={isRevealed} />
                 </div>
             </div>
         </>

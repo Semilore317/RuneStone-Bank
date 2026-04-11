@@ -6,7 +6,11 @@ import { Send, CheckCircle2, AlertCircle } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { transferFunds } from '../../services/dashboard';
 
-export function QuickTransfer() {
+interface QuickTransferProps {
+    isRevealed: boolean;
+}
+
+export function QuickTransfer({ isRevealed }: QuickTransferProps) {
     const { user } = useAuth();
     const [receiver, setReceiver] = useState('');
     const [amount, setAmount] = useState('');
@@ -49,7 +53,7 @@ export function QuickTransfer() {
                 {successMessage && (
                     <div className="mb-4 p-3 bg-green-500/10 border-4 border-green-500/30 flex items-start gap-2">
                         <CheckCircle2 size={16} className="text-green-500 shrink-0 mt-0.5" />
-                        <p className="text-green-400 font-bold text-xs uppercase tracking-wider">{successMessage}</p>
+                        <p className={`text-green-400 font-bold text-xs uppercase tracking-wider transition-all duration-300 ${!isRevealed ? "blur-sm" : ""}`}>{successMessage}</p>
                     </div>
                 )}
                 {error && (
@@ -81,7 +85,7 @@ export function QuickTransfer() {
                                 onChange={(e) => setAmount(e.target.value)}
                                 min="0.01"
                                 step="0.01"
-                                className="bg-zinc-950 border-4 border-zinc-800 text-white placeholder-zinc-700 font-black text-xl pl-10"
+                                className={`bg-zinc-950 border-4 border-zinc-800 text-white placeholder-zinc-700 font-black text-xl pl-10 transition-all duration-300 ${!isRevealed ? "blur-md select-none" : ""}`}
                                 required
                             />
                         </div>
