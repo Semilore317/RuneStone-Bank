@@ -14,7 +14,7 @@ export interface LoginResponse {
 }
 
 export async function loginUser(email: string, password: string): Promise<LoginResponse> {
-    const response = await apiRequest('/user/login', {
+    const response = await apiRequest('/api/v1/user/login', {
         method: 'POST',
         body: JSON.stringify({ email, password }),
     });

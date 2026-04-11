@@ -1,4 +1,4 @@
-const BASE_URL = '/api/v1';
+const BASE_URL = '';
 
 export interface ApiResponse<T = unknown> {
     responseCode: string;

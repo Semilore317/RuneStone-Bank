@@ -27,13 +27,13 @@ export function parseTransactionDate(dateVal: string | number[]): Date {
 }
 
 export async function fetchBalance(accountNumber: string): Promise<BalanceResponse> {
-    return apiRequest<BalanceResponse>(`/user/balanceEnquiry?accountNumber=${accountNumber}`, {
+    return apiRequest<BalanceResponse>(`/api/v1/user/balanceEnquiry?accountNumber=${accountNumber}`, {
         method: 'GET',
     }) as Promise<BalanceResponse>;
 }
 
 export async function fetchRecentTransactions(accountNumber: string): Promise<Transaction[]> {
-    const response = await apiRequest<Transaction[]>(`/transactions/history?accountNumber=${accountNumber}`, {
+    const response = await apiRequest<Transaction[]>(`/api/v1/transactions/history?accountNumber=${accountNumber}`, {
         method: 'GET',
     });
     return (response.data ?? response) as unknown as Transaction[];
@@ -50,7 +50,7 @@ export interface NameEnquiryResponse {
 }
 
 export async function lookupAccountName(accountNumber: string): Promise<NameEnquiryResponse> {
-    return apiRequest<NameEnquiryResponse>(`/user/nameEnquiry?accountNumber=${accountNumber}`, {
+    return apiRequest<NameEnquiryResponse>(`/api/v1/user/nameEnquiry?accountNumber=${accountNumber}`, {
         method: 'GET',
     }) as Promise<NameEnquiryResponse>;
 }
@@ -62,7 +62,7 @@ export interface TransferRequest {
 }
 
 export async function transferFunds(request: TransferRequest): Promise<void> {
-    await apiRequest('/transactions/transfer', {
+    await apiRequest('/api/v1/transactions/transfer', {
         method: 'POST',
         body: JSON.stringify(request)
     });
@@ -93,7 +93,7 @@ export interface PasswordUpdateRequest {
 }
 
 export async function fetchProfile(accountNumber: string): Promise<UserProfileResponse> {
-    const response = await apiRequest<UserProfileResponse>(`/user/profile?accountNumber=${accountNumber}`, {
+    const response = await apiRequest<UserProfileResponse>(`/api/v1/user/profile?accountNumber=${accountNumber}`, {
         method: 'GET'
     });
     if (!response.data) throw new Error("Profile not found");
@@ -101,15 +101,22 @@ export async function fetchProfile(accountNumber: string): Promise<UserProfileRe
 }
 
 export async function updateProfile(accountNumber: string, request: ProfileUpdateRequest): Promise<void> {
-    await apiRequest(`/user/profile?accountNumber=${accountNumber}`, {
+    await apiRequest(`/api/v1/user/profile?accountNumber=${accountNumber}`, {
         method: 'PUT',
         body: JSON.stringify(request)
     });
 }
 
 export async function updatePassword(accountNumber: string, request: PasswordUpdateRequest): Promise<void> {
-    await apiRequest(`/user/password?accountNumber=${accountNumber}`, {
+    await apiRequest(`/api/v1/user/password?accountNumber=${accountNumber}`, {
         method: 'PUT',
         body: JSON.stringify(request)
     });
+}
+
+export async function requestStatement(accountNumber: string, startDate: string, endDate: string): Promise<{ message: string }> {
+    const response = await apiRequest<{ message: string }>(`/api/v1/bankstatement/email?accountNumber=${accountNumber}&start=${startDate}&end=${endDate}`, {
+        method: 'POST',
+    });
+    return response.data ?? response;
 }
