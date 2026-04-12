@@ -5,6 +5,8 @@ plugins {
     kotlin("jvm") version "2.1.0"
     kotlin("plugin.spring") version "2.1.0"
     kotlin("plugin.jpa") version "2.1.0"
+//    id("com.diffplug.spotless") version "8.4.0"
+    id("com.diffplug.spotless") version "6.25.0"
 }
 
 group = "com.abraham_bankole"
@@ -57,15 +59,38 @@ dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test")
 }
 
-// Tests
 tasks.withType<Test> {
     useJUnitPlatform()
 }
 
-// Spotless
 spotless {
+    // Java formatting rules
+    java {
+        target("src/main/java/**/*.java", "src/test/java/**/*.java")
+        googleJavaFormat("1.17.0") // Google's style guide
+        removeUnusedImports()
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+
+    // Kotlin formatting rules
     kotlin {
+        target("src/main/kotlin/**/*.kt", "src/test/kotlin/**/*.kt")
         ktlint("0.50.0")
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+
+    kotlinGradle {
+        target("*.gradle.kts")
+        ktlint()
+    }
+
+    format("misc") {
+        target("**/*.md", "**/.gitignore")
+        indentWithSpaces()
+        trimTrailingWhitespace()
+        endWithNewline()
     }
 }
 
