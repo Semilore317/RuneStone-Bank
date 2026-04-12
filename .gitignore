@@ -35,3 +35,10 @@ build/
 ### Custom Secrets ###
 .env
 server/.env
+
+
+### gradle ###
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+*.Zone.Identifier
