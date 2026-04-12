@@ -1,4 +1,4 @@
-plugins{
+plugins {
     java
     id("org.springframework.boot") version "3.5.12"
     id("io.spring.dependency-management") version "1.1.7"
@@ -7,10 +7,10 @@ plugins{
     kotlin("plugin.jpa") version "2.1.0"
 }
 
-group = 'com.abraham_bankole'
-version = '0.0.1-SNAPSHOT'
+group = "com.abraham_bankole"
+version = "0.0.1-SNAPSHOT"
 
-description = """runestone-bank"""
+description = "runestone-bank"
 
 java {
     toolchain {
@@ -18,13 +18,12 @@ java {
     }
 }
 
-
 repositories {
-     maven { url "https://repo.maven.apache.org/maven2" }
+    mavenCentral()
 }
 
 dependencies {
-    // Spring Boot (Versions managed by the plugin/BOM)
+    // Spring Boot
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-security")
@@ -37,8 +36,14 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
 
+    // LOMBOK
+    compileOnly("org.projectlombok:lombok:1.18.34")
+    annotationProcessor("org.projectlombok:lombok:1.18.34")
+    testCompileOnly("org.projectlombok:lombok:1.18.34")
+    testAnnotationProcessor("org.projectlombok:lombok:1.18.34")
+
     // 3rd Party
-    implementation("org.projectlombok:lombok:1.18.34") // Use latest
+    implementation("org.projectlombok:lombok:1.18.34")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.5")
     implementation("me.paulschwarz:spring-dotenv:5.1.0")
     implementation("com.itextpdf:itextpdf:5.5.13.4")
