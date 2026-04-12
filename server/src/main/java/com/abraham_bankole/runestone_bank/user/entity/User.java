@@ -73,6 +73,11 @@ public class User implements UserDetails {
     }
 
     @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         if (role == null) {
             return List.of(new SimpleGrantedAuthority(Role.ROLE_USER.name()));

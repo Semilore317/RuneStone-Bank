@@ -78,7 +78,8 @@ public class SecurityConfig {
                                 .requestMatchers(EndpointRequest.toAnyEndpoint()).permitAll()
                                 .requestMatchers("/actuator/**").permitAll()
                                 .requestMatchers(HttpMethod.GET, "/api/v1/account").permitAll()
-                                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/error").permitAll()
+//                                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/error").permitAll()
+                                .requestMatchers("/swagger-ui/**", "/v3/api-docs", "/v3/api-docs/**", "/error").permitAll()
                                 .anyRequest()
                                 .authenticated());
         httpSecurity.sessionManagement(
