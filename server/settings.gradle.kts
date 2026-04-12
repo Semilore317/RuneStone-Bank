@@ -1,1 +1,1 @@
-rootProject.name = 'runestone-bank'
+rootProject.name = "runestone-bank"
