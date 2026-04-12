@@ -12,12 +12,11 @@ version = '0.0.1-SNAPSHOT'
 
 description = """runestone-bank"""
 
-sourceCompatibility = 1.5
-targetCompatibility = 1.5
-tasks.withType(JavaCompile) {
-	options.encoding = 'UTF-8'
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(21))
+    }
 }
-
 
 
 repositories {
