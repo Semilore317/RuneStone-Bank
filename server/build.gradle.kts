@@ -20,27 +20,34 @@ java {
 
 
 repositories {
-        
      maven { url "https://repo.maven.apache.org/maven2" }
 }
+
 dependencies {
-    compile group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa', version:'3.5.12'
-    compile group: 'org.springframework.boot', name: 'spring-boot-starter-web', version:'3.5.12'
-    compile group: 'org.springframework.boot', name: 'spring-boot-starter-security', version:'3.5.12'
-    compile group: 'org.springframework.boot', name: 'spring-boot-starter-mail', version:'3.5.12'
-    compile group: 'org.springframework.boot', name: 'spring-boot-starter-actuator', version:'3.5.12'
-    compile group: 'org.springframework.boot', name: 'spring-boot-starter-validation', version:'3.5.12'
-    compile group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib', version:'2.1.0'
-    compile group: 'org.jetbrains.kotlin', name: 'kotlin-reflect', version:'2.1.0'
-    compile group: 'org.projectlombok', name: 'lombok', version:'1.18.44'
-    compile group: 'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version:'2.8.5'
-    compile group: 'me.paulschwarz', name: 'spring-dotenv', version:'5.1.0'
-    compile group: 'com.itextpdf', name: 'itextpdf', version:'5.5.13.4'
-    compile group: 'io.jsonwebtoken', name: 'jjwt-api', version:'0.11.5'
-    compile group: 'org.springframework.kafka', name: 'spring-kafka', version:'3.3.14'
-    runtime group: 'org.postgresql', name: 'postgresql', version:'42.7.10'
-    runtime group: 'io.jsonwebtoken', name: 'jjwt-impl', version:'0.11.5'
-    runtime group: 'io.jsonwebtoken', name: 'jjwt-jackson', version:'0.11.5'
-    testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test', version:'3.5.12'
-    testCompile group: 'org.jetbrains.kotlin', name: 'kotlin-test', version:'2.1.0'
+    // Spring Boot (Versions managed by the plugin/BOM)
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-security")
+    implementation("org.springframework.boot:spring-boot-starter-mail")
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
+    implementation("org.springframework.boot:spring-boot-starter-validation")
+    implementation("org.springframework.kafka:spring-kafka")
+
+    // Kotlin
+    implementation("org.jetbrains.kotlin:kotlin-stdlib")
+    implementation("org.jetbrains.kotlin:kotlin-reflect")
+
+    // 3rd Party
+    implementation("org.projectlombok:lombok:1.18.34") // Use latest
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.5")
+    implementation("me.paulschwarz:spring-dotenv:5.1.0")
+    implementation("com.itextpdf:itextpdf:5.5.13.4")
+    implementation("io.jsonwebtoken:jjwt-api:0.11.5")
+
+    runtimeOnly("org.postgresql:postgresql:42.7.10")
+    runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5")
+    runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5")
+
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.jetbrains.kotlin:kotlin-test")
 }
