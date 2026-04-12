@@ -61,3 +61,17 @@ dependencies {
 tasks.withType<Test> {
     useJUnitPlatform()
 }
+
+// Spotless
+spotless {
+    kotlin {
+        ktlint("0.50.0")
+    }
+}
+
+// Specifying that Kotlin and Java both target JVM 21
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)
+    }
+}
