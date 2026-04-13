@@ -6,6 +6,7 @@ plugins {
     kotlin("plugin.spring") version "2.1.0"
     kotlin("plugin.jpa") version "2.1.0"
     id("com.diffplug.spotless") version "6.25.0"
+    id("org.graalvm.buildtools.native") version "0.10.1"
 }
 
 group = "com.abraham_bankole"
@@ -22,6 +23,14 @@ java {
     }
 }
 
+graalvmNative {
+    binaries {
+        named("main") {
+            imageName.set("runestone-bank")
+            mainClass.set("com.abraham_bankole.runestone_bank.RuneStoneBankApplication")
+        }
+    }
+}
 repositories {
     mavenCentral()
 }
