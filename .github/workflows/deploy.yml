@@ -24,6 +24,7 @@ jobs:
           distribution: 'graalvm'
           github-token: ${{ secrets.GITHUB_TOKEN }}
           cache: 'gradle'
+          cache-matching-strategy: 'all'
 
       - name: Make gradlew executable
         run: chmod +x ./gradlew
