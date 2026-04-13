@@ -9,7 +9,6 @@ on:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-    # default directory for Maven commands
     defaults:
       run:
         working-directory: ./server
@@ -24,13 +23,14 @@ jobs:
           java-version: '21'
           distribution: 'graalvm'
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          cache: 'maven'
+          cache: 'gradle'
 
-      - name: Make mvnw executable
-        run: chmod +x ./mvnw
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
 
-      - name: Build Native Image with Maven
-        run: ./mvnw -Pnative native:compile -DskipTests
+      - name: Build Native Image with Gradle
+        # nativeCompile is the standard task for the GraalVM Gradle plugin
+        run: ./gradlew nativeCompile -x test
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -41,7 +41,6 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      # manually strip whitespace
       - name: Prepare Docker Tag
         id: prep
         run: |
@@ -50,9 +49,8 @@ jobs:
 
       - name: Build and Push Docker Image
         run: |
-          docker buildx build --push -f ./infra/Dockerfile.prod -t ${{ steps.prep.outputs.tag }} ./server
-        working-directory: .
-
+          docker buildx build --push -f ../infra/Dockerfile.prod -t ${{ steps.prep.outputs.tag }} .
+        working-directory: ./server
 
   deploy:
     needs: build-and-push
@@ -78,17 +76,11 @@ jobs:
           key: ${{ secrets.AZURE_VM_SSH_KEY }}
           script: |
             cd ~/RuneStone-Bank/infra
-            
-            # Login to Docker
             echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-            
-            # Export secrets for Docker Compose
             export DOCKER_IMAGE=${{ secrets.DOCKERHUB_USERNAME }}/runestone-bank:latest
             export DB_PASSWORD=${{ secrets.DB_PASSWORD }}
             export JWT_SECRET=${{ secrets.JWT_SECRET }}
             export APP_PASSWORD=${{ secrets.APP_PASSWORD }}
-            
-            # Pull and Restart
             docker compose pull app
             docker compose up -d --no-deps app
             docker image prune -f
