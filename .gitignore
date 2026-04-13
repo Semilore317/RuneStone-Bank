@@ -42,3 +42,6 @@ server/.env
 build/
 !gradle/wrapper/gradle-wrapper.jar
 *.Zone.Identifier
+
+bin/
+.DS_Store
