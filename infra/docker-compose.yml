@@ -53,8 +53,8 @@ services:
     build:
       context: ../server
       dockerfile: ../infra/Dockerfile.dev
-    env_file:
-      - ../server/.env
+#    env_file:
+ #     - ../server/.env
     container_name: runestone-app
     restart: always
     ports:
