@@ -30,7 +30,6 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Build Native Image with Gradle
-        # nativeCompile is the standard task for the GraalVM Gradle plugin
         run: ./gradlew nativeCompile -x test
 
       - name: Set up Docker Buildx
@@ -66,7 +65,7 @@ jobs:
           username: ${{ secrets.AZURE_VM_USER }}
           key: ${{ secrets.AZURE_VM_SSH_KEY }}
           source: "infra/*"
-          target: "~/RuneStone-Bank/infra"
+          target: "~/runestone-bank/infra"
           strip_components: 1
 
       - name: Deploy to Azure VM
@@ -76,12 +75,17 @@ jobs:
           username: ${{ secrets.AZURE_VM_USER }}
           key: ${{ secrets.AZURE_VM_SSH_KEY }}
           script: |
-            cd ~/RuneStone-Bank/infra
+            cd ~/runestone-bank/infra 
+            
+            # Login to Docker
             echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+            
             export DOCKER_IMAGE=${{ secrets.DOCKERHUB_USERNAME }}/runestone-bank:latest
             export DB_PASSWORD=${{ secrets.DB_PASSWORD }}
             export JWT_SECRET=${{ secrets.JWT_SECRET }}
             export APP_PASSWORD=${{ secrets.APP_PASSWORD }}
+            
+            # Pull and Restart
             docker compose pull app
-            docker compose up -d --no-deps app
+            docker compose up -d --no-deps --force-recreate app
             docker image prune -f
