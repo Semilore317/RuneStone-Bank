@@ -73,6 +73,10 @@ dependencies {
     // Testing
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
+
+    // Koog
+    implementation("ai.koog:koog-agents:0.7.1")
 }
 
 // Task Configurations
