@@ -73,6 +73,17 @@ dependencies {
     // Testing
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test")
+
+    // Mockito Kotlin DSL
+    testImplementation("org.mockito.kotlin:mockito-kotlin:5.4.0")
+
+    // Testcontainers (integration tests only)
+    testImplementation("org.testcontainers:junit-jupiter")
+    testImplementation("org.testcontainers:postgresql")
+    testImplementation("org.testcontainers:kafka")
+
+    // H2 for @DataJpaTest
+    testRuntimeOnly("com.h2database:h2")
 }
 
 // Task Configurations
