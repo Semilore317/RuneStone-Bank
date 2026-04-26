@@ -8,15 +8,14 @@ import com.abraham_bankole.runestone_bank.email.service.EmailService
 import jakarta.mail.internet.MimeMessage
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import org.junit.jupiter.api.io.TempDir
 import org.mockito.InjectMocks
 import org.mockito.Mock
-import org.mockito.Mockito.verify
-import org.mockito.Mockito.times
-import org.mockito.Mockito.any
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.`when`
+import org.mockito.Mockito.*
 import org.mockito.junit.jupiter.MockitoExtension
 import org.springframework.mail.javamail.JavaMailSender
+import java.nio.file.Files
+import java.nio.file.Path
 
 @ExtendWith(MockitoExtension::class)
 class EmailEventListenerTest {
@@ -29,6 +28,9 @@ class EmailEventListenerTest {
 
     @InjectMocks
     private lateinit var emailEventListener: EmailEventListener
+
+    @TempDir
+    lateinit var tempDir: Path
 
     @Test
     fun `handleUserRegistered sends email`() {
@@ -46,9 +48,17 @@ class EmailEventListenerTest {
 
     @Test
     fun `handleStatementReady sends mime message`() {
-        val event = StatementReadyEvent("test@test.com", "/tmp/nonexistent.pdf", "file.pdf")
-        val mimeMessage = mock(MimeMessage::class.java)
+        val fileName = "statement_january.pdf"
+        val tempFile = tempDir.resolve(fileName)
+        Files.writeString(tempFile, "fake pdf content") // Actually creates the file on disk
 
+        val event = StatementReadyEvent(
+            "test@test.com",
+            tempFile.toAbsolutePath().toString(),
+            fileName
+        )
+
+        val mimeMessage = mock(MimeMessage::class.java)
         `when`(javaMailSender.createMimeMessage()).thenReturn(mimeMessage)
 
         emailEventListener.handleStatementReady(event)
