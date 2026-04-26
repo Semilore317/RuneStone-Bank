@@ -10,6 +10,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PasswordUpdateRequest {
-    private String currentPassword;
-    private String newPassword;
+  private String currentPassword;
+  private String newPassword;
 }

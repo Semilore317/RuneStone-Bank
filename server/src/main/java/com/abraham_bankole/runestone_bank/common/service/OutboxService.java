@@ -8,28 +8,30 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class OutboxService {
-    private final ObjectMapper objectMapper;
-    private final OutboxRepository outboxRepository;
+  private final ObjectMapper objectMapper;
+  private final OutboxRepository outboxRepository;
 
-    public OutboxService(ObjectMapper objectMapper, OutboxRepository outboxRepository) {
-        this.objectMapper = objectMapper;
-        this.outboxRepository = outboxRepository;
+  public OutboxService(ObjectMapper objectMapper, OutboxRepository outboxRepository) {
+    this.objectMapper = objectMapper;
+    this.outboxRepository = outboxRepository;
+  }
+
+  public void exportEvent(
+      String aggregateId, String aggregateType, String eventType, Object event) {
+    try {
+      String payload = objectMapper.writeValueAsString(event);
+      Outbox outbox =
+          Outbox.builder()
+              .aggregateId(aggregateId)
+              .aggregateType(aggregateType)
+              .eventType(eventType)
+              .payload(payload)
+              .build();
+
+      // save to outbox using repository class
+      outboxRepository.save(outbox);
+    } catch (JsonProcessingException exception) {
+      throw new RuntimeException("Error serializing event", exception);
     }
-
-    public void exportEvent(String aggregateId, String aggregateType, String eventType, Object event) {
-        try {
-            String payload = objectMapper.writeValueAsString(event);
-            Outbox outbox = Outbox.builder()
-                    .aggregateId(aggregateId)
-                    .aggregateType(aggregateType)
-                    .eventType(eventType)
-                    .payload(payload)
-                    .build();
-
-            // save to outbox using repository class
-            outboxRepository.save(outbox);
-        } catch (JsonProcessingException exception) {
-            throw new RuntimeException("Error serializing event", exception);
-        }
-    }
+  }
 }

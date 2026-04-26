@@ -1,7 +1,6 @@
 package com.abraham_bankole.runestone_bank.security.config;
 
 import java.util.List;
-
 import lombok.AllArgsConstructor;
 import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest;
 import org.springframework.context.annotation.Bean;
@@ -32,66 +31,79 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @AllArgsConstructor
 public class SecurityConfig {
 
-    private final UserDetailsService useDetailsService;
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
-    private final CustomLogoutHandler customLogoutHandler;
+  private final UserDetailsService useDetailsService;
+  private final JwtAuthenticationFilter jwtAuthenticationFilter;
+  private final CustomLogoutHandler customLogoutHandler;
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+  @Bean
+  public PasswordEncoder passwordEncoder() {
+    return new BCryptPasswordEncoder();
+  }
 
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration)
-            throws Exception {
-        return configuration.getAuthenticationManager();
-    }
+  @Bean
+  public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration)
+      throws Exception {
+    return configuration.getAuthenticationManager();
+  }
 
-    @Bean
-    public AuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
-        authenticationProvider.setUserDetailsService(useDetailsService);
-        authenticationProvider.setPasswordEncoder(passwordEncoder());
-        return authenticationProvider;
-    }
+  @Bean
+  public AuthenticationProvider authenticationProvider() {
+    DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
+    authenticationProvider.setUserDetailsService(useDetailsService);
+    authenticationProvider.setPasswordEncoder(passwordEncoder());
+    return authenticationProvider;
+  }
 
-    @Bean
-    CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:5173", "http://localhost:5174"));
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(List.of("*"));
-        configuration.setAllowCredentials(true);
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
-    }
+  @Bean
+  CorsConfigurationSource corsConfigurationSource() {
+    CorsConfiguration configuration = new CorsConfiguration();
+    configuration.setAllowedOrigins(List.of("http://localhost:5173", "http://localhost:5174"));
+    configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+    configuration.setAllowedHeaders(List.of("*"));
+    configuration.setAllowCredentials(true);
+    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+    source.registerCorsConfiguration("/**", configuration);
+    return source;
+  }
 
-    // whitelist account creation endpoint from security shenanigans
-    @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
-        httpSecurity
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(
-                        auth -> auth.requestMatchers(HttpMethod.POST, "/api/v1/user", "/api/v1/user/login", "/api/v1/user/logout").permitAll()
-                                .requestMatchers(EndpointRequest.toAnyEndpoint()).permitAll()
-                                .requestMatchers("/actuator/**").permitAll()
-                                .requestMatchers(HttpMethod.GET, "/api/v1/account").permitAll()
-//                                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/error").permitAll()
-                                .requestMatchers("/swagger-ui/**", "/v3/api-docs", "/v3/api-docs/**", "/error").permitAll()
-                                .anyRequest()
-                                .authenticated());
-        httpSecurity.sessionManagement(
-                session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-        httpSecurity.authenticationProvider(authenticationProvider());
-        httpSecurity.addFilterBefore(
-                jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-        httpSecurity.logout(
-                logout -> logout.logoutUrl("/api/v1/user/logout")
-                        .addLogoutHandler(customLogoutHandler)
-                        .logoutSuccessHandler(
-                                (request, response, authentication) -> SecurityContextHolder.clearContext()));
-        return httpSecurity.build();
-    }
+  // whitelist account creation endpoint from security shenanigans
+  @Bean
+  SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
+    httpSecurity
+        .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+        .csrf(AbstractHttpConfigurer::disable)
+        .authorizeHttpRequests(
+            auth ->
+                auth.requestMatchers(
+                        HttpMethod.POST,
+                        "/api/v1/user",
+                        "/api/v1/user/login",
+                        "/api/v1/user/logout")
+                    .permitAll()
+                    .requestMatchers(EndpointRequest.toAnyEndpoint())
+                    .permitAll()
+                    .requestMatchers("/actuator/**")
+                    .permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/v1/account")
+                    .permitAll()
+                    //                                .requestMatchers("/swagger-ui/**",
+                    // "/v3/api-docs/**", "/error").permitAll()
+                    .requestMatchers("/swagger-ui/**", "/v3/api-docs", "/v3/api-docs/**", "/error")
+                    .permitAll()
+                    .anyRequest()
+                    .authenticated());
+    httpSecurity.sessionManagement(
+        session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+    httpSecurity.authenticationProvider(authenticationProvider());
+    httpSecurity.addFilterBefore(
+        jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+    httpSecurity.logout(
+        logout ->
+            logout
+                .logoutUrl("/api/v1/user/logout")
+                .addLogoutHandler(customLogoutHandler)
+                .logoutSuccessHandler(
+                    (request, response, authentication) -> SecurityContextHolder.clearContext()));
+    return httpSecurity.build();
+  }
 }

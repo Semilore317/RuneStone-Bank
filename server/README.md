@@ -15,7 +15,7 @@ This is the backend service for RuneStone Bank, handling account management, tra
   - Security: Spring Security & JWT (Stateless Authentication)
 
   - Reporting: iText (PDF Generation) & JavaMailSender
- 
+
  ## Key Features
 
   - User Management: Account creation and profile updates.

@@ -8,7 +8,6 @@ import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.info.License;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-
 import org.springframework.context.annotation.ImportRuntimeHints;
 import org.springframework.scheduling.annotation.EnableAsync;
 
@@ -16,27 +15,27 @@ import org.springframework.scheduling.annotation.EnableAsync;
 @EnableAsync
 @ImportRuntimeHints(ReflectionHints.class)
 @OpenAPIDefinition(
-        info =
+    info =
         @Info(
-                title = "RuneStone Bank App",
-                description = "Backend REST APIs made with SpringBoot",
-                version = "v1.0",
-                contact =
+            title = "RuneStone Bank App",
+            description = "Backend REST APIs made with SpringBoot",
+            version = "v1.0",
+            contact =
                 @Contact(
-                        name = "Abraham Bankole",
-                        email = "abraham.o.bankole@gmail.com",
-                        url = "https://github.com/Semilore317/RuneStone-Bank"),
-                license =
+                    name = "Abraham Bankole",
+                    email = "abraham.o.bankole@gmail.com",
+                    url = "https://github.com/Semilore317/RuneStone-Bank"),
+            license =
                 @License(
-                        name = "RuneStone Bank",
-                        url = "https://github.com/Semilore317/RuneStone-Bank")),
-        externalDocs =
+                    name = "RuneStone Bank",
+                    url = "https://github.com/Semilore317/RuneStone-Bank")),
+    externalDocs =
         @ExternalDocumentation(
-                description = "RuneStone Bank",
-                url = "https://github.com/Semilore317/RuneStone-Bank"))
+            description = "RuneStone Bank",
+            url = "https://github.com/Semilore317/RuneStone-Bank"))
 public class RuneStoneBankApplication {
 
-    public static void main(String[] args) {
-        SpringApplication.run(RuneStoneBankApplication.class, args);
-    }
+  public static void main(String[] args) {
+    SpringApplication.run(RuneStoneBankApplication.class, args);
+  }
 }

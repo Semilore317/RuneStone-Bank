@@ -5,11 +5,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 // carries only the exact data the email service needs
 public record UserRegisteredEvent(
-        @JsonProperty("userId") Long userId,
-        @JsonProperty("email") String email,
-        @JsonProperty("firstName") String firstName
-) {
-    @JsonCreator
-    public UserRegisteredEvent {
-    }
+    @JsonProperty("userId") Long userId,
+    @JsonProperty("email") String email,
+    @JsonProperty("firstName") String firstName) {
+  @JsonCreator
+  public UserRegisteredEvent {}
 }
