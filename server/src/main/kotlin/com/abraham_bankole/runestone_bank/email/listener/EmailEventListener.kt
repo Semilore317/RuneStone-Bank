@@ -8,13 +8,13 @@ import com.abraham_bankole.runestone_bank.common.kafka.KafkaTopics
 import com.abraham_bankole.runestone_bank.email.dto.EmailDetails
 import com.abraham_bankole.runestone_bank.email.service.EmailService
 import jakarta.mail.MessagingException
-import java.io.File
 import org.slf4j.LoggerFactory
 import org.springframework.core.io.FileSystemResource
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.mail.javamail.JavaMailSender
 import org.springframework.mail.javamail.MimeMessageHelper
 import org.springframework.stereotype.Component
+import java.io.File
 
 @Component
 open class EmailEventListener(
@@ -43,7 +43,6 @@ open class EmailEventListener(
     val details =
       EmailDetails().apply {
         subject = "Runestone Bank Login Alert"
-        // TODO: replace format method with a better replacement
         messageBody =
           String.format(
             "Hello ${event.name}, a new login was detected on your account.",
