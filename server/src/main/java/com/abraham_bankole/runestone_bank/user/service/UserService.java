@@ -14,7 +14,11 @@ public interface UserService {
 
   BankResponse getProfile(String accountNumber);
 
-  BankResponse updateProfile(String accountNumber, com.abraham_bankole.runestone_bank.user.dto.ProfileUpdateRequest request);
+  BankResponse updateProfile(
+      String accountNumber,
+      com.abraham_bankole.runestone_bank.user.dto.ProfileUpdateRequest request);
 
-  BankResponse updatePassword(String accountNumber, com.abraham_bankole.runestone_bank.user.dto.PasswordUpdateRequest request);
+  BankResponse updatePassword(
+      String accountNumber,
+      com.abraham_bankole.runestone_bank.user.dto.PasswordUpdateRequest request);
 }

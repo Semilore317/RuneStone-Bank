@@ -13,19 +13,17 @@ import org.springframework.stereotype.Component;
 @AllArgsConstructor
 public class CustomLogoutHandler implements LogoutHandler {
 
-    private final TokenBlacklistRepository tokenBlacklistRepository;
+  private final TokenBlacklistRepository tokenBlacklistRepository;
 
-    @Override
-    public void logout(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            Authentication authentication) {
-        final String authHeader = request.getHeader("Authorization");
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            String token = authHeader.substring(7);
-            TokenBlacklist blacklistedToken = new TokenBlacklist();
-            blacklistedToken.setToken(token);
-            tokenBlacklistRepository.save(blacklistedToken);
-        }
+  @Override
+  public void logout(
+      HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
+    final String authHeader = request.getHeader("Authorization");
+    if (authHeader != null && authHeader.startsWith("Bearer ")) {
+      String token = authHeader.substring(7);
+      TokenBlacklist blacklistedToken = new TokenBlacklist();
+      blacklistedToken.setToken(token);
+      tokenBlacklistRepository.save(blacklistedToken);
     }
+  }
 }

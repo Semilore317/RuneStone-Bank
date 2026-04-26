@@ -10,10 +10,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ProfileUpdateRequest {
-    private String firstName;
-    private String lastName;
-    private String email;
-    private Boolean emailNotifs;
-    private Boolean loginAlerts;
-    private Boolean transferAlerts;
+  private String firstName;
+  private String lastName;
+  private String email;
+  private Boolean emailNotifs;
+  private Boolean loginAlerts;
+  private Boolean transferAlerts;
 }

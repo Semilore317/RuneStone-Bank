@@ -14,5 +14,6 @@ public interface TransactionService {
 
   BankResponse transfer(TransferRequest request);
 
-  java.util.List<com.abraham_bankole.runestone_bank.transaction.entity.Transaction> getTransactionHistory(String accountNumber);
+  java.util.List<com.abraham_bankole.runestone_bank.transaction.entity.Transaction>
+      getTransactionHistory(String accountNumber);
 }

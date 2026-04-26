@@ -10,33 +10,31 @@ import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Service
 
 @Service
-
 open class EmailServiceImpl(
-    @param:Value("\${spring.mail.username}")
-    private val senderEmail: String,
-
-    @param:Qualifier("mailSender")
-    private val javaMailSender: JavaMailSender
+  @param:Value("\${spring.mail.username}") private val senderEmail: String,
+  @param:Qualifier("mailSender") private val javaMailSender: JavaMailSender,
 ) : EmailService {
 
-    @Async
-    override fun sendEmailAlert(emailDetails: EmailDetails?) {
-        if (emailDetails == null) return
+  @Async
+  override fun sendEmailAlert(emailDetails: EmailDetails?) {
+    if (emailDetails == null) return
 
-        try {
-            // Using explicit setters to ensure build success. IntelliJ may warn about property access,
-            // but the Kotlin 2.1.0 compiler currently rejects property assignment for these Spring fields.
-            val mailMessage = SimpleMailMessage().apply {
-                setFrom(senderEmail)
-                setTo(emailDetails.recipientEmail)
-                setText(emailDetails.messageBody)
-                setSubject(emailDetails.subject)
-            }
-
-            javaMailSender.send(mailMessage)
-            println("Mail sent successfully!")
-        } catch (e: Exception) {
-            throw RuntimeException(e)
+    try {
+      // Using explicit setters to ensure build success. IntelliJ may warn about property access,
+      // but the Kotlin 2.1.0 compiler currently rejects property assignment for these Spring
+      // fields.
+      val mailMessage =
+        SimpleMailMessage().apply {
+          setFrom(senderEmail)
+          setTo(emailDetails.recipientEmail)
+          setText(emailDetails.messageBody)
+          setSubject(emailDetails.subject)
         }
+
+      javaMailSender.send(mailMessage)
+      println("Mail sent successfully!")
+    } catch (e: Exception) {
+      throw RuntimeException(e)
     }
+  }
 }
