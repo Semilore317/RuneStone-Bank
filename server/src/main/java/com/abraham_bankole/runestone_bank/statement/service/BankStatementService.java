@@ -29,12 +29,26 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class BankStatementService {
 
+    private String bankName;
     private final TransactionRepository transactionRepository;
     private final UserAccountService userAccountService;
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
-    @Value("${spring.application.name}")
-    private String bankName;
+
+    // Spring will still inject the @Value here automatically
+    public BankStatementService(
+            @Value("${spring.application.name}")
+            String bankName,
+            TransactionRepository transactionRepository,
+            UserAccountService userAccountService,
+            KafkaTemplate<String, Object> kafkaTemplate
+    ) {
+        this.bankName = bankName;
+        this.transactionRepository = transactionRepository;
+
+        this.userAccountService = userAccountService;
+        this.kafkaTemplate = kafkaTemplate;
+    }
 
     private static final String BANK_ADDRESS = "317, Runestone Avenue, Lagos, Nigeria";
 
