@@ -3,11 +3,12 @@ package com.abraham_bankole.runestone_bank.transaction.service.impl;
 import com.abraham_bankole.runestone_bank.common.dto.AccountInfo;
 import com.abraham_bankole.runestone_bank.common.dto.BankResponse;
 import com.abraham_bankole.runestone_bank.common.enums.ResponseCode;
+import com.abraham_bankole.runestone_bank.common.enums.TransactionStatus;
+import com.abraham_bankole.runestone_bank.common.enums.TransactionType;
 import com.abraham_bankole.runestone_bank.common.event.TransactionCompletedEvent;
 import com.abraham_bankole.runestone_bank.common.kafka.KafkaTopics;
 import com.abraham_bankole.runestone_bank.common.service.OutboxService;
 import com.abraham_bankole.runestone_bank.common.service.UserAccountService;
-import com.abraham_bankole.runestone_bank.common.utils.AccountUtils;
 import com.abraham_bankole.runestone_bank.transaction.dto.CreditDebitRequest;
 import com.abraham_bankole.runestone_bank.transaction.dto.TransactionDto;
 import com.abraham_bankole.runestone_bank.transaction.dto.TransferRequest;
@@ -43,7 +44,7 @@ public class TransactionServiceImpl implements TransactionService {
             .amount(transactionDto.getAmount())
             .counterpartyAccountNumber(transactionDto.getCounterpartyAccountNumber())
             .counterpartyName(transactionDto.getCounterpartyName())
-            .status("SUCCESS")
+            .status(TransactionStatus.SUCCESS)
             .build();
     transactionRepository.save(transaction);
     System.out.println("Transaction Saved Successfully!");
@@ -68,7 +69,7 @@ public class TransactionServiceImpl implements TransactionService {
     TransactionDto transactionDto =
         TransactionDto.builder()
             .accountNumber(request.getAccountNumber())
-            .transactionType("CREDIT")
+            .transactionType(TransactionType.CREDIT)
             .amount(request.getAmount())
             .build();
     saveTransaction(transactionDto);
@@ -112,7 +113,7 @@ public class TransactionServiceImpl implements TransactionService {
     TransactionDto transactionDto =
         TransactionDto.builder()
             .accountNumber(request.getAccountNumber())
-            .transactionType("DEBIT")
+            .transactionType(TransactionType.DEBIT)
             .amount(request.getAmount())
             .build();
     saveTransaction(transactionDto);
@@ -183,7 +184,7 @@ public class TransactionServiceImpl implements TransactionService {
     TransactionDto debitTransaction =
         TransactionDto.builder()
             .accountNumber(request.getSender())
-            .transactionType("TRANSFER") // Changed to TRANSFER from DEBIT for clearer history
+            .transactionType(TransactionType.TRANSFER) // Changed to TRANSFER from DEBIT for clearer history
             .amount(request.getAmount())
             .counterpartyAccountNumber(request.getReceiver())
             .counterpartyName(receiverName)
@@ -194,7 +195,7 @@ public class TransactionServiceImpl implements TransactionService {
     TransactionDto creditTransaction =
         TransactionDto.builder()
             .accountNumber(request.getReceiver())
-            .transactionType("CREDIT") // We keep CREDIT for receiver so they know they got credited
+            .transactionType(TransactionType.CREDIT) // We keep CREDIT for receiver so they know they got credited
             .amount(request.getAmount())
             .counterpartyAccountNumber(request.getSender())
             .counterpartyName(senderName)
