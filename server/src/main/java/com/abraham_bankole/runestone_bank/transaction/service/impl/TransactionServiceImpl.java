@@ -54,8 +54,8 @@ public class TransactionServiceImpl implements TransactionService {
   public BankResponse creditAccount(CreditDebitRequest request) {
     if (!userAccountService.accountExists(request.getAccountNumber())) {
       return BankResponse.builder()
-              .responseCode(ResponseCode.ACCOUNT_CREDITED.getCode())
-              .responseMessage(ResponseCode.ACCOUNT_CREDITED.getMessage())
+              .responseCode(ResponseCode.ACCOUNT_NOT_EXIST.getCode())
+              .responseMessage(ResponseCode.ACCOUNT_NOT_EXIST.getMessage())
           .accountInfo(null)
           .build();
     }
@@ -74,9 +74,9 @@ public class TransactionServiceImpl implements TransactionService {
     saveTransaction(transactionDto);
 
     return BankResponse.builder()
-            .responseCode(ResponseCode.ACCOUNT_CREDITED.getCode())
-            .responseMessage(ResponseCode.ACCOUNT_CREDITED.getMessage())
-            .accountInfo(
+        .responseCode(ResponseCode.ACCOUNT_CREATION_SUCCESS.getCode())
+        .responseMessage(ResponseCode.ACCOUNT_CREATION_SUCCESS.getMessage())
+        .accountInfo(
             AccountInfo.builder()
                 .accountName(userAccountService.getFullName(request.getAccountNumber()))
                 .accountNumber(request.getAccountNumber())
