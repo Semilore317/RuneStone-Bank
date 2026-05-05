@@ -70,8 +70,8 @@ public class UserServiceImpl implements UserService {
         new UserRegisteredEvent(savedUser.getId(), savedUser.getEmail(), savedUser.getFirstName()));
 
     return BankResponse.builder()
-        .responseCode(AccountUtils.ACCOUNT_CREATION_SUCCESS_CODE)
-        .responseMessage(AccountUtils.ACCOUNT_CREATION_MESSAGE)
+            .responseCode(ResponseCode.ACCOUNT_CREATION_SUCCESS.getCode())
+            .responseMessage(ResponseCode.ACCOUNT_CREATION_SUCCESS.getMessage())
         .accountInfo(
             AccountInfo.builder()
                 .accountNumber(savedUser.getAccountNumber())

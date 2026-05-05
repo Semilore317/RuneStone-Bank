@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum ResponseCode {
     ACCOUNT_EXISTS ("001", "This user email exists"),
-    ACCOUNT_CREATED("002", "Account has been successfully created"),
+    ACCOUNT_CREATION_SUCCESS("002", "Account has been successfully created"),
     ACCOUNT_NOT_EXIST ("003", "Account does not exist"),
     ACCOUNT_FOUND("004", "Account has been found"),
     ACCOUNT_CREDITED("005", "Account has been successfully credited"),
