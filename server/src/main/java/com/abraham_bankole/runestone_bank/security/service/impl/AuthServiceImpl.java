@@ -61,8 +61,8 @@ public class AuthServiceImpl {
 
     // return the JWT and Account Info
     return BankResponse.builder()
-            .responseCode(ResponseStatus.LOGIN_SUCCESS.getCode())
-            .responseMessage(ResponseStatus.LOGIN_SUCCESS.getMessage())
+        .responseCode(ResponseStatus.LOGIN_SUCCESS.getCode())
+        .responseMessage(ResponseStatus.LOGIN_SUCCESS.getMessage())
         .jwt(jwtTokenProvider.generateToken(authentication))
         .accountInfo(
             AccountInfo.builder()

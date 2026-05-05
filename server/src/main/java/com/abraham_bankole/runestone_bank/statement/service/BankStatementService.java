@@ -161,7 +161,8 @@ public class BankStatementService {
       dateCell.setPadding(5f);
       transactionTable.addCell(dateCell);
 
-      PdfPCell typeCell = new PdfPCell(new Phrase(transaction.getTransactionType(), NORMAL_FONT));
+      PdfPCell typeCell =
+          new PdfPCell(new Phrase(transaction.getTransactionType().name(), NORMAL_FONT));
       typeCell.setPadding(5f);
       transactionTable.addCell(typeCell);
 
@@ -170,7 +171,7 @@ public class BankStatementService {
       amountCell.setPadding(5f);
       transactionTable.addCell(amountCell);
 
-      PdfPCell statusCell = new PdfPCell(new Phrase(transaction.getStatus(), NORMAL_FONT));
+      PdfPCell statusCell = new PdfPCell(new Phrase(transaction.getStatus().name(), NORMAL_FONT));
       statusCell.setPadding(5f);
       transactionTable.addCell(statusCell);
     }
