@@ -2,6 +2,7 @@ package com.abraham_bankole.runestone_bank.transaction.service.impl;
 
 import com.abraham_bankole.runestone_bank.common.dto.AccountInfo;
 import com.abraham_bankole.runestone_bank.common.dto.BankResponse;
+import com.abraham_bankole.runestone_bank.common.enums.ResponseCode;
 import com.abraham_bankole.runestone_bank.common.event.TransactionCompletedEvent;
 import com.abraham_bankole.runestone_bank.common.kafka.KafkaTopics;
 import com.abraham_bankole.runestone_bank.common.service.OutboxService;
@@ -53,8 +54,8 @@ public class TransactionServiceImpl implements TransactionService {
   public BankResponse creditAccount(CreditDebitRequest request) {
     if (!userAccountService.accountExists(request.getAccountNumber())) {
       return BankResponse.builder()
-          .responseCode(AccountUtils.ACCOUNT_NOT_EXIST_CODE)
-          .responseMessage(AccountUtils.ACCOUNT_NOT_EXIST_MESSAGE)
+              .responseCode(ResponseCode.ACCOUNT_CREDITED.getCode())
+              .responseMessage(ResponseCode.ACCOUNT_CREDITED.getMessage())
           .accountInfo(null)
           .build();
     }
@@ -73,9 +74,9 @@ public class TransactionServiceImpl implements TransactionService {
     saveTransaction(transactionDto);
 
     return BankResponse.builder()
-        .responseCode(AccountUtils.ACCOUNT_CREDITED_SUCCESS_CODE)
-        .responseMessage(AccountUtils.ACCOUNT_CREDITED_SUCCESS_MESSAGE)
-        .accountInfo(
+            .responseCode(ResponseCode.ACCOUNT_CREDITED.getCode())
+            .responseMessage(ResponseCode.ACCOUNT_CREDITED.getMessage())
+            .accountInfo(
             AccountInfo.builder()
                 .accountName(userAccountService.getFullName(request.getAccountNumber()))
                 .accountNumber(request.getAccountNumber())
