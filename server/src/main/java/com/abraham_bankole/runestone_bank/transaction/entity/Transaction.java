@@ -1,5 +1,7 @@
 package com.abraham_bankole.runestone_bank.transaction.entity;
 
+import com.abraham_bankole.runestone_bank.common.enums.TransactionStatus;
+import com.abraham_bankole.runestone_bank.common.enums.TransactionType;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -19,10 +21,14 @@ public class Transaction {
   @GeneratedValue(strategy = GenerationType.UUID) // 16-bit transaction id string
   private String transactionId;
 
-  private String transactionType;
+  @Enumerated(EnumType.STRING)
+  private TransactionType transactionType;
+
   private BigDecimal amount;
   private String accountNumber;
-  private String status; // PENDING, FAILED, SUCCESS
+
+  @Enumerated(EnumType.STRING)
+  private TransactionStatus status; // PENDING, FAILED, SUCCESS
 
   private String counterpartyAccountNumber;
   private String counterpartyName;

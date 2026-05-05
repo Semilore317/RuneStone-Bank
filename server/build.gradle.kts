@@ -93,6 +93,7 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
 
 spotless {
   java {
+    target("src/**/*.java")
     // Automatically finds files in src/main/java and src/test/java
     importOrder()
     removeUnusedImports()

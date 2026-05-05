@@ -2,11 +2,13 @@ package com.abraham_bankole.runestone_bank.transaction.service.impl;
 
 import com.abraham_bankole.runestone_bank.common.dto.AccountInfo;
 import com.abraham_bankole.runestone_bank.common.dto.BankResponse;
+import com.abraham_bankole.runestone_bank.common.enums.ResponseStatus;
+import com.abraham_bankole.runestone_bank.common.enums.TransactionStatus;
+import com.abraham_bankole.runestone_bank.common.enums.TransactionType;
 import com.abraham_bankole.runestone_bank.common.event.TransactionCompletedEvent;
 import com.abraham_bankole.runestone_bank.common.kafka.KafkaTopics;
 import com.abraham_bankole.runestone_bank.common.service.OutboxService;
 import com.abraham_bankole.runestone_bank.common.service.UserAccountService;
-import com.abraham_bankole.runestone_bank.common.utils.AccountUtils;
 import com.abraham_bankole.runestone_bank.transaction.dto.CreditDebitRequest;
 import com.abraham_bankole.runestone_bank.transaction.dto.TransactionDto;
 import com.abraham_bankole.runestone_bank.transaction.dto.TransferRequest;
@@ -42,7 +44,7 @@ public class TransactionServiceImpl implements TransactionService {
             .amount(transactionDto.getAmount())
             .counterpartyAccountNumber(transactionDto.getCounterpartyAccountNumber())
             .counterpartyName(transactionDto.getCounterpartyName())
-            .status("SUCCESS")
+            .status(TransactionStatus.SUCCESS)
             .build();
     transactionRepository.save(transaction);
     System.out.println("Transaction Saved Successfully!");
@@ -53,8 +55,8 @@ public class TransactionServiceImpl implements TransactionService {
   public BankResponse creditAccount(CreditDebitRequest request) {
     if (!userAccountService.accountExists(request.getAccountNumber())) {
       return BankResponse.builder()
-          .responseCode(AccountUtils.ACCOUNT_NOT_EXIST_CODE)
-          .responseMessage(AccountUtils.ACCOUNT_NOT_EXIST_MESSAGE)
+          .responseCode(ResponseStatus.ACCOUNT_NOT_EXIST.getCode())
+          .responseMessage(ResponseStatus.ACCOUNT_NOT_EXIST.getMessage())
           .accountInfo(null)
           .build();
     }
@@ -67,14 +69,14 @@ public class TransactionServiceImpl implements TransactionService {
     TransactionDto transactionDto =
         TransactionDto.builder()
             .accountNumber(request.getAccountNumber())
-            .transactionType("CREDIT")
+            .transactionType(TransactionType.CREDIT)
             .amount(request.getAmount())
             .build();
     saveTransaction(transactionDto);
 
     return BankResponse.builder()
-        .responseCode(AccountUtils.ACCOUNT_CREDITED_SUCCESS_CODE)
-        .responseMessage(AccountUtils.ACCOUNT_CREDITED_SUCCESS_MESSAGE)
+        .responseCode(ResponseStatus.ACCOUNT_CREATION_SUCCESS.getCode())
+        .responseMessage(ResponseStatus.ACCOUNT_CREATION_SUCCESS.getMessage())
         .accountInfo(
             AccountInfo.builder()
                 .accountName(userAccountService.getFullName(request.getAccountNumber()))
@@ -89,8 +91,8 @@ public class TransactionServiceImpl implements TransactionService {
   public BankResponse debitAccount(CreditDebitRequest request) {
     if (!userAccountService.accountExists(request.getAccountNumber())) {
       return BankResponse.builder()
-          .responseCode(AccountUtils.ACCOUNT_NOT_EXIST_CODE)
-          .responseMessage(AccountUtils.ACCOUNT_NOT_EXIST_MESSAGE)
+          .responseCode(ResponseStatus.ACCOUNT_NOT_EXIST.getCode())
+          .responseMessage(ResponseStatus.ACCOUNT_NOT_EXIST.getMessage())
           .build();
     }
 
@@ -99,8 +101,8 @@ public class TransactionServiceImpl implements TransactionService {
 
     if (newBalance.compareTo(BigDecimal.ZERO) < 0) {
       return BankResponse.builder()
-          .responseCode(AccountUtils.INSUFFICIENT_BALANCE_CODE)
-          .responseMessage(AccountUtils.INSUFFICIENT_BALANCE_MESSAGE)
+          .responseCode(ResponseStatus.INSUFFICIENT_BALANCE.getCode())
+          .responseMessage(ResponseStatus.INSUFFICIENT_BALANCE.getMessage())
           .accountInfo(null)
           .build();
     }
@@ -111,14 +113,14 @@ public class TransactionServiceImpl implements TransactionService {
     TransactionDto transactionDto =
         TransactionDto.builder()
             .accountNumber(request.getAccountNumber())
-            .transactionType("DEBIT")
+            .transactionType(TransactionType.DEBIT)
             .amount(request.getAmount())
             .build();
     saveTransaction(transactionDto);
 
     return BankResponse.builder()
-        .responseCode(AccountUtils.ACCOUNT_DEBITED_SUCCESS_CODE)
-        .responseMessage(AccountUtils.ACCOUNT_DEBITED_SUCCESS_MESSAGE)
+        .responseCode(ResponseStatus.ACCOUNT_DEBITED.getCode())
+        .responseMessage(ResponseStatus.ACCOUNT_DEBITED.getMessage())
         .accountInfo(
             AccountInfo.builder()
                 .accountNumber(request.getAccountNumber())
@@ -133,8 +135,8 @@ public class TransactionServiceImpl implements TransactionService {
   public BankResponse transfer(TransferRequest request) {
     if (!userAccountService.accountExists(request.getReceiver())) {
       return BankResponse.builder()
-          .responseCode(AccountUtils.ACCOUNT_NOT_EXIST_CODE)
-          .responseMessage(AccountUtils.ACCOUNT_NOT_EXIST_MESSAGE)
+          .responseCode(ResponseStatus.ACCOUNT_NOT_EXIST.getCode())
+          .responseMessage(ResponseStatus.ACCOUNT_NOT_EXIST.getMessage())
           .accountInfo(null)
           .build();
     }
@@ -143,8 +145,8 @@ public class TransactionServiceImpl implements TransactionService {
 
     if (request.getAmount().compareTo(senderBalance) > 0) {
       return BankResponse.builder()
-          .responseCode(AccountUtils.INSUFFICIENT_BALANCE_CODE)
-          .responseMessage(AccountUtils.INSUFFICIENT_BALANCE_MESSAGE)
+          .responseCode(ResponseStatus.INSUFFICIENT_BALANCE.getCode())
+          .responseMessage(ResponseStatus.INSUFFICIENT_BALANCE.getMessage())
           .accountInfo(null)
           .build();
     }
@@ -182,7 +184,8 @@ public class TransactionServiceImpl implements TransactionService {
     TransactionDto debitTransaction =
         TransactionDto.builder()
             .accountNumber(request.getSender())
-            .transactionType("TRANSFER") // Changed to TRANSFER from DEBIT for clearer history
+            .transactionType(
+                TransactionType.TRANSFER) // Changed to TRANSFER from DEBIT for clearer history
             .amount(request.getAmount())
             .counterpartyAccountNumber(request.getReceiver())
             .counterpartyName(receiverName)
@@ -193,7 +196,9 @@ public class TransactionServiceImpl implements TransactionService {
     TransactionDto creditTransaction =
         TransactionDto.builder()
             .accountNumber(request.getReceiver())
-            .transactionType("CREDIT") // We keep CREDIT for receiver so they know they got credited
+            .transactionType(
+                TransactionType
+                    .CREDIT) // We keep CREDIT for receiver so they know they got credited
             .amount(request.getAmount())
             .counterpartyAccountNumber(request.getSender())
             .counterpartyName(senderName)
@@ -201,8 +206,8 @@ public class TransactionServiceImpl implements TransactionService {
     saveTransaction(creditTransaction);
 
     return BankResponse.builder()
-        .responseCode(AccountUtils.TRANSACTION_SUCCESSFUL_CODE)
-        .responseMessage(AccountUtils.TRANSACTION_SUCCESSFUL_MESSAGE)
+        .responseCode(ResponseStatus.TRANSACTION_SUCCESSFUL.getCode())
+        .responseCode(ResponseStatus.TRANSACTION_SUCCESSFUL.getMessage())
         .accountInfo(null)
         .build();
   }

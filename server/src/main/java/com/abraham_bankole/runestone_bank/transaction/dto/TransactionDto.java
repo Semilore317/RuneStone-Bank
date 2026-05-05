@@ -1,5 +1,8 @@
 package com.abraham_bankole.runestone_bank.transaction.dto;
 
+import com.abraham_bankole.runestone_bank.common.enums.TransactionType;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import java.math.BigDecimal;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,7 +14,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Data
 public class TransactionDto {
-  private String transactionType;
+  @Enumerated(EnumType.STRING)
+  private TransactionType transactionType;
+
   private BigDecimal amount;
   private String accountNumber;
   private String status;

@@ -1,53 +1,56 @@
-import { apiRequest } from './api';
+import { apiRequest } from "./api";
 
 export interface AccountInfo {
-    accountName: string;
-    accountBalance: number;
-    accountNumber: string;
+  accountName: string;
+  accountBalance: number;
+  accountNumber: string;
 }
 
 export interface LoginResponse {
-    responseCode: string;
-    responseMessage: string;
-    accountInfo: AccountInfo;
-    jwt: string;
+  responseCode: string;
+  responseMessage: string;
+  accountInfo: AccountInfo;
+  jwt: string;
 }
 
-export async function loginUser(email: string, password: string): Promise<LoginResponse> {
-    const response = await apiRequest('/api/v1/user/login', {
-        method: 'POST',
-        body: JSON.stringify({ email, password }),
-    });
+export async function loginUser(
+  email: string,
+  password: string,
+): Promise<LoginResponse> {
+  const response = await apiRequest("/api/v1/user/login", {
+    method: "POST",
+    body: JSON.stringify({ email, password }),
+  });
 
-    if (response.jwt) {
-        localStorage.setItem('jwt', response.jwt);
-        localStorage.setItem('accountInfo', JSON.stringify(response.accountInfo));
-    }
+  if (response.jwt) {
+    localStorage.setItem("jwt", response.jwt);
+    localStorage.setItem("accountInfo", JSON.stringify(response.accountInfo));
+  }
 
-    return response as LoginResponse;
+  return response as LoginResponse;
 }
 
 export function logoutUser(): void {
-    localStorage.removeItem('jwt');
-    localStorage.removeItem('accountInfo');
+  localStorage.removeItem("jwt");
+  localStorage.removeItem("accountInfo");
 }
 
 export function getToken(): string | null {
-    return localStorage.getItem('jwt');
+  return localStorage.getItem("jwt");
 }
 
 export function getStoredAccountInfo(): AccountInfo | null {
-    const stored = localStorage.getItem('accountInfo');
-    if (!stored) return null;
-    try {
-        return JSON.parse(stored);
-    } catch {
-        return null;
-    }
+  const stored = localStorage.getItem("accountInfo");
+  if (!stored) return null;
+  try {
+    return JSON.parse(stored);
+  } catch {
+    return null;
+  }
 }
 
 export function isAuthenticated(): boolean {
-    return !!getToken() && !isTokenExpired();
+  return !!getToken() && !isTokenExpired();
 }
 
 /**
@@ -55,25 +58,24 @@ export function isAuthenticated(): boolean {
  * Returns null if the token is missing or malformed.
  */
 export function getTokenExpiry(): number | null {
-    const token = getToken();
-    if (!token) return null;
+  const token = getToken();
+  if (!token) return null;
 
-    try {
-        let payload = token.split('.')[1];
-        // Convert Base64Url to standard Base64
-        payload = payload.replace(/-/g, '+').replace(/_/g, '/');
-        // Add padding if needed
-        const pad = payload.length % 4;
-        if (pad) {
-            payload += '='.repeat(4 - pad);
-        }
-
-
-        const decoded = JSON.parse(atob(payload));
-        return typeof decoded.exp === 'number' ? decoded.exp * 1000 : null; // convert to ms
-    } catch {
-        return null;
+  try {
+    let payload = token.split(".")[1];
+    // Convert Base64Url to standard Base64
+    payload = payload.replace(/-/g, "+").replace(/_/g, "/");
+    // Add padding if needed
+    const pad = payload.length % 4;
+    if (pad) {
+      payload += "=".repeat(4 - pad);
     }
+
+    const decoded = JSON.parse(atob(payload));
+    return typeof decoded.exp === "number" ? decoded.exp * 1000 : null; // convert to ms
+  } catch {
+    return null;
+  }
 }
 
 /**
@@ -81,11 +83,11 @@ export function getTokenExpiry(): number | null {
  * Negative values mean the token is already expired.
  */
 export function getTimeUntilExpiry(): number {
-    const expiry = getTokenExpiry();
-    if (!expiry) return -1;
-    return expiry - Date.now();
+  const expiry = getTokenExpiry();
+  if (!expiry) return -1;
+  return expiry - Date.now();
 }
 
 export function isTokenExpired(): boolean {
-    return getTimeUntilExpiry() <= 0;
+  return getTimeUntilExpiry() <= 0;
 }
