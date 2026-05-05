@@ -87,9 +87,9 @@ public class UserServiceImpl implements UserService {
 
     if (!doesAccountExists) {
       return BankResponse.builder()
-          .responseCode(AccountUtils.ACCOUNT_NOT_EXIST_CODE)
-          .responseMessage(AccountUtils.ACCOUNT_NOT_EXIST_MESSAGE)
-          .accountInfo(null)
+              .responseCode(ResponseCode.ACCOUNT_NOT_EXIST.getCode())
+              .responseMessage(ResponseCode.ACCOUNT_NOT_EXIST.getMessage())
+              .accountInfo(null)
           .build();
     }
 
