@@ -123,8 +123,8 @@ public class UserServiceImpl implements UserService {
     User foundUser = userRepository.findByAccountNumber(enquiryRequest.getAccountNumber());
 
     return BankResponse.builder()
-        .responseCode(AccountUtils.ACCOUNT_FOUND_CODE)
-        .responseMessage(AccountUtils.ACCOUNT_FOUND_SUCCESS)
+            .responseCode(ResponseCode.ACCOUNT_FOUND.getCode())
+            .responseCode(ResponseCode.ACCOUNT_FOUND.getMessage())
         .accountInfo(AccountInfo.builder().accountName(foundUser.getFullName()).build())
         .build();
   }
