@@ -162,19 +162,17 @@ public class UserServiceImpl implements UserService {
     User user = userRepository.findByAccountNumber(accountNumber);
     if (user == null) {
       return BankResponse.builder()
-          .responseCode(AccountUtils.ACCOUNT_NOT_EXIST_CODE)
-          .responseMessage(AccountUtils.ACCOUNT_NOT_EXIST_MESSAGE)
+              .responseCode(ResponseCode.ACCOUNT_NOT_EXIST.getCode())
+                .responseCode(ResponseCode.ACCOUNT_NOT_EXIST.getMessage())
           .build();
     }
 
-    user.setFirstName(
-        request.getFirstName() != null ? request.getFirstName() : user.getFirstName());
+    user.setFirstName(request.getFirstName() != null ? request.getFirstName() : user.getFirstName());
     user.setLastName(request.getLastName() != null ? request.getLastName() : user.getLastName());
     user.setEmail(request.getEmail() != null ? request.getEmail() : user.getEmail());
-    user.setEmailNotifs(
-        request.getEmailNotifs() != null ? request.getEmailNotifs() : user.getEmailNotifs());
-    user.setLoginAlerts(
-        request.getLoginAlerts() != null ? request.getLoginAlerts() : user.getLoginAlerts());
+    user.setEmailNotifs(request.getEmailNotifs() != null ? request.getEmailNotifs() : user.getEmailNotifs());
+    user.setLoginAlerts(request.getLoginAlerts() != null ? request.getLoginAlerts() : user.getLoginAlerts());
+
     user.setTransferAlerts(
         request.getTransferAlerts() != null
             ? request.getTransferAlerts()
@@ -183,8 +181,8 @@ public class UserServiceImpl implements UserService {
     userRepository.save(user);
 
     return BankResponse.builder()
-        .responseCode(AccountUtils.PROFILE_UPDATE_SUCCESS_CODE)
-        .responseMessage(AccountUtils.PROFILE_UPDATE_SUCCESS_MESSAGE)
+            .responseCode(ResponseCode.PROFILE_UPDATE_SUCCESS.getCode())
+            .responseMessage(ResponseCode.PROFILE_UPDATE_SUCCESS.getMessage())
         .build();
   }
 
