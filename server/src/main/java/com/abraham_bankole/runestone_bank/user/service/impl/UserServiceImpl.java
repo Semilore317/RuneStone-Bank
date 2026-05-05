@@ -6,6 +6,7 @@ import com.abraham_bankole.runestone_bank.common.event.UserRegisteredEvent;
 import com.abraham_bankole.runestone_bank.common.kafka.KafkaTopics;
 import com.abraham_bankole.runestone_bank.common.service.OutboxService;
 import com.abraham_bankole.runestone_bank.common.utils.AccountUtils;
+import com.abraham_bankole.runestone_bank.common.enums.ResponseCode;
 import com.abraham_bankole.runestone_bank.security.entity.Role;
 import com.abraham_bankole.runestone_bank.user.dto.*;
 import com.abraham_bankole.runestone_bank.user.entity.User;
@@ -35,8 +36,8 @@ public class UserServiceImpl implements UserService {
   public BankResponse createAccount(UserRequest userRequest) {
     if (userRepository.existsByEmail(userRequest.getEmail())) {
       return BankResponse.builder()
-          .responseCode(AccountUtils.ACCOUNT_EXISTS_CODE)
-          .responseMessage(AccountUtils.ACCOUNT_EXISTS_MESSAGE)
+          .responseCode(ResponseCode.ACCOUNT_EXISTS.getCode())
+          .responseMessage(ResponseCode.ACCOUNT_EXISTS.getMessage())
           .accountInfo(null)
           .build();
     }
