@@ -191,15 +191,15 @@ public class UserServiceImpl implements UserService {
     User user = userRepository.findByAccountNumber(accountNumber);
     if (user == null) {
       return BankResponse.builder()
-          .responseCode(AccountUtils.ACCOUNT_NOT_EXIST_CODE)
-          .responseMessage(AccountUtils.ACCOUNT_NOT_EXIST_MESSAGE)
+              .responseCode(ResponseCode.ACCOUNT_NOT_EXIST.getCode())
+              .responseCode(ResponseCode.ACCOUNT_NOT_EXIST.getMessage())
           .build();
     }
 
     if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
       return BankResponse.builder()
-          .responseCode(AccountUtils.PASSWORD_INCORRECT_CODE)
-          .responseMessage(AccountUtils.PASSWORD_INCORRECT_MESSAGE)
+              .responseCode(ResponseCode.PASSWORD_INCORRECT.getCode())
+              .responseMessage(ResponseCode.PASSWORD_INCORRECT.getMessage())
           .build();
     }
 
@@ -207,8 +207,8 @@ public class UserServiceImpl implements UserService {
     userRepository.save(user);
 
     return BankResponse.builder()
-        .responseCode(AccountUtils.PASSWORD_UPDATE_SUCCESS_CODE)
-        .responseMessage(AccountUtils.PASSWORD_UPDATE_SUCCESS_MESSAGE)
+            .responseCode(ResponseCode.PASSWORD_UPDATE_SUCCESS.getMessage())
+            .responseMessage(ResponseCode.PASSWORD_UPDATE_SUCCESS.getMessage())
         .build();
   }
 }
