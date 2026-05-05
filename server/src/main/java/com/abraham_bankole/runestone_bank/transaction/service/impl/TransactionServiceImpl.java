@@ -134,8 +134,8 @@ public class TransactionServiceImpl implements TransactionService {
   public BankResponse transfer(TransferRequest request) {
     if (!userAccountService.accountExists(request.getReceiver())) {
       return BankResponse.builder()
-          .responseCode(AccountUtils.ACCOUNT_NOT_EXIST_CODE)
-          .responseMessage(AccountUtils.ACCOUNT_NOT_EXIST_MESSAGE)
+          .responseCode(ResponseCode.ACCOUNT_NOT_EXIST.getCode())
+          .responseMessage(ResponseCode.ACCOUNT_NOT_EXIST.getMessage())
           .accountInfo(null)
           .build();
     }
@@ -144,8 +144,8 @@ public class TransactionServiceImpl implements TransactionService {
 
     if (request.getAmount().compareTo(senderBalance) > 0) {
       return BankResponse.builder()
-          .responseCode(AccountUtils.INSUFFICIENT_BALANCE_CODE)
-          .responseMessage(AccountUtils.INSUFFICIENT_BALANCE_MESSAGE)
+              .responseCode(ResponseCode.INSUFFICIENT_BALANCE.getCode())
+              .responseMessage(ResponseCode.INSUFFICIENT_BALANCE.getMessage())
           .accountInfo(null)
           .build();
     }
@@ -202,8 +202,8 @@ public class TransactionServiceImpl implements TransactionService {
     saveTransaction(creditTransaction);
 
     return BankResponse.builder()
-        .responseCode(AccountUtils.TRANSACTION_SUCCESSFUL_CODE)
-        .responseMessage(AccountUtils.TRANSACTION_SUCCESSFUL_MESSAGE)
+            .responseCode(ResponseCode.TRANSACTION_SUCCESSFUL.getCode())
+            .responseCode(ResponseCode.TRANSACTION_SUCCESSFUL.getMessage())
         .accountInfo(null)
         .build();
   }
