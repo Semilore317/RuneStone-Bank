@@ -90,8 +90,8 @@ public class TransactionServiceImpl implements TransactionService {
   public BankResponse debitAccount(CreditDebitRequest request) {
     if (!userAccountService.accountExists(request.getAccountNumber())) {
       return BankResponse.builder()
-          .responseCode(AccountUtils.ACCOUNT_NOT_EXIST_CODE)
-          .responseMessage(AccountUtils.ACCOUNT_NOT_EXIST_MESSAGE)
+              .responseCode(ResponseCode.ACCOUNT_NOT_EXIST.getCode())
+              .responseMessage(ResponseCode.ACCOUNT_NOT_EXIST.getMessage())
           .build();
     }
 
@@ -100,8 +100,8 @@ public class TransactionServiceImpl implements TransactionService {
 
     if (newBalance.compareTo(BigDecimal.ZERO) < 0) {
       return BankResponse.builder()
-          .responseCode(AccountUtils.INSUFFICIENT_BALANCE_CODE)
-          .responseMessage(AccountUtils.INSUFFICIENT_BALANCE_MESSAGE)
+              .responseCode(ResponseCode.INSUFFICIENT_BALANCE.getCode())
+              .responseMessage(ResponseCode.INSUFFICIENT_BALANCE.getMessage())
           .accountInfo(null)
           .build();
     }
@@ -118,8 +118,8 @@ public class TransactionServiceImpl implements TransactionService {
     saveTransaction(transactionDto);
 
     return BankResponse.builder()
-        .responseCode(AccountUtils.ACCOUNT_DEBITED_SUCCESS_CODE)
-        .responseMessage(AccountUtils.ACCOUNT_DEBITED_SUCCESS_MESSAGE)
+            .responseCode(ResponseCode.ACCOUNT_DEBITED.getCode())
+            .responseMessage(ResponseCode.ACCOUNT_DEBITED.getMessage())
         .accountInfo(
             AccountInfo.builder()
                 .accountNumber(request.getAccountNumber())
