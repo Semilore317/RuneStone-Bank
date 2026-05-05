@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum ResponseCode {
+public enum ResponseStatus {
     ACCOUNT_EXISTS ("001", "This user email exists"),
     ACCOUNT_CREATION_SUCCESS("002", "Account has been successfully created"),
     ACCOUNT_NOT_EXIST ("003", "Account does not exist"),
@@ -17,7 +17,8 @@ public enum ResponseCode {
     LOGIN_SUCCESS("009", "Login Successful"),
     PROFILE_UPDATE_SUCCESS("010", "Profile Updated Successfully"),
     PASSWORD_UPDATE_SUCCESS("011", "Password Updated Successfully"),
-    PASSWORD_INCORRECT("012", "Password Incorrect");
+    PASSWORD_INCORRECT("012", "Password Incorrect"),
+    LOGOUT_SUCCESS          ("013", "Logout successful");
 
     private final String code;
     private final String message;

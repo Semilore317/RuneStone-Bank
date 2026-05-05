@@ -2,7 +2,7 @@ package com.abraham_bankole.runestone_bank.transaction.service.impl;
 
 import com.abraham_bankole.runestone_bank.common.dto.AccountInfo;
 import com.abraham_bankole.runestone_bank.common.dto.BankResponse;
-import com.abraham_bankole.runestone_bank.common.enums.ResponseCode;
+import com.abraham_bankole.runestone_bank.common.enums.ResponseStatus;
 import com.abraham_bankole.runestone_bank.common.enums.TransactionStatus;
 import com.abraham_bankole.runestone_bank.common.enums.TransactionType;
 import com.abraham_bankole.runestone_bank.common.event.TransactionCompletedEvent;
@@ -55,8 +55,8 @@ public class TransactionServiceImpl implements TransactionService {
   public BankResponse creditAccount(CreditDebitRequest request) {
     if (!userAccountService.accountExists(request.getAccountNumber())) {
       return BankResponse.builder()
-              .responseCode(ResponseCode.ACCOUNT_NOT_EXIST.getCode())
-              .responseMessage(ResponseCode.ACCOUNT_NOT_EXIST.getMessage())
+              .responseCode(ResponseStatus.ACCOUNT_NOT_EXIST.getCode())
+              .responseMessage(ResponseStatus.ACCOUNT_NOT_EXIST.getMessage())
           .accountInfo(null)
           .build();
     }
@@ -75,8 +75,8 @@ public class TransactionServiceImpl implements TransactionService {
     saveTransaction(transactionDto);
 
     return BankResponse.builder()
-        .responseCode(ResponseCode.ACCOUNT_CREATION_SUCCESS.getCode())
-        .responseMessage(ResponseCode.ACCOUNT_CREATION_SUCCESS.getMessage())
+        .responseCode(ResponseStatus.ACCOUNT_CREATION_SUCCESS.getCode())
+        .responseMessage(ResponseStatus.ACCOUNT_CREATION_SUCCESS.getMessage())
         .accountInfo(
             AccountInfo.builder()
                 .accountName(userAccountService.getFullName(request.getAccountNumber()))
@@ -91,8 +91,8 @@ public class TransactionServiceImpl implements TransactionService {
   public BankResponse debitAccount(CreditDebitRequest request) {
     if (!userAccountService.accountExists(request.getAccountNumber())) {
       return BankResponse.builder()
-              .responseCode(ResponseCode.ACCOUNT_NOT_EXIST.getCode())
-              .responseMessage(ResponseCode.ACCOUNT_NOT_EXIST.getMessage())
+              .responseCode(ResponseStatus.ACCOUNT_NOT_EXIST.getCode())
+              .responseMessage(ResponseStatus.ACCOUNT_NOT_EXIST.getMessage())
           .build();
     }
 
@@ -101,8 +101,8 @@ public class TransactionServiceImpl implements TransactionService {
 
     if (newBalance.compareTo(BigDecimal.ZERO) < 0) {
       return BankResponse.builder()
-              .responseCode(ResponseCode.INSUFFICIENT_BALANCE.getCode())
-              .responseMessage(ResponseCode.INSUFFICIENT_BALANCE.getMessage())
+              .responseCode(ResponseStatus.INSUFFICIENT_BALANCE.getCode())
+              .responseMessage(ResponseStatus.INSUFFICIENT_BALANCE.getMessage())
           .accountInfo(null)
           .build();
     }
@@ -119,8 +119,8 @@ public class TransactionServiceImpl implements TransactionService {
     saveTransaction(transactionDto);
 
     return BankResponse.builder()
-            .responseCode(ResponseCode.ACCOUNT_DEBITED.getCode())
-            .responseMessage(ResponseCode.ACCOUNT_DEBITED.getMessage())
+            .responseCode(ResponseStatus.ACCOUNT_DEBITED.getCode())
+            .responseMessage(ResponseStatus.ACCOUNT_DEBITED.getMessage())
         .accountInfo(
             AccountInfo.builder()
                 .accountNumber(request.getAccountNumber())
@@ -135,8 +135,8 @@ public class TransactionServiceImpl implements TransactionService {
   public BankResponse transfer(TransferRequest request) {
     if (!userAccountService.accountExists(request.getReceiver())) {
       return BankResponse.builder()
-          .responseCode(ResponseCode.ACCOUNT_NOT_EXIST.getCode())
-          .responseMessage(ResponseCode.ACCOUNT_NOT_EXIST.getMessage())
+          .responseCode(ResponseStatus.ACCOUNT_NOT_EXIST.getCode())
+          .responseMessage(ResponseStatus.ACCOUNT_NOT_EXIST.getMessage())
           .accountInfo(null)
           .build();
     }
@@ -145,8 +145,8 @@ public class TransactionServiceImpl implements TransactionService {
 
     if (request.getAmount().compareTo(senderBalance) > 0) {
       return BankResponse.builder()
-              .responseCode(ResponseCode.INSUFFICIENT_BALANCE.getCode())
-              .responseMessage(ResponseCode.INSUFFICIENT_BALANCE.getMessage())
+              .responseCode(ResponseStatus.INSUFFICIENT_BALANCE.getCode())
+              .responseMessage(ResponseStatus.INSUFFICIENT_BALANCE.getMessage())
           .accountInfo(null)
           .build();
     }
@@ -203,8 +203,8 @@ public class TransactionServiceImpl implements TransactionService {
     saveTransaction(creditTransaction);
 
     return BankResponse.builder()
-            .responseCode(ResponseCode.TRANSACTION_SUCCESSFUL.getCode())
-            .responseCode(ResponseCode.TRANSACTION_SUCCESSFUL.getMessage())
+            .responseCode(ResponseStatus.TRANSACTION_SUCCESSFUL.getCode())
+            .responseCode(ResponseStatus.TRANSACTION_SUCCESSFUL.getMessage())
         .accountInfo(null)
         .build();
   }
