@@ -134,8 +134,8 @@ public class UserServiceImpl implements UserService {
     User user = userRepository.findByAccountNumber(accountNumber);
     if (user == null) {
       return BankResponse.builder()
-          .responseCode(AccountUtils.ACCOUNT_NOT_EXIST_CODE)
-          .responseMessage(AccountUtils.ACCOUNT_NOT_EXIST_MESSAGE)
+              .responseCode(ResponseCode.ACCOUNT_EXISTS.getCode())
+              .responseCode(ResponseCode.ACCOUNT_EXISTS.getMessage())
           .build();
     }
 
@@ -151,8 +151,8 @@ public class UserServiceImpl implements UserService {
             .build();
 
     return BankResponse.builder()
-        .responseCode(AccountUtils.ACCOUNT_FOUND_CODE)
-        .responseMessage(AccountUtils.ACCOUNT_FOUND_SUCCESS)
+            .responseCode(ResponseCode.ACCOUNT_FOUND.getCode())
+            .responseMessage(ResponseCode.ACCOUNT_FOUND.getMessage())
         .data(profileData)
         .build();
   }
