@@ -1,5 +1,6 @@
 package com.abraham_bankole.runestone_bank.user.entity;
 
+import com.abraham_bankole.runestone_bank.common.enums.AccountStatus;
 import com.abraham_bankole.runestone_bank.security.entity.Role;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
@@ -38,7 +39,9 @@ public class User implements UserDetails {
   private String password; // hashed to avoid clownery
   private String phoneNumber;
   private String alternativePhoneNumber;
-  private String status;
+
+  @Enumerated(EnumType.STRING)
+  private AccountStatus status;
 
   @Enumerated(EnumType.STRING)
   private Role role;

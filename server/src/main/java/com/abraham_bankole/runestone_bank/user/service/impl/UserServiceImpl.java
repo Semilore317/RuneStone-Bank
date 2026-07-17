@@ -2,6 +2,8 @@ package com.abraham_bankole.runestone_bank.user.service.impl;
 
 import com.abraham_bankole.runestone_bank.common.dto.AccountInfo;
 import com.abraham_bankole.runestone_bank.common.dto.BankResponse;
+import com.abraham_bankole.runestone_bank.common.enums.AccountStatus;
+import com.abraham_bankole.runestone_bank.common.enums.ResponseStatus;
 import com.abraham_bankole.runestone_bank.common.event.UserRegisteredEvent;
 import com.abraham_bankole.runestone_bank.common.kafka.KafkaTopics;
 import com.abraham_bankole.runestone_bank.common.service.OutboxService;
@@ -35,8 +37,8 @@ public class UserServiceImpl implements UserService {
   public BankResponse createAccount(UserRequest userRequest) {
     if (userRepository.existsByEmail(userRequest.getEmail())) {
       return BankResponse.builder()
-          .responseCode(AccountUtils.ACCOUNT_EXISTS_CODE)
-          .responseMessage(AccountUtils.ACCOUNT_EXISTS_MESSAGE)
+          .responseCode(ResponseStatus.ACCOUNT_EXISTS.getCode())
+          .responseMessage(ResponseStatus.ACCOUNT_EXISTS.getMessage())
           .accountInfo(null)
           .build();
     }
@@ -56,7 +58,7 @@ public class UserServiceImpl implements UserService {
             .phoneNumber(userRequest.getPhoneNumber())
             .alternativePhoneNumber(userRequest.getAlternativePhoneNumber())
             .role(Role.ROLE_USER)
-            .status("ACTIVE")
+            .status(AccountStatus.ACTIVE)
             .build();
 
     User savedUser = userRepository.save(newUser);
@@ -69,8 +71,8 @@ public class UserServiceImpl implements UserService {
         new UserRegisteredEvent(savedUser.getId(), savedUser.getEmail(), savedUser.getFirstName()));
 
     return BankResponse.builder()
-        .responseCode(AccountUtils.ACCOUNT_CREATION_SUCCESS_CODE)
-        .responseMessage(AccountUtils.ACCOUNT_CREATION_MESSAGE)
+        .responseCode(ResponseStatus.ACCOUNT_CREATION_SUCCESS.getCode())
+        .responseMessage(ResponseStatus.ACCOUNT_CREATION_SUCCESS.getMessage())
         .accountInfo(
             AccountInfo.builder()
                 .accountNumber(savedUser.getAccountNumber())
@@ -86,8 +88,8 @@ public class UserServiceImpl implements UserService {
 
     if (!doesAccountExists) {
       return BankResponse.builder()
-          .responseCode(AccountUtils.ACCOUNT_NOT_EXIST_CODE)
-          .responseMessage(AccountUtils.ACCOUNT_NOT_EXIST_MESSAGE)
+          .responseCode(ResponseStatus.ACCOUNT_NOT_EXIST.getCode())
+          .responseMessage(ResponseStatus.ACCOUNT_NOT_EXIST.getMessage())
           .accountInfo(null)
           .build();
     }
@@ -113,8 +115,8 @@ public class UserServiceImpl implements UserService {
 
     if (!doesAccountExists) {
       return BankResponse.builder()
-          .responseCode(AccountUtils.ACCOUNT_NOT_EXIST_CODE)
-          .responseMessage(AccountUtils.ACCOUNT_NOT_EXIST_MESSAGE)
+          .responseCode(ResponseStatus.ACCOUNT_NOT_EXIST.getCode())
+          .responseMessage(ResponseStatus.ACCOUNT_NOT_EXIST.getMessage())
           .accountInfo(null)
           .build();
     }
@@ -122,8 +124,8 @@ public class UserServiceImpl implements UserService {
     User foundUser = userRepository.findByAccountNumber(enquiryRequest.getAccountNumber());
 
     return BankResponse.builder()
-        .responseCode(AccountUtils.ACCOUNT_FOUND_CODE)
-        .responseMessage(AccountUtils.ACCOUNT_FOUND_SUCCESS)
+        .responseCode(ResponseStatus.ACCOUNT_FOUND.getCode())
+        .responseCode(ResponseStatus.ACCOUNT_FOUND.getMessage())
         .accountInfo(AccountInfo.builder().accountName(foundUser.getFullName()).build())
         .build();
   }
@@ -133,8 +135,8 @@ public class UserServiceImpl implements UserService {
     User user = userRepository.findByAccountNumber(accountNumber);
     if (user == null) {
       return BankResponse.builder()
-          .responseCode(AccountUtils.ACCOUNT_NOT_EXIST_CODE)
-          .responseMessage(AccountUtils.ACCOUNT_NOT_EXIST_MESSAGE)
+          .responseCode(ResponseStatus.ACCOUNT_EXISTS.getCode())
+          .responseCode(ResponseStatus.ACCOUNT_EXISTS.getMessage())
           .build();
     }
 
@@ -150,8 +152,8 @@ public class UserServiceImpl implements UserService {
             .build();
 
     return BankResponse.builder()
-        .responseCode(AccountUtils.ACCOUNT_FOUND_CODE)
-        .responseMessage(AccountUtils.ACCOUNT_FOUND_SUCCESS)
+        .responseCode(ResponseStatus.ACCOUNT_FOUND.getCode())
+        .responseMessage(ResponseStatus.ACCOUNT_FOUND.getMessage())
         .data(profileData)
         .build();
   }
@@ -161,8 +163,8 @@ public class UserServiceImpl implements UserService {
     User user = userRepository.findByAccountNumber(accountNumber);
     if (user == null) {
       return BankResponse.builder()
-          .responseCode(AccountUtils.ACCOUNT_NOT_EXIST_CODE)
-          .responseMessage(AccountUtils.ACCOUNT_NOT_EXIST_MESSAGE)
+          .responseCode(ResponseStatus.ACCOUNT_NOT_EXIST.getCode())
+          .responseCode(ResponseStatus.ACCOUNT_NOT_EXIST.getMessage())
           .build();
     }
 
@@ -174,6 +176,7 @@ public class UserServiceImpl implements UserService {
         request.getEmailNotifs() != null ? request.getEmailNotifs() : user.getEmailNotifs());
     user.setLoginAlerts(
         request.getLoginAlerts() != null ? request.getLoginAlerts() : user.getLoginAlerts());
+
     user.setTransferAlerts(
         request.getTransferAlerts() != null
             ? request.getTransferAlerts()
@@ -182,8 +185,8 @@ public class UserServiceImpl implements UserService {
     userRepository.save(user);
 
     return BankResponse.builder()
-        .responseCode(AccountUtils.PROFILE_UPDATE_SUCCESS_CODE)
-        .responseMessage(AccountUtils.PROFILE_UPDATE_SUCCESS_MESSAGE)
+        .responseCode(ResponseStatus.PROFILE_UPDATE_SUCCESS.getCode())
+        .responseMessage(ResponseStatus.PROFILE_UPDATE_SUCCESS.getMessage())
         .build();
   }
 
@@ -192,15 +195,15 @@ public class UserServiceImpl implements UserService {
     User user = userRepository.findByAccountNumber(accountNumber);
     if (user == null) {
       return BankResponse.builder()
-          .responseCode(AccountUtils.ACCOUNT_NOT_EXIST_CODE)
-          .responseMessage(AccountUtils.ACCOUNT_NOT_EXIST_MESSAGE)
+          .responseCode(ResponseStatus.ACCOUNT_NOT_EXIST.getCode())
+          .responseCode(ResponseStatus.ACCOUNT_NOT_EXIST.getMessage())
           .build();
     }
 
     if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
       return BankResponse.builder()
-          .responseCode(AccountUtils.PASSWORD_INCORRECT_CODE)
-          .responseMessage(AccountUtils.PASSWORD_INCORRECT_MESSAGE)
+          .responseCode(ResponseStatus.PASSWORD_INCORRECT.getCode())
+          .responseMessage(ResponseStatus.PASSWORD_INCORRECT.getMessage())
           .build();
     }
 
@@ -208,8 +211,8 @@ public class UserServiceImpl implements UserService {
     userRepository.save(user);
 
     return BankResponse.builder()
-        .responseCode(AccountUtils.PASSWORD_UPDATE_SUCCESS_CODE)
-        .responseMessage(AccountUtils.PASSWORD_UPDATE_SUCCESS_MESSAGE)
+        .responseCode(ResponseStatus.PASSWORD_UPDATE_SUCCESS.getMessage())
+        .responseMessage(ResponseStatus.PASSWORD_UPDATE_SUCCESS.getMessage())
         .build();
   }
 }

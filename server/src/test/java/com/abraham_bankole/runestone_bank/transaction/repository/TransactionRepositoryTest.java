@@ -2,6 +2,8 @@ package com.abraham_bankole.runestone_bank.transaction.repository;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.abraham_bankole.runestone_bank.common.enums.TransactionStatus;
+import com.abraham_bankole.runestone_bank.common.enums.TransactionType;
 import com.abraham_bankole.runestone_bank.transaction.entity.Transaction;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -20,19 +22,19 @@ class TransactionRepositoryTest {
     Transaction t1 =
         Transaction.builder()
             .accountNumber("123")
-            .transactionType("CREDIT")
+            .transactionType(TransactionType.CREDIT)
             .amount(BigDecimal.TEN)
             .timeOfCreation(LocalDateTime.now().minusDays(2))
-            .status("SUCCESS")
+            .status(TransactionStatus.SUCCESS)
             .build();
 
     Transaction t2 =
         Transaction.builder()
             .accountNumber("123")
-            .transactionType("DEBIT")
+            .transactionType(TransactionType.DEBIT)
             .amount(BigDecimal.ONE)
             .timeOfCreation(LocalDateTime.now())
-            .status("SUCCESS")
+            .status(TransactionStatus.SUCCESS)
             .build();
 
     transactionRepository.save(t1);
@@ -42,7 +44,7 @@ class TransactionRepositoryTest {
         transactionRepository.findByAccountNumberOrderByTimeOfCreationDesc("123");
 
     assertEquals(2, results.size());
-    assertEquals("DEBIT", results.get(0).getTransactionType()); // Newest first
+    assertEquals(TransactionType.DEBIT, results.get(0).getTransactionType()); // Newest first
   }
 
   @Test

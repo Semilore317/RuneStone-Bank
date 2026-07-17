@@ -2,6 +2,7 @@ package com.abraham_bankole.runestone_bank.user.repository;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.abraham_bankole.runestone_bank.common.enums.AccountStatus;
 import com.abraham_bankole.runestone_bank.security.entity.Role;
 import com.abraham_bankole.runestone_bank.user.entity.User;
 import java.math.BigDecimal;
@@ -27,7 +28,7 @@ class UserRepositoryTest {
             .password("pass")
             .phoneNumber("000")
             .role(Role.ROLE_USER)
-            .status("ACTIVE")
+            .status(AccountStatus.ACTIVE)
             .build();
     userRepository.save(user);
 
@@ -49,7 +50,7 @@ class UserRepositoryTest {
             .password("pass")
             .phoneNumber("000")
             .role(Role.ROLE_USER)
-            .status("ACTIVE")
+            .status(AccountStatus.ACTIVE)
             .build();
     userRepository.save(user);
 

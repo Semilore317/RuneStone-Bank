@@ -5,6 +5,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
+import com.abraham_bankole.runestone_bank.common.enums.TransactionStatus;
+import com.abraham_bankole.runestone_bank.common.enums.TransactionType;
 import com.abraham_bankole.runestone_bank.common.service.UserAccountService;
 import com.abraham_bankole.runestone_bank.transaction.entity.Transaction;
 import com.abraham_bankole.runestone_bank.transaction.repository.TransactionRepository;
@@ -43,10 +45,10 @@ class BankStatementServiceTest {
     Transaction t1 =
         Transaction.builder()
             .accountNumber(accountNumber)
-            .transactionType("CREDIT")
+            .transactionType(TransactionType.CREDIT)
             .amount(BigDecimal.TEN)
             .timeOfCreation(LocalDateTime.now())
-            .status("SUCCESS")
+            .status(TransactionStatus.SUCCESS)
             .build();
 
     List<Transaction> mockTransactions = Collections.singletonList(t1);

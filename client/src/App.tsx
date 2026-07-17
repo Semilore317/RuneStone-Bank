@@ -1,12 +1,12 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext';
-import { ProtectedRoute } from './components/ProtectedRoute';
-import { AppLayout } from './components/AppLayout';
-import { LoginPage } from './pages/LoginPage';
-import { DashboardPage } from './pages/DashboardPage';
-import { TransferPage } from './pages/TransferPage';
-import { TransactionsPage } from './pages/TransactionsPage';
-import { SettingsPage } from './pages/SettingsPage';
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { AuthProvider } from "./context/AuthContext";
+import { ProtectedRoute } from "./components/ProtectedRoute";
+import { AppLayout } from "./components/AppLayout";
+import { LoginPage } from "./pages/LoginPage";
+import { DashboardPage } from "./pages/DashboardPage";
+import { TransferPage } from "./pages/TransferPage";
+import { TransactionsPage } from "./pages/TransactionsPage";
+import { SettingsPage } from "./pages/SettingsPage";
 
 function App() {
   return (
