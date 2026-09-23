@@ -1,97 +1,76 @@
 # RuneStone Bank
 
-RuneStone Bank is a sophisticated **Modular Monolith** banking system engineered for transactional integrity and decoupled domain boundaries. Moving beyond simple CRUD operations, this system tackles the complexities of distributed messaging, atomic state changes, and polyglot service boundaries.
+## What is it?
 
----
+RuneStone is a full-stack banking app with account management, transfers, transaction history, bank statements, and email notifications.
 
-## 1. Architectural Blueprint
-![diagram](https://github.com/user-attachments/assets/d3c872b6-7271-439b-9caa-0095326080fc)
+Most of the interesting stuff is in the backend: a Spring Boot modular monolith written in Java and Kotlin. The web client is React and TypeScript.
 
+![RuneStone Bank sign-in screen](docs/assets/runestone-login.png)
 
----
+## Why all the moving parts?
 
-## 2. Engineering Highlights
+The server could update a balance and publish straight to Kafka, but there could be scenarios where one of those operations fails and the system is inconsistent. Instead, I opted to save the account change and the outbox event in the same Postgres transaction. Debezium watches the Postgres write-ahead log and sends the committed events to Kafka, so stuff like notifications can happen later without sitting in the transfer request.
 
-| Challenge | RuneStone Solution |
-| :--- | :--- |
-| **System Decoupling** | Inter-module communication is fully decoupled using **Apache Kafka** (Events: `user.registered`, `transaction.completed`, `statement.ready`). The core transaction domain never waits on the notification domain. |
-| **Data Consistency** | Implemented the **Transactional Outbox Pattern** to solve the dual-write problem. Database commits and event capturing happen atomically before being routed to brokers. |
-| **Security & Auth** | Stateless **JWT Authentication** with custom Spring Security filter chains and strict method-level `@PreAuthorize` authorization for resource ownership. |
-| **Polyglot Design** | Unified **Java + Kotlin** compilation pipeline. Core banking ledger in Java; side-effect listeners (Email Module) in Kotlin. |
+## How it works
 
----
-
-## 3. Deep Dives into Technical Decisions
-
-### Event-Driven Messaging & The Outbox Pattern
-**Why not just call an email service synchronously?**
-If the SMTP server goes down, a user shouldn't fail to transfer funds. 
-To decouple the Ledger module from the Notification module, RuneStone uses an event-driven approach. To prevent the "dual-write" problem (committing to the DB but failing to publish to Kafka), i implemented the **Transactional Outbox pattern**. Domain events (e.g., `TransactionCompletedEvent`) are saved to an `Outbox` table in the exact same transaction as the ledger update. A CDC connector (Debezium) streams these outbox entries to Kafka topics, ensuring high availability and guaranteed delivery.
-
-### Concurrency and Transactional Integrity
-Handling money requires strict isolation. Funds movement is wrapped in boundaries using Spring's `@Transactional`, ensuring that both debit and credit operations in a transfer succeed or fail together.
-
-### CI/CD and GraalVM Native Images
-RuneStone leverages **GitHub Actions** for an automated CI/CD pipeline. To minimize cold starts and resource footprint in production, the Maven pipeline uses **GraalVM** to compile a Native Image (`Dockerfile.prod`). Upon a successful build, the workflow directly deploys the updated container to an Azure Virtual Machine.
-
----
-
-## 4. API Documentation & Observability
-
-- **Swagger/OpenAPI UI:** Fully documented interactive API available at `http://localhost:8081/swagger-ui/index.html`.
-- **System Health:** Actuator endpoints (`/actuator/health`, `/actuator/info`) exposed for monitoring and readiness probes.
-
----
-
-## 5. What's Next?
-- **Comprehensive Testing Suite:** Integration testing with **Testcontainers** to spin up an ephemeral PostgreSQL and Kafka instance, targeting >80% coverage.
-- **Concurrency Hardening:** Explicit Optimistic Concurrency Control (`@Version`) strategies targeted for high-contention accounts.
-- **Gradle Migration:** Moving from Maven to Gradle for faster, incremental polyglot builds and better dependency management caching.
-- **Intelligence Layer:** 
-  - *The Legal Counsel (Java + Drools):* Deterministic validation gateway.
-  - *The Evidence Room (Neo4j):* Structural graph memory for tracking money movements.
-  - *The Detective (Kotlin + Koog + Spring AI):* Agentic reasoning layers for potential fraud detection.
-
----
-
-# Getting Started
-## 1. Monorepo Structure
-
-- `server/` - Spring Boot backend (Java + Kotlin)
-- `client/` - React frontend (Vite, TypeScript, Tailwind)
-- `infra/` - Container and deployment assets
-
----
-
-## 2. Local Development Guide
-
-### Prerequisites
-- JDK 21+
-- Node.js 18+
-- Docker + Docker Compose
-
-### i) Backend Launch
-```bash
-cd server
-./mvnw spring-boot:run
+```mermaid
+flowchart LR
+    Client["React client"] -->|"REST / JWT"| App["Spring Boot modular monolith"]
+    App -->|"JPA transactions + outbox"| DB[(PostgreSQL)]
+    DB -->|"logical WAL"| Connect["Debezium Connect"]
+    Connect -->|"outbox events"| Kafka["Kafka"]
+    Kafka -->|"notification events"| App
+    UI["Kafka UI"] -.-> Kafka
+    ZooKeeper["ZooKeeper"] --- Kafka
 ```
-Backend default URL: `http://localhost:8081`
 
-### ii) Frontend Launch
+Debezium Connect is included in the local stack, but its connector must be registered separately.
+
+## How to run it
+
+Install Docker, Docker Compose, and Node.js 20.19 or newer.
+
+From the repository root, copy `.env.example` to `.env` and replace its placeholder values. `JWT_SECRET` must be Base64-encoded and decode to at least 32 bytes.
+
+Start the backend and infrastructure:
+
+```bash
+docker compose --env-file .env -f infra/docker-compose.yml up -d --build
+```
+
+Start the frontend in another terminal:
+
 ```bash
 cd client
 npm install
 npm run dev
 ```
-Frontend default URL: `http://localhost:5173`
 
-### iii) Infrastructure (Database) Launch
+Open `http://localhost:5173`.
+
+### Useful URLs
+
+| Service | URL |
+| --- | --- |
+| Swagger UI | `http://localhost:8081/swagger-ui/index.html` |
+| Application health | `http://localhost:8081/actuator/health` |
+| Kafka UI | `http://localhost:8082` |
+| Kafka Connect API | `http://localhost:8083` |
+
+Stop the stack without deleting its data volumes:
+
 ```bash
-cd infra
-docker compose up -d
+docker compose --env-file .env -f infra/docker-compose.yml down
 ```
 
-### iv) Verify Runtime Health
+## Development
+
+Run the backend tests:
+
 ```bash
-curl http://localhost:8081/actuator/health
+cd server
+./gradlew test
 ```
+
+On Windows, use `.\gradlew.bat test`.
