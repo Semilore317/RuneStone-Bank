@@ -7,7 +7,35 @@ on:
     branches: [ main ]
 
 jobs:
+  verify:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./server
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'gradle'
+          cache-dependency-path: |
+            server/*.gradle*
+            server/gradle/wrapper/gradle-wrapper.properties
+
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
+
+      - name: Run server tests
+        run: ./gradlew test --no-daemon
+
   build-and-push:
+    needs: verify
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -54,6 +82,7 @@ jobs:
 
   deploy:
     needs: build-and-push
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -70,20 +99,25 @@ jobs:
 
       - name: Deploy to Azure VM
         uses: appleboy/ssh-action@v1.0.3
+        env:
+          DOCKER_IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/runestone-bank:latest
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          JWT_EXPIRATION: ${{ secrets.JWT_EXPIRATION }}
+          APP_USERNAME: ${{ secrets.APP_USERNAME }}
+          APP_PASSWORD: ${{ secrets.APP_PASSWORD }}
         with:
           host: ${{ secrets.AZURE_VM_HOST }}
           username: ${{ secrets.AZURE_VM_USER }}
           key: ${{ secrets.AZURE_VM_SSH_KEY }}
+          envs: DOCKER_IMAGE,DOCKERHUB_USERNAME,DOCKERHUB_TOKEN,DB_PASSWORD,JWT_SECRET,JWT_EXPIRATION,APP_USERNAME,APP_PASSWORD
           script: |
             cd ~/runestone-bank/infra 
             
             # Login to Docker
-            echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-            
-            export DOCKER_IMAGE=${{ secrets.DOCKERHUB_USERNAME }}/runestone-bank:latest
-            export DB_PASSWORD=${{ secrets.DB_PASSWORD }}
-            export JWT_SECRET=${{ secrets.JWT_SECRET }}
-            export APP_PASSWORD=${{ secrets.APP_PASSWORD }}
+            echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
             
             # Pull and Restart
             docker compose pull app

@@ -1,48 +1,51 @@
-HELP.md
-target/
-.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
+.env
+.env.*
+!.env.example
 
-### STS ###
-.apt_generated
+server/.gradle/
+server/build/
+server/target/
+server/bin/
+server/.kotlin/
+server/kls_database.db
+
+hs_err_pid*.log
+
+client/node_modules/
+client/dist/
+client/dist-ssr/
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+*.local
+
+logs/
+*.log
+
+.idea/
+*.iml
+*.iws
+*.ipr
+
+.vscode/*
+
 .classpath
-.factorypath
 .project
-.settings
+.settings/
+.factorypath
+.apt_generated
 .springBeans
 .sts4-cache
 
-### IntelliJ IDEA ###
-.idea
-*.iws
-*.iml
-*.ipr
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
 
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
-
-### VS Code ###
-.vscode/
-
-### Custom Secrets ###
-.env
-server/.env
-
-
-
-### gradle ###
-.gradle/
-build/
-!gradle/wrapper/gradle-wrapper.jar
-*.Zone.Identifier
-
-bin/
 .DS_Store
+*.Zone.Identifier

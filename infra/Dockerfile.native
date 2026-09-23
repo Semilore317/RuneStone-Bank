@@ -7,7 +7,7 @@ WORKDIR /app
 #  OPTIMIZATION: Cache Gradle layers first
 COPY gradlew .
 COPY gradle gradle
-COPY build.gradle settings.gradle ./
+COPY build.gradle.kts settings.gradle.kts ./
 
 # Trigger a download of the Gradle distribution and dependencies
 RUN chmod +x gradlew && ./gradlew --version
@@ -27,5 +27,5 @@ WORKDIR /app
 # Copy the binary from the Gradle-specific output path
 COPY --from=build /app/build/native/nativeCompile/runestone-bank .
 
-EXPOSE 8080
+EXPOSE 8081
 ENTRYPOINT ["./runestone-bank"]

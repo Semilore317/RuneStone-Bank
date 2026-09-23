@@ -1,124 +1,246 @@
+# Runtime safeguards added after the 2026-09-22 Azure VM disk-full incident
+# Root cause:
+# Kafka lost connectivity to ZooKeeper.
+# Kafka Connect retried continuously and produced huge logs
+# Docker's default json-file logger had no rotation configured.
+# Connect also accumulated logs in /kafka/logs.
+# The VM's root filesystem eventually reached 100%, breaking Docker and CI deployment.
+# In total, the logs were roughly 50 GB.
+
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
 services:
   db:
     image: postgres:15-alpine
     container_name: runestone-db
     restart: always
-    command: ["postgres", "-c", "wal_level=logical", "-c", "max_wal_senders=10", "-c", "max_replication_slots=10"]
+
+    command:
+      [
+        "postgres",
+        "-c",
+        "wal_level=logical",
+        "-c",
+        "max_wal_senders=10",
+        "-c",
+        "max_replication_slots=10"
+      ]
+
     volumes:
       - postgres_data:/var/lib/postgresql/data
+
     environment:
       POSTGRES_DB: runestone_bank
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: ${DB_PASSWORD}
+
     ports:
       - target: 5432
         published: 15432
         protocol: tcp
+
+    # Kafka previously lost connectivity to zookeeper while zookeeper was still alive
+    # Do not let Kafka start until ZooKeeper is accepting connections.
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U postgres -d runestone_bank" ]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d runestone_bank"]
       interval: 10s
       timeout: 5s
       retries: 5
+
     networks:
       - runestone-network
+
+    logging: *default-logging
 
   zookeeper:
     image: confluentinc/cp-zookeeper:7.6.1
     container_name: runestone-zookeeper
     restart: always
+
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
+
+    volumes:
+      - zookeeper_data:/var/lib/zookeeper/data
+      - zookeeper_logs:/var/lib/zookeeper/log
+
+    healthcheck:
+      test: ["CMD-SHELL", "cub zk-ready localhost:2181 40"]
+      interval: 10s
+      timeout: 15s
+      retries: 5
+      start_period: 10s
+
     networks:
       - runestone-network
+
+    logging: *default-logging
+
   kafka:
     image: confluentinc/cp-kafka:7.6.1
     container_name: runestone-kafka
     restart: always
+
     depends_on:
-      - zookeeper
+      # service_started was insufficient: Kafka could start before zookeeper
+      # was actually usable and later enter a reconnect failure loop
+      zookeeper:
+        condition: service_healthy
+
     ports:
       - "9094:9094"
+
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:29092,PLAINTEXT_HOST://0.0.0.0:9094
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9094
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+
+      KAFKA_LISTENERS: >-
+        PLAINTEXT://0.0.0.0:29092,
+        PLAINTEXT_HOST://0.0.0.0:9094
+
+      KAFKA_ADVERTISED_LISTENERS: >-
+        PLAINTEXT://kafka:29092,
+        PLAINTEXT_HOST://localhost:9094
+
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: >-
+        PLAINTEXT:PLAINTEXT,
+        PLAINTEXT_HOST:PLAINTEXT
+
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "cub kafka-ready -b localhost:29092 1 20"
+        ]
+      interval: 10s
+      timeout: 25s
+      retries: 5
+      start_period: 20s
+
     networks:
       - runestone-network
 
+    logging: *default-logging
+
   app:
     image: ${DOCKER_IMAGE:-runestone-app-local}
+
     build:
       context: ../server
       dockerfile: ../infra/Dockerfile.dev
-#    env_file:
- #     - ../server/.env
+
     container_name: runestone-app
     restart: always
+
     ports:
-      - "8080:8080"
+      - "8081:8081"
+
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/runestone_bank
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
-      JWT_SECRET: ${JWT_SECRET}
+      DB_URL: jdbc:postgresql://db:5432/runestone_bank
+      DB_USERNAME: postgres
+      DB_PASSWORD: ${DB_PASSWORD}
+
+      APP_USERNAME: ${APP_USERNAME}
       APP_PASSWORD: ${APP_PASSWORD}
+
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRATION: ${JWT_EXPIRATION:-900000}
+
       KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+
     depends_on:
       db:
         condition: service_healthy
+
       kafka:
-        condition: service_started
+        condition: service_healthy
+
     networks:
       - runestone-network
+
+    logging: *default-logging
 
   connect:
     image: debezium/connect:2.5
     container_name: runestone-connect
     restart: always
+
     ports:
       - "8083:8083"
+
     environment:
       BOOTSTRAP_SERVERS: kafka:29092
+
       GROUP_ID: 1
+
       CONFIG_STORAGE_TOPIC: connect_configs
       OFFSET_STORAGE_TOPIC: connect_offsets
       STATUS_STORAGE_TOPIC: connect_statuses
+
       CONFIG_STORAGE_REPLICATION_FACTOR: 1
       OFFSET_STORAGE_REPLICATION_FACTOR: 1
       STATUS_STORAGE_REPLICATION_FACTOR: 1
-      # KEY_CONVERTER: org.apache.kafka.connect.json.JsonConverter
-      # VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+
+      # Post-mortem safeguard:
+      # Connect previously generated tens of GB of retry logs while Kafka was unavailable
+      # Keep Connect logging on stdout and let Docker's capped json-file logger handle retention.
+      CONNECT_LOG4J_LOGGERS: "INFO, stdout"
+
     depends_on:
-      kafka:
-        condition: service_started
       db:
         condition: service_healthy
+
+      kafka:
+        condition: service_healthy
+
     networks:
       - runestone-network
+
+    logging: *default-logging
 
   kafka-ui:
     image: provectuslabs/kafka-ui:latest
     container_name: runestone-kafka-ui
     restart: always
+
     ports:
       - "8082:8080"
+
     environment:
       KAFKA_CLUSTERS_0_NAME: local
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
       KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:2181
+
     depends_on:
+      zookeeper:
+        condition: service_healthy
+
       kafka:
-        condition: service_started
+        condition: service_healthy
+
     networks:
       - runestone-network
 
+    logging: *default-logging
+
 volumes:
   postgres_data:
+    # Explicit names avoid hidden anonymous volumes created by vendor images
+    # These make persistence and disk usage much easier to identify/debug
+  kafka_data:
+  zookeeper_data:
+  zookeeper_logs:
 
 networks:
   runestone-network:
