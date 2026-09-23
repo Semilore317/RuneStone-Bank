@@ -1,32 +1,32 @@
-# Build
-FROM container-registry.oracle.com/graalvm/native-image:21 AS builder
+FROM azul-zulu:21 AS builder
 
 WORKDIR /build
 
-# Copy Gradle wrapper and configuration files
 COPY gradlew .
 COPY gradle gradle
-COPY build.gradle settings.gradle ./
+COPY build.gradle.kts settings.gradle.kts ./
 
-# Ensure the wrapper is executable and download dependencies
-RUN chmod +x gradlew && ./gradlew --version
+RUN chmod +x gradlew
 
-# Copy source code
-COPY src ./src
+COPY src src
 
-# Build the native image
-# The task name is 'nativeCompile' if you are using the GraalVM Native Build Tools plugin
-RUN ./gradlew nativeCompile -x test
+# Persist Gradle wrapper downloads, dependencies, and task outputs
+# between Docker builds.
+RUN --mount=type=cache,id=runestone-gradle,target=/root/.gradle,sharing=locked \
+    ./gradlew bootJar \
+    --no-daemon \
+    --console=plain \
+    --build-cache
 
-# Runtime
-FROM alpine:latest
-RUN apk add --no-cache gcompat
+RUN JAR_FILE=$(find build/libs -name "*.jar" ! -name "*-plain.jar" | head -n 1) \
+    && cp "$JAR_FILE" /build/app.jar
+
+FROM azul-zulu:21-jre
 
 WORKDIR /app
 
-# Copy the compiled binary from the builder stage
-COPY --from=builder /build/build/native/nativeCompile/runestone-bank .
+COPY --from=builder /build/app.jar app.jar
 
-COPY .env .env
+EXPOSE 8081
 
-ENTRYPOINT ["./runestone-bank"]
+ENTRYPOINT ["java", "-jar", "app.jar"]
