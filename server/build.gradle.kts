@@ -13,7 +13,7 @@ plugins {
 
   // Resolve the GraalVM plugin, but don't apply it to normal JVM builds.
   // Applying it causes Spring Boot to wire AOT tasks into bootJar.
-  id("org.graalvm.buildtools.native") version "0.10.1" apply false
+  id("org.graalvm.buildtools.native") version "1.1.13" apply false
 }
 
 group = "com.abraham_bankole"
