@@ -75,8 +75,8 @@ public class TransactionServiceImpl implements TransactionService {
     saveTransaction(transactionDto);
 
     return BankResponse.builder()
-        .responseCode(ResponseStatus.ACCOUNT_CREATION_SUCCESS.getCode())
-        .responseMessage(ResponseStatus.ACCOUNT_CREATION_SUCCESS.getMessage())
+        .responseCode(ResponseStatus.ACCOUNT_CREDITED.getCode())
+        .responseMessage(ResponseStatus.ACCOUNT_CREDITED.getMessage())
         .accountInfo(
             AccountInfo.builder()
                 .accountName(userAccountService.getFullName(request.getAccountNumber()))
@@ -207,7 +207,7 @@ public class TransactionServiceImpl implements TransactionService {
 
     return BankResponse.builder()
         .responseCode(ResponseStatus.TRANSACTION_SUCCESSFUL.getCode())
-        .responseCode(ResponseStatus.TRANSACTION_SUCCESSFUL.getMessage())
+        .responseMessage(ResponseStatus.TRANSACTION_SUCCESSFUL.getMessage())
         .accountInfo(null)
         .build();
   }
