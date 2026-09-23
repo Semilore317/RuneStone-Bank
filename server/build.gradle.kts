@@ -32,9 +32,9 @@ val jjwtVersion = "0.11.5"
 // existing CI command: ./gradlew nativeCompile
 val nativeBuildRequested =
   providers.gradleProperty("native").isPresent ||
-          gradle.startParameter.taskNames.any { taskName ->
-            taskName.substringAfterLast(":").startsWith("native")
-          }
+    gradle.startParameter.taskNames.any { taskName ->
+      taskName.substringAfterLast(":").startsWith("native")
+    }
 
 if (nativeBuildRequested) {
   apply(plugin = "org.graalvm.buildtools.native")
@@ -43,23 +43,15 @@ if (nativeBuildRequested) {
     binaries {
       named("main") {
         imageName.set("runestone-bank")
-        mainClass.set(
-          "com.abraham_bankole.runestone_bank.RuneStoneBankApplication"
-        )
+        mainClass.set("com.abraham_bankole.runestone_bank.RuneStoneBankApplication")
       }
     }
   }
 }
 
-repositories {
-  mavenCentral()
-}
+repositories { mavenCentral() }
 
-java {
-  toolchain {
-    languageVersion.set(JavaLanguageVersion.of(21))
-  }
-}
+java { toolchain { languageVersion.set(JavaLanguageVersion.of(21)) } }
 
 dependencies {
   implementation("org.springframework.boot:spring-boot-starter-data-jpa")
@@ -76,9 +68,7 @@ dependencies {
 
   runtimeOnly("org.postgresql:postgresql")
 
-  implementation(
-    "org.springdoc:springdoc-openapi-starter-webmvc-ui:${springdocVersion}"
-  )
+  implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:${springdocVersion}")
 
   implementation("org.jetbrains.kotlin:kotlin-stdlib")
   implementation("org.jetbrains.kotlin:kotlin-reflect")
@@ -107,15 +97,11 @@ dependencies {
 
 // Task Configurations
 
-tasks.withType<Test> {
-  useJUnitPlatform()
-}
+tasks.withType<Test> { useJUnitPlatform() }
 
 // Kotlin and Java both target JVM 21
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-  compilerOptions {
-    jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)
-  }
+  compilerOptions { jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21) }
 }
 
 spotless {
