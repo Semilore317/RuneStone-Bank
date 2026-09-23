@@ -107,6 +107,10 @@ export interface PasswordUpdateRequest {
   newPassword?: string;
 }
 
+export interface StatementRequestResponse {
+  message: string;
+}
+
 export async function fetchProfile(
   accountNumber: string,
 ): Promise<UserProfileResponse> {
@@ -144,12 +148,12 @@ export async function requestStatement(
   accountNumber: string,
   startDate: string,
   endDate: string,
-): Promise<{ message: string }> {
-  const response = await apiRequest<{ message: string }>(
+): Promise<StatementRequestResponse> {
+  const response = await apiRequest<StatementRequestResponse>(
     `/api/v1/bankstatement/email?accountNumber=${accountNumber}&start=${startDate}&end=${endDate}`,
     {
       method: "POST",
     },
   );
-  return response.data ?? response;
+  return response.data ?? (response as unknown as StatementRequestResponse);
 }
